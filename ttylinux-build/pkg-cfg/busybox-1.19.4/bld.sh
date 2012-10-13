@@ -199,12 +199,18 @@ for f in ${TTYLINUX_SYSROOT_DIR}/etc/issue*; do
 done
 unset f
 
+modprobeFile="${TTYLINUX_SYSROOT_DIR}/etc/modprobe.d/modprobe.conf"
 case "${TTYLINUX_PLATFORM}" in
-	'mac_g4') sed --in-place "${TTYLINUX_SYSROOT_DIR}/etc/modtab" \
+	'mac_g4')
+		sed --in-place "${modprobeFile}" --expression="s/#nomac /# /"
+		sed --in-place "${TTYLINUX_SYSROOT_DIR}/etc/modtab" \
 			--expression="s/# snd-powermac/snd-powermac/"
-			;;
-	*) ;;
+		;;
+	*)
+		sed --in-place "${modprobeFile}" --expression="s/#nomac //"
+		;;
 esac
+unset modprobeFile
 
 PKG_STATUS=""
 return 0

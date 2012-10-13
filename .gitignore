@@ -6,6 +6,9 @@
 # cross-tool chains
 cross-tools-*
 
+# applications
+slam
+
 # ttylinux build system
 ttylinux-build/Site
 ttylinux-build/bootloader/isolinux/isolinux.bin
