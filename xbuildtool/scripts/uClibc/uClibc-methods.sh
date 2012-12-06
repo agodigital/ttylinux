@@ -36,6 +36,7 @@
 #
 # CHANGE LOG
 #
+#	05dec12	drj	Added the XBT_*_EXT variables.
 #	19feb12	drj	Added text manifest of tool chain components.
 #	01jan11	drj	Initial version from ttylinux cross-tools.
 #
@@ -53,9 +54,11 @@
 #
 # Sets:
 #     XBT_LIBC
+#     XBT_LIBC_EXT
 #     XBT_LIBC_MD5SUM
 #     XBT_LIBC_URL
 #     XBT_LIBC_P
+#     XBT_LIBC_P_EXT
 #     XBT_LIBC_P_MD5SUM
 #     XBT_LIBC_P_URL
 
@@ -64,19 +67,23 @@ xbt_resolve_libc_name() {
 source ${XBT_SCRIPT_DIR}/uClibc/uClibc-versions.sh
 
 XBT_LIBC=""
+XBT_LIBC_EXT=""
 XBT_LIBC_MD5SUM=""
 XBT_LIBC_URL=""
 
 XBT_LIBC_P=""
+XBT_LIBC_P_EXT=""
 XBT_LIBC_P_MD5SUM=""
 XBT_LIBC_P_URL=""
 
 for (( i=0 ; i<${#_UCLIBC[@]} ; i=(($i+1)) )); do
 	if [[ "${1}" = "${_UCLIBC[$i]}" ]]; then
 		XBT_LIBC="${_UCLIBC[$i]}"
+		XBT_LIBC_EXT="${_UCLIBC_EXT[$i]}"
 		XBT_LIBC_MD5SUM="${_UCLIBC_MD5SUM[$i]}"
 		XBT_LIBC_URL="${_UCLIBC_URL[$i]}"
 		XBT_LIBC_P="${_UCLIBC_P[$i]}"
+		XBT_LIBC_P_EXT="${_UCLIBC_P_EXT[$i]}"
 		XBT_LIBC_P_MD5SUM="${_UCLIBC_P_MD5SUM[$i]}"
 		XBT_LIBC_P_URL="${_UCLIBC_P_URL[$i]}"
 		i=${#_UCLIBC[@]}
@@ -84,9 +91,11 @@ for (( i=0 ; i<${#_UCLIBC[@]} ; i=(($i+1)) )); do
 done
 
 unset _UCLIBC
+unset _UCLIBC_EXT
 unset _UCLIBC_MD5SUM
 unset _UCLIBC_URL
 unset _UCLIBC_P
+unset _UCLIBC_P_EXT
 unset _UCLIBC_P_MD5SUM
 unset _UCLIBC_P_URL
 

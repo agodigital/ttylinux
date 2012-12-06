@@ -36,6 +36,7 @@
 #
 # CHANGE LOG
 #
+#	05dec12	drj	Added the XBT_*_EXT variables.
 #	27mar12	drj	Fixed to not link libgcc_s with libc.  My head hurts.
 #	19feb12	drj	Added text manifest of tool chain components.
 #	11feb12	drj	Minor fussing.
@@ -285,14 +286,18 @@ return 0
 #
 # Sets:
 #     XBT_GMP
+#     XBT_GMP
 #     XBT_GMP_MD5SUM
 #     XBT_GMP_URL
+#     XBT_MPC
 #     XBT_MPC
 #     XBT_MPC_MD5SUM
 #     XBT_MPC_URL
 #     XBT_MPFR
+#     XBT_MPFR
 #     XBT_MPFR_MD5SUM
 #     XBT_MPFR_URL
+#     XBT_GCC
 #     XBT_GCC
 #     XBT_GCC_MD5SUM
 #     XBT_GCC_URL
@@ -302,33 +307,41 @@ xbt_resolve_gcc_name() {
 source ${XBT_SCRIPT_DIR}/gcc/gcc-versions.sh
 
 XBT_GMP=""
+XBT_GMP_EXT=""
 XBT_GMP_MD5SUM=""
 XBT_GMP_URL=""
 
 XBT_MPC=""
+XBT_MPC_EXT=""
 XBT_MPC_MD5SUM=""
 XBT_MPC_URL=""
 
 XBT_MPFR=""
+XBT_MPFR_EXT=""
 XBT_MPFR_MD5SUM=""
 XBT_MPFR_URL=""
 
 XBT_GCC=""
+XBT_GCC_EXT=""
 XBT_GCC_MD5SUM=""
 XBT_GCC_URL=""
 
 for (( i=0 ; i<${#_GCC[@]} ; i=(($i+1)) )); do
 	if [[ "${1}" = "${_GCC[$i]}" ]]; then
 		XBT_GMP="${_GMP[$i]}"
+		XBT_GMP_EXT="${_GMP_EXT[$i]}"
 		XBT_GMP_MD5SUM="${_GMP_MD5SUM[$i]}"
 		XBT_GMP_URL="${_GMP_URL[$i]}"
 		XBT_MPC="${_MPC[$i]}"
+		XBT_MPC_EXT="${_MPC_EXT[$i]}"
 		XBT_MPC_MD5SUM="${_MPC_MD5SUM[$i]}"
 		XBT_MPC_URL="${_MPC_URL[$i]}"
 		XBT_MPFR="${_MPFR[$i]}"
+		XBT_MPFR_EXT="${_MPFR_EXT[$i]}"
 		XBT_MPFR_MD5SUM="${_MPFR_MD5SUM[$i]}"
 		XBT_MPFR_URL="${_MPFR_URL[$i]}"
 		XBT_GCC="${_GCC[$i]}"
+		XBT_GCC_EXT="${_GCC_EXT[$i]}"
 		XBT_GCC_MD5SUM="${_GCC_MD5SUM[$i]}"
 		XBT_GCC_URL="${_GCC_URL[$i]}"
 		i=${#_GCC[@]}
@@ -336,18 +349,22 @@ for (( i=0 ; i<${#_GCC[@]} ; i=(($i+1)) )); do
 done
 
 unset _GMP
+unset _GMP_EXT
 unset _GMP_MD5SUM
 unset _GMP_URL
 
 unset _MPC
+unset _MPC_EXT
 unset _MPC_MD5SUM
 unset _MPC_URL
 
 unset _MPFR
+unset _MPFR_EXT
 unset _MPFR_MD5SUM
 unset _MPFR_URL
 
 unset _GCC
+unset _GCC_EXT
 unset _GCC_MD5SUM
 unset _GCC_URL
 

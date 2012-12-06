@@ -34,6 +34,7 @@
 #
 # CHANGE LOG
 #
+#	05dec12	drj	Set i686 cross-tool chain for glibc-2.16.0 linux-3.6.6.
 #	14apr12	drj	Changed comment on armv7-2.14-gnueabi.
 #	27mar12	drj	Added support for build continuation.
 #	17mar12	drj	Added ttylinux beagle_bone cross-tool chain.
@@ -73,7 +74,7 @@ SHELL=/bin/bash
 
 .PHONY:	help setup clean dload
 .PHONY:	armv7-2.14-gnueabi mipsel-uclibc powerpc-2.14-gnu
-.PHONY:	i486-2.9-gnu i686-2.14-gnu x86_64-2.14-gnu
+.PHONY:	i486-2.9-gnu i686-2.16.0-gnu x86_64-2.14-gnu
 
 help:
 	@echo ""
@@ -94,7 +95,7 @@ help:
 	@echo "make mipsel-uclibc ............. wrtu54g_tm  (linux-2.6.36.4)"
 	@echo "make powerpc-2.14-gnu .......... mac_g4      (linux-2.6.38.1)"
 	@echo "make i486-2.9-gnu .............. pc_i486     (linux-2.6.34.6)"
-	@echo "make i686-2.14-gnu ............. pc_i686     (linux-2.6.38.1)"
+	@echo "make i686-2.16.0-gnu ........... pc_i686     (linux-3.6.6)"
 	@echo "make x86_64-2.14-gnu ........... pc_x86_64   (linux-2.6.38.1)"
 	@echo ""
 	@echo "Variables:"
@@ -133,7 +134,7 @@ i486-2.9-gnu:
 	cp config/ttyl-pc_i486.cfg xbt-build-config.sh
 	./scripts/_build-toolchain.sh $${CONTINUE/yes/continue}
 
-i686-2.14-gnu:
+i686-2.16.0-gnu:
 	rm -f xbt-build-config.sh
 	cp config/ttyl-pc_i686.cfg xbt-build-config.sh
 	./scripts/_build-toolchain.sh $${CONTINUE/yes/continue}

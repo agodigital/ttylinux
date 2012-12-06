@@ -36,6 +36,7 @@
 #
 # CHANGE LOG
 #
+#	05dec12	drj	Added the XBT_*_EXT variables.
 #	24mar12	drj	Added fix for mixed implicit and normal rules.
 #	19feb12	drj	Added text manifest of tool chain components.
 #	11feb12	drj	Bash assault; nicked from Yann E. MORIN
@@ -57,9 +58,11 @@
 #
 # Sets:
 #     XBT_LIBC
+#     XBT_LIBC_EXT
 #     XBT_LIBC_MD5SUM
 #     XBT_LIBC_URL
 #     XBT_LIBC_P
+#     XBT_LIBC_P_EXT
 #     XBT_LIBC_P_MD5SUM
 #     XBT_LIBC_P_URL
 
@@ -68,19 +71,23 @@ xbt_resolve_libc_name() {
 source ${XBT_SCRIPT_DIR}/glibc/glibc-versions.sh
 
 XBT_LIBC=""
+XBT_LIBC_EXT=""
 XBT_LIBC_MD5SUM=""
 XBT_LIBC_URL=""
 
 XBT_LIBC_P=""
+XBT_LIBC_P_EXT=""
 XBT_LIBC_P_MD5SUM=""
 XBT_LIBC_P_URL=""
 
 for (( i=0 ; i<${#_GLIBC[@]} ; i=(($i+1)) )); do
 	if [[ "${1}" = "${_GLIBC[$i]}" ]]; then
 		XBT_LIBC="${_GLIBC[$i]}"
+		XBT_LIBC_EXT="${_GLIBC_EXT[$i]}"
 		XBT_LIBC_MD5SUM="${_GLIBC_MD5SUM[$i]}"
 		XBT_LIBC_URL="${_GLIBC_URL[$i]}"
 		XBT_LIBC_P="${_GLIBC_P[$i]}"
+		XBT_LIBC_P_EXT="${_GLIBC_P_EXT[$i]}"
 		XBT_LIBC_P_MD5SUM="${_GLIBC_P_MD5SUM[$i]}"
 		XBT_LIBC_P_URL="${_GLIBC_P_URL[$i]}"
 		i=${#_GLIBC[@]}
@@ -88,9 +95,11 @@ for (( i=0 ; i<${#_GLIBC[@]} ; i=(($i+1)) )); do
 done
 
 unset _GLIBC
+unset _GLIBC_EXT
 unset _GLIBC_MD5SUM
 unset _GLIBC_URL
 unset _GLIBC_P
+unset _GLIBC_P_EXT
 unset _GLIBC_P_MD5SUM
 unset _GLIBC_P_URL
 

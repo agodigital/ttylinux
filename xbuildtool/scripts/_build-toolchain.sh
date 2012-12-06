@@ -53,6 +53,7 @@
 #
 # CHANGE LOG
 #
+#	05dec12	drj	Tarball file name extension (e.g. ".gz") is explicit.
 #	31mar12	drj	xbt_src_get gives the actual file name.
 #	27mar12	drj	Take away ".install" files from host/usr/include/.
 #	27mar12	drj	Merged host lib, lib32 and lib64 directories.
@@ -139,21 +140,27 @@ fi
 # xbt_get_file
 # *****************************************************************************
 
-# Usage: xbt_get_file <filename> <url> [url ...]
+# Usage: xbt_get_file <file_root_name> <file_name_extension> <url> [url ...]
 
 xbt_get_file() {
 
 local fileName=""
+local fileExtn=""
 local haveFile="no"
 local loadedDn="no"
-local ext
 local url
 
-[[ -z "${1}" ]] && return 0 || true
+[[ -z "${1}" ]] && return 0 || true # must have file_root_name
+[[ -z "${2}" ]] && return 0 || true # must have file_name_extension
+[[ -z "${3}" ]] && return 0 || true # must have url
 
 fileName="$1"
+fileExtn="$2"
 
-shift # Go to the urls.
+# Go to the urls.
+#
+shift
+shift
 
 pushd "${XBT_SOURCE_DIR}" >/dev/null 2>&1
 
@@ -164,9 +171,7 @@ rm -f "${fileName}.download.log"
 
 # If the file is already in ${XBT_SOURCE_DIR} then return.
 #
-for ext in ${K_EXT}; do
-	[[ -f "${fileName}${ext}" ]] && haveFile="yes" || true
-done
+[[ -f "${fileName}${fileExtn}" ]] && haveFile="yes" || true
 if [[ "${haveFile}" == "yes" ]]; then
 	echo " have it"
 	popd >/dev/null 2>&1
@@ -177,12 +182,10 @@ echo -n " downloading ..... "
 
 # See if there is a local copy of the file.
 #
-for ext in ${K_EXT}; do
-	if [[ -f ${K_CACHEDIR}/${fileName}${ext} ]]; then
-		cp ${K_CACHEDIR}/${fileName}${ext} .
-		[[ -f "${fileName}${ext}" ]] && loadedDn="yes" || true
-	fi
-done
+if [[ -f ${K_CACHEDIR}/${fileName}${fileExtn} ]]; then
+	cp ${K_CACHEDIR}/${fileName}${fileExtn} .
+	[[ -f "${fileName}${fileExtn}" ]] && loadedDn="yes" || true
+fi
 if [[ "${loadedDn}" == "yes" ]]; then
 	echo "(got from local cache)"
 	popd >/dev/null 2>&1
@@ -205,17 +208,15 @@ _file=""
 #
 rm -f "${fileName}.download.log"
 >"${fileName}.download.log"
-for ext in ${K_EXT}; do
-	for url in "$@"; do
-		_file="${url}/${fileName}${ext}"
-		if [[ "${loadedDn}" == "no" ]]; then
-			(${_wget} --passive-ftp "${_file}" \
-			|| ${_wget} "${_file}" \
-			|| true) >>"${fileName}.download.log" 2>&1
-			[[ -f "${fileName}${ext}" ]] && loadedDn="yes" || true
-		fi
-	done
-done 
+for url in "$@"; do
+	_file="${url}/${fileName}${fileExtn}"
+	if [[ "${loadedDn}" == "no" ]]; then
+		(${_wget} --passive-ftp "${_file}" \
+		|| ${_wget} "${_file}" \
+		|| true) >>"${fileName}.download.log" 2>&1
+		[[ -f "${fileName}${fileExtn}" ]] && loadedDn="yes" || true
+	fi
+done
 unset _wget
 unset _file
 
@@ -224,7 +225,7 @@ if [[ "${loadedDn}" == "yes" ]]; then
 	rm -f "${fileName}.download.log"
 else
 	echo "FAILED."
-	G_MISSED_PKG[${G_NMISSING}]="${fileName}${ext}"
+	G_MISSED_PKG[${G_NMISSING}]="${fileName}${fileExtn}"
 	G_MISSED_URL[${G_NMISSING}]="${url}"
 	G_NMISSING=$((${G_NMISSING} + 1))
 fi
@@ -239,29 +240,30 @@ return 0
 # xbt_chk_file
 # *****************************************************************************
 
-# Usage: xbt_chk_file <filename> <md5sum>
+# Usage: xbt_chk_file <file_root_name> <file_name_extension> <md5sum>
 
 xbt_chk_file() {
 
 local fileName=""
+local fileExtn=""
 local fileCsum=""
 local loadedDn="no"
 local chksum
-local ext
 
-[[ -z "${1}" ]] && return 0 || true
+[[ -z "${1}" ]] && return 0 || true # must have file_root_name
+[[ -z "${2}" ]] && return 0 || true # must have file_name_extension
+[[ -z "${3}" ]] && return 0 || true # must have md5sum
 
 fileName="$1"
-fileCsum="$2"
+fileExtn="$2"
+fileCsum="$3"
 
 pushd "${XBT_SOURCE_DIR}" >/dev/null 2>&1
 
 # If the file is missing then report and quit. The found file name is
 # stored in ${loadedDn}
 #
-for ext in ${K_EXT}; do
-	[[ -f "${fileName}${ext}" ]] && loadedDn="${fileName}${ext}" || true
-done
+[[ -f "${fileName}${fileExtn}" ]] && loadedDn="${fileName}${fileExtn}" || true
 if [[ "${loadedDn}" == "no" ]]; then
 	echo "E> Missing ${fileName} file."
 	popd >/dev/null 2>&1
@@ -569,7 +571,6 @@ K_BLD_ENV_FILE="./xbt-build-env.sh"
 K_CACHEDIR=~/Download
 K_CONSOLE_FD=1
 K_ERR=0
-K_EXT=".tar.bz2 .tar.gz .tgz"
 
 TEXT_BRED="\E[1;31m"    # bold+red
 TEXT_BGREEN="\E[1;32m"  # bold+green
@@ -640,17 +641,17 @@ source ${K_BLD_CFG_FILE}
 # KERNEL, as they are not needed after resolving to new variables.
 
 # Resolve: BINUTILS
-# Getting: XBT_BINUTILS  XBT_BINUTILS_MD5SUM  XBT_BINUTILS_URL
+# Getting: XBT_BINUTILS  XBT_BINUTILS_EXT  XBT_BINUTILS_MD5SUM  XBT_BINUTILS_URL
 #
 source ${XBT_SCRIPT_DIR}/binutils/binutils-methods.sh
 xbt_resolve_binutils_name ${BINUTILS}
 unset BINUTILS
 
 # Resolve: GCC
-# Getting: XBT_GMP   XBT_GMP_MD5SUM   XBT_GMP_URL
-# Getting: XBT_MPC   XBT_MPC_MD5SUM   XBT_MPC_URL
-# Getting: XBT_MPFR  XBT_MPFR_MD5SUM  XBT_MPFR_URL
-# Getting: XBT_GCC   XBT_GCC_MD5SUM   XBT_GCC_URL
+# Getting: XBT_GMP   XBT_GMP_EXT   XBT_GMP_MD5SUM   XBT_GMP_URL
+# Getting: XBT_MPC   XBT_MPC_EXT   XBT_MPC_MD5SUM   XBT_MPC_URL
+# Getting: XBT_MPFR  XBT_MPFR_EXT  XBT_MPFR_MD5SUM  XBT_MPFR_URL
+# Getting: XBT_GCC   XBT_GCC_EXT   XBT_GCC_MD5SUM   XBT_GCC_URL
 #
 source ${XBT_SCRIPT_DIR}/gcc/gcc-methods.sh
 xbt_resolve_gcc_name ${GCC}
@@ -658,8 +659,8 @@ unset GCC
 
 # Resolve: LIBC
 # Getting: XBT_LIB ("glibc" or "uClibc")
-# Getting: XBT_LIBC    XBT_LIBC_MD5SUM    XBT_LIBC_URL
-# Getting: XBT_LIBC_P  XBT_LIBC_P_MD5SUM  XBT_LIBC_P_URL
+# Getting: XBT_LIBC    XBT_LIBC_EXT    XBT_LIBC_MD5SUM    XBT_LIBC_URL
+# Getting: XBT_LIBC_P  XBT_LIBC_P_EXT  XBT_LIBC_P_MD5SUM  XBT_LIBC_P_URL
 #
 [[ "${LIBC:0:5}" == "glibc"  ]] && XBT_LIB="glibc"  || true
 [[ "${LIBC:0:6}" == "uClibc" ]] && XBT_LIB="uClibc" || true
@@ -668,7 +669,7 @@ xbt_resolve_libc_name ${LIBC}
 unset LIBC
 
 # Resolve: LINUX
-# Getting: XBT_LINUX  XBT_LINUX_MD5SUM  XBT_LINUX_URL
+# Getting: XBT_LINUX  XBT_LINUX_EXT  XBT_LINUX_MD5SUM  XBT_LINUX_URL
 #
 source ${XBT_SCRIPT_DIR}/linux/linux-methods.sh
 xbt_resolve_linux_name ${LINUX}
@@ -764,14 +765,14 @@ fi
 echo "i> Getting source code packages [be patient, this will not lock up]."
 echo "i> Local cache directory: ${K_CACHEDIR}"
 
-xbt_get_file "${XBT_BINUTILS}" ${XBT_BINUTILS_URL}
-xbt_get_file "${XBT_GMP}"      ${XBT_GMP_URL}
-xbt_get_file "${XBT_MPC}"      ${XBT_MPC_URL}
-xbt_get_file "${XBT_MPFR}"     ${XBT_MPFR_URL}
-xbt_get_file "${XBT_GCC}"      ${XBT_GCC_URL}
-xbt_get_file "${XBT_LIBC}"     ${XBT_LIBC_URL}
-xbt_get_file "${XBT_LIBC_P}"   ${XBT_LIBC_P_URL}
-xbt_get_file "${XBT_LINUX}"    ${XBT_LINUX_URL}
+xbt_get_file "${XBT_BINUTILS}" ${XBT_BINUTILS_EXT} ${XBT_BINUTILS_URL}
+xbt_get_file "${XBT_GMP}"      ${XBT_GMP_EXT}      ${XBT_GMP_URL}
+xbt_get_file "${XBT_MPC}"      ${XBT_MPC_EXT}      ${XBT_MPC_URL}
+xbt_get_file "${XBT_MPFR}"     ${XBT_MPFR_EXT}     ${XBT_MPFR_URL}
+xbt_get_file "${XBT_GCC}"      ${XBT_GCC_EXT}      ${XBT_GCC_URL}
+xbt_get_file "${XBT_LIBC}"     ${XBT_LIBC_EXT}     ${XBT_LIBC_URL}
+xbt_get_file "${XBT_LIBC_P}"   ${XBT_LIBC_P_EXT}   ${XBT_LIBC_P_URL}
+xbt_get_file "${XBT_LINUX}"    ${XBT_LINUX_EXT}    ${XBT_LINUX_URL}
 
 if [[ ${G_NMISSING} != 0 ]]; then
 	echo "Oops -- missing ${G_NMISSING} packages."
@@ -809,13 +810,14 @@ fi
 
 K_ERR=0 # Expect xbt_chk_file() to set K_ERR=1 on error.
 
-xbt_chk_file "${XBT_BINUTILS}" ${XBT_BINUTILS_MD5SUM}
-xbt_chk_file "${XBT_GMP}"      ${XBT_GMP_MD5SUM}
-xbt_chk_file "${XBT_MPC}"      ${XBT_MPC_MD5SUM}
-xbt_chk_file "${XBT_GCC}"      ${XBT_GCC_MD5SUM}
-xbt_chk_file "${XBT_LIBC}"     ${XBT_LIBC_MD5SUM}
-xbt_chk_file "${XBT_LIBC_P}"   ${XBT_LIBC_P_MD5SUM}
-xbt_chk_file "${XBT_LINUX}"    ${XBT_LINUX_MD5SUM}
+xbt_chk_file "${XBT_BINUTILS}" ${XBT_BINUTILS_EXT} ${XBT_BINUTILS_MD5SUM}
+xbt_chk_file "${XBT_GMP}"      ${XBT_GMP_EXT}      ${XBT_GMP_MD5SUM}
+xbt_chk_file "${XBT_MPC}"      ${XBT_MPC_EXT}      ${XBT_MPC_MD5SUM}
+xbt_chk_file "${XBT_MPFR}"     ${XBT_MPFR_EXT}     ${XBT_MPFR_MD5SUM}
+xbt_chk_file "${XBT_GCC}"      ${XBT_GCC_EXT}      ${XBT_GCC_MD5SUM}
+xbt_chk_file "${XBT_LIBC}"     ${XBT_LIBC_EXT}     ${XBT_LIBC_MD5SUM}
+xbt_chk_file "${XBT_LIBC_P}"   ${XBT_LIBC_P_EXT}   ${XBT_LIBC_P_MD5SUM}
+xbt_chk_file "${XBT_LINUX}"    ${XBT_LINUX_EXT}    ${XBT_LINUX_MD5SUM}
 
 if [[ ${K_ERR} -eq 1 ]]; then
 	_dir=$(basename ${XBT_SOURCE_DIR})

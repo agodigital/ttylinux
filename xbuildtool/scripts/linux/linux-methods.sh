@@ -36,6 +36,7 @@
 #
 # CHANGE LOG
 #
+#	05dec12	drj	Added XBT_LINUX_EXT.
 #	19feb12	drj	Added text manifest of tool chain components.
 #	10feb12	drj	Added debug breaks.
 #	09feb12	drj	Get the patch file(s) into XBT_XSRC_DIR.
@@ -55,6 +56,7 @@
 #
 # Sets:
 #     XBT_LINUX
+#     XBT_LINUX_EXT
 #     XBT_LINUX_MD5SUM
 #     XBT_LINUX_URL
 
@@ -63,12 +65,14 @@ xbt_resolve_linux_name() {
 source ${XBT_SCRIPT_DIR}/linux/linux-versions.sh
 
 XBT_LINUX=""
+XBT_LINUX_EXT=""
 XBT_LINUX_MD5SUM=""
 XBT_LINUX_URL=""
 
 for (( i=0 ; i<${#_LINUX[@]} ; i=(($i+1)) )); do
 	if [[ "${1}" = "${_LINUX[$i]}" ]]; then
 		XBT_LINUX="${_LINUX[$i]}"
+		XBT_LINUX_EXT="${_LINUX_EXT[$i]}"
 		XBT_LINUX_MD5SUM="${_LINUX_MD5SUM[$i]}"
 		XBT_LINUX_URL="${_LINUX_URL[$i]}"
 		i=${#_LINUX[@]}
@@ -76,6 +80,7 @@ for (( i=0 ; i<${#_LINUX[@]} ; i=(($i+1)) )); do
 done
 
 unset _LINUX
+unset _LINUX_EXT
 unset _LINUX_MD5SUM
 unset _LINUX_URL
 

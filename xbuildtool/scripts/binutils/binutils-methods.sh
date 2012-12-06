@@ -36,6 +36,7 @@
 #
 # CHANGE LOG
 #
+#	05dec12	drj	Added XBT_BINUTILS_EXT
 #	19feb12	drj	Added text manifest of tool chain components.
 #	10feb12	drj	Added debug breaks.
 #	01jan11	drj	Initial version from ttylinux cross-tools.
@@ -54,6 +55,7 @@
 #
 # Sets:
 #     XBT_BINUTILS
+#     XBT_BINUTILS_EXT
 #     XBT_BINUTILS_MD5SUM
 #     XBT_BINUTILS_URL
 
@@ -62,12 +64,14 @@ xbt_resolve_binutils_name() {
 source ${XBT_SCRIPT_DIR}/binutils/binutils-versions.sh
 
 XBT_BINUTILS=""
+XBT_BINUTILS_EXT=""
 XBT_BINUTILS_MD5SUM=""
 XBT_BINUTILS_URL=""
 
 for (( i=0 ; i<${#_BINUTILS[@]} ; i=(($i+1)) )); do
 	if [[ "${1}" = "${_BINUTILS[$i]}" ]]; then
 		XBT_BINUTILS="${_BINUTILS[$i]}"
+		XBT_BINUTILS_EXT="${_BINUTILS_EXT[$i]}"
 		XBT_BINUTILS_MD5SUM="${_BINUTILS_MD5SUM[$i]}"
 		XBT_BINUTILS_URL="${_BINUTILS_URL[$i]}"
 		i=${#_BINUTILS[@]}
@@ -75,6 +79,7 @@ for (( i=0 ; i<${#_BINUTILS[@]} ; i=(($i+1)) )); do
 done
 
 unset _BINUTILS
+unset _BINUTILS_EXT
 unset _BINUTILS_MD5SUM
 unset _BINUTILS_URL
 
