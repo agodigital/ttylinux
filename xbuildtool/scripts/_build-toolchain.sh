@@ -53,6 +53,7 @@
 #
 # CHANGE LOG
 #
+#	07dec12	drj	Added cloog and ppl support.
 #	05dec12	drj	Tarball file name extension (e.g. ".gz") is explicit.
 #	31mar12	drj	xbt_src_get gives the actual file name.
 #	27mar12	drj	Take away ".install" files from host/usr/include/.
@@ -648,10 +649,12 @@ xbt_resolve_binutils_name ${BINUTILS}
 unset BINUTILS
 
 # Resolve: GCC
-# Getting: XBT_GMP   XBT_GMP_EXT   XBT_GMP_MD5SUM   XBT_GMP_URL
-# Getting: XBT_MPC   XBT_MPC_EXT   XBT_MPC_MD5SUM   XBT_MPC_URL
-# Getting: XBT_MPFR  XBT_MPFR_EXT  XBT_MPFR_MD5SUM  XBT_MPFR_URL
-# Getting: XBT_GCC   XBT_GCC_EXT   XBT_GCC_MD5SUM   XBT_GCC_URL
+# Getting: XBT_CLOOG   XBT_CLOOG_EXT   XBT_CLOOG_MD5SUM   XBT_CLOOG_URL
+# Getting: XBT_GMP     XBT_GMP_EXT     XBT_GMP_MD5SUM     XBT_GMP_URL
+# Getting: XBT_MPC     XBT_MPC_EXT     XBT_MPC_MD5SUM     XBT_MPC_URL
+# Getting: XBT_MPFR    XBT_MPFR_EXT    XBT_MPFR_MD5SUM    XBT_MPFR_URL
+# Getting: XBT_GCC     XBT_GCC_EXT     XBT_GCC_MD5SUM     XBT_GCC_URL
+# Getting: XBT_PPL     XBT_PPL_EXT     XBT_PPL_MD5SUM     XBT_PPL_URL
 #
 source ${XBT_SCRIPT_DIR}/gcc/gcc-methods.sh
 xbt_resolve_gcc_name ${GCC}
@@ -712,25 +715,30 @@ unset THREAD_MODEL
 
 # Report on what we think we are doing.
 #
+[[ -n "${XBT_CLOOG}"  ]] && _cloog=${XBT_CLOOG}       || _cloog="no CLOOG"
 [[ -n "${XBT_GMP}"    ]] && _gmp=${XBT_GMP}           || _gmp="no GMP"
 [[ -n "${XBT_MPC}"    ]] && _mpc=${XBT_MPC}           || _mpc="no MPC"
 [[ -n "${XBT_MPFR}"   ]] && _mpfr=${XBT_MPFR}         || _mpfr="no MPFR"
+[[ -n "${XBT_PPL}"    ]] && _ppl=${XBT_PPL}           || _ppl="no PPL"
 [[ -n "${XBT_LIBC_P}" ]] && _libc_p="[${XBT_LIBC_P}]" || _libc_p=""
 echo ""
 echo "xbuildtool configured for cross-development tool chain:"
 echo ""
 echo "  Host: ${XBT_HOST}"
 echo "Target: ${XBT_TARGET}"
-echo " Tools: ${XBT_BINUTILS} ${XBT_GCC} [${_gmp}, ${_mpc}, ${_mpfr}]"
+echo " Tools: ${XBT_BINUTILS} ${XBT_GCC}"
+echo " Tools:      [${_cloog}, ${_gmp}, ${_mpc}, ${_mpfr}, ${_ppl}]"
 echo "  Libc: ${XBT_LIBC} ${_libc_p}"
 echo " Linux: ${XBT_LINUX_ARCH} ${XBT_LINUX}"
 echo ""
 echo "build gcc with c++: ${XBT_C_PLUS_PLUS}"
 echo "  use thread model: ${XBT_THREAD_MODEL}"
 echo ""
+unset _cloog
 unset _gmp
 unset _mpc
 unset _mpfr
+unset _ppl
 unset _libc_p
 
 
@@ -766,9 +774,11 @@ echo "i> Getting source code packages [be patient, this will not lock up]."
 echo "i> Local cache directory: ${K_CACHEDIR}"
 
 xbt_get_file "${XBT_BINUTILS}" ${XBT_BINUTILS_EXT} ${XBT_BINUTILS_URL}
+xbt_get_file "${XBT_CLOOG}"    ${XBT_CLOOG_EXT}    ${XBT_CLOOG_URL}
 xbt_get_file "${XBT_GMP}"      ${XBT_GMP_EXT}      ${XBT_GMP_URL}
 xbt_get_file "${XBT_MPC}"      ${XBT_MPC_EXT}      ${XBT_MPC_URL}
 xbt_get_file "${XBT_MPFR}"     ${XBT_MPFR_EXT}     ${XBT_MPFR_URL}
+xbt_get_file "${XBT_PPL}"      ${XBT_PPL_EXT}      ${XBT_PPL_URL}
 xbt_get_file "${XBT_GCC}"      ${XBT_GCC_EXT}      ${XBT_GCC_URL}
 xbt_get_file "${XBT_LIBC}"     ${XBT_LIBC_EXT}     ${XBT_LIBC_URL}
 xbt_get_file "${XBT_LIBC_P}"   ${XBT_LIBC_P_EXT}   ${XBT_LIBC_P_URL}
@@ -811,9 +821,11 @@ fi
 K_ERR=0 # Expect xbt_chk_file() to set K_ERR=1 on error.
 
 xbt_chk_file "${XBT_BINUTILS}" ${XBT_BINUTILS_EXT} ${XBT_BINUTILS_MD5SUM}
+xbt_chk_file "${XBT_CLOOG}"    ${XBT_CLOOG_EXT}    ${XBT_CLOOG_MD5SUM}
 xbt_chk_file "${XBT_GMP}"      ${XBT_GMP_EXT}      ${XBT_GMP_MD5SUM}
 xbt_chk_file "${XBT_MPC}"      ${XBT_MPC_EXT}      ${XBT_MPC_MD5SUM}
 xbt_chk_file "${XBT_MPFR}"     ${XBT_MPFR_EXT}     ${XBT_MPFR_MD5SUM}
+xbt_chk_file "${XBT_PPL}"      ${XBT_PPL_EXT}      ${XBT_PPL_MD5SUM}
 xbt_chk_file "${XBT_GCC}"      ${XBT_GCC_EXT}      ${XBT_GCC_MD5SUM}
 xbt_chk_file "${XBT_LIBC}"     ${XBT_LIBC_EXT}     ${XBT_LIBC_MD5SUM}
 xbt_chk_file "${XBT_LIBC_P}"   ${XBT_LIBC_P_EXT}   ${XBT_LIBC_P_MD5SUM}

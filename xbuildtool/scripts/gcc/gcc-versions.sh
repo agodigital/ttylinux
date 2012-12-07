@@ -1,10 +1,26 @@
 # vim: syntax=sh
 
-# For each index i, _GCC[i] _GMP[i] _MPFR[i] are a matched set; which means
-# as shown in the rows immediately below, these are a matched set:
-#      _GCC[0] _GMP[0] _MPFR[0]
-#      _GCC[1] _GMP[1] _MPFR[1]
+# For each index i, _GCC[i] _CLOOG[i] _GMP[i] _MPC[i] _MPFR[i] _PPL[i] all are
+# a matched set; which means these are a matched set:
+#      _GCC[0]  _CLOOG[0]  _GMP[0]  _MPC[0]  _MPFR[0]  _PPL[0]
+#      _GCC[1]  _CLOOG[1]  _GMP[1]  _MPC[1]  _MPFR[1]  _PPL[1]
 # and so on.
+
+# *****************************************************************************
+# CLOOG
+# *****************************************************************************
+
+_CLOOG[0]=""             ; _CLOOG_EXT[0]=""
+_CLOOG[1]=""             ; _CLOOG_EXT[1]=""
+_CLOOG[2]="cloog-0.16.1" ; _CLOOG_EXT[2]=".tar.gz"
+
+_CLOOG_MD5SUM[0]=""
+_CLOOG_MD5SUM[1]=""
+_CLOOG_MD5SUM[2]="947123350d1ff6dcb4b0774947ac015a"
+
+_CLOOG_URL[0]=""
+_CLOOG_URL[1]=""
+_CLOOG_URL[2]="ftp://gcc.gnu.org/pub/gcc/infrastructure/"
 
 # *****************************************************************************
 # GMP
@@ -53,6 +69,22 @@ _MPFR_MD5SUM[2]="e90e0075bb1b5f626c6e31aaa9c64e3b"
 _MPFR_URL[0]="http://www.mpfr.org/mpfr-2.4.2/"
 _MPFR_URL[1]="http://www.mpfr.org/mpfr-3.1.0/"
 _MPFR_URL[2]="http://www.mpfr.org/mpfr-3.1.1/"
+
+# *****************************************************************************
+# PPL
+# *****************************************************************************
+
+_PPL[0]=""         ; _PPL_EXT[0]=""
+_PPL[1]=""         ; _PPL_EXT[1]=""
+_PPL[2]="ppl-0.11" ; _PPL_EXT[2]=".tar.gz"
+
+_PPL_MD5SUM[0]=""
+_PPL_MD5SUM[1]=""
+_PPL_MD5SUM[2]="ba527ec0ffc830ce16fad8a4195a337e"
+
+_PPL_URL[0]=""
+_PPL_URL[1]=""
+_PPL_URL[2]="ftp://gcc.gnu.org/pub/gcc/infrastructure"
 
 # *****************************************************************************
 # GCC
