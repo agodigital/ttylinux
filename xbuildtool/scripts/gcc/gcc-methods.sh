@@ -84,18 +84,16 @@ echo "# XBT_CONFIG **********"
 cp configure configure.orig
 sed -e "/LD_LIBRARY_PATH=/d" -i configure
 CFLAGS="-fexceptions" ./configure \
-        --build=${XBT_HOST} \
-        --host=${XBT_HOST} \
-        --prefix=${XBT_XHOST_DIR}/usr \
-        --with-bits=gmp \
-        --with-host-libstdcxx="-lstdc++" \
-        --with-gmp=${XBT_XHOST_DIR}/usr \
-        --with-ppl=${XBT_XHOST_DIR}/usr \
-        --enable-static \
-        --disable-shared || exit 1
-
-#       --enable-cloog-backend=isl \
-
+	--build=${XBT_HOST} \
+	--host=${XBT_HOST} \
+	--prefix=${XBT_XHOST_DIR}/usr \
+	--with-bits=gmp \
+	--with-host-libstdcxx="-lstdc++" \
+	--with-gmp=${XBT_XHOST_DIR}/usr \
+	--with-ppl=${XBT_XHOST_DIR}/usr \
+	--enable-cloog-backend=isl \
+	--enable-static \
+	--disable-shared || exit 1
 
 xbt_debug_break "configured ${XBT_CLOOG}"
 
