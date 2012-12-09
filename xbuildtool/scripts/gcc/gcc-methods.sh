@@ -36,6 +36,7 @@
 #
 # CHANGE LOG
 #
+#	08dec12	drj	Added gcc 4.7.2.
 #	07dec12	drj	Added cloog and ppl support.
 #	05dec12	drj	Added the XBT_*_EXT variables.
 #	27mar12	drj	Fixed to not link libgcc_s with libc.  My head hurts.
@@ -80,18 +81,15 @@ cd ${XBT_CLOOG}
 
 # Configure CLOOG for building.
 #
+# Add ${XBT_XHOST_DIR}/usr/include to the include path so that the host's GMP
+# include files are not used.
+#
 echo "# XBT_CONFIG **********"
-cp configure configure.orig
-sed -e "/LD_LIBRARY_PATH=/d" -i configure
-CFLAGS="-fexceptions" ./configure \
+CFLAGS="-I${XBT_XHOST_DIR}/usr/include -fexceptions" ./configure \
 	--build=${XBT_HOST} \
 	--host=${XBT_HOST} \
 	--prefix=${XBT_XHOST_DIR}/usr \
-	--with-bits=gmp \
-	--with-host-libstdcxx="-lstdc++" \
 	--with-gmp=${XBT_XHOST_DIR}/usr \
-	--with-ppl=${XBT_XHOST_DIR}/usr \
-	--enable-cloog-backend=isl \
 	--enable-static \
 	--disable-shared || exit 1
 
@@ -207,81 +205,6 @@ return 0
 
 
 # *****************************************************************************
-# internal_build_mpfr
-# *****************************************************************************
-
-internal_build_mpfr() {
-
-msg="Building library ${XBT_MPFR} "
-echo -n "${msg}"          >&${CONSOLE_FD}
-xbt_print_dots_35 ${#msg} >&${CONSOLE_FD}
-echo -n " "               >&${CONSOLE_FD}
-
-xbt_debug_break ""
-
-# Find, uncompress and untarr ${XBT_MPFR}.
-#
-xbt_src_get ${XBT_MPFR}
-unset _name
-
-# Make entry in the manifest.
-#
-echo -n "${XBT_MPFR} " >>"${XBT_TOOLCHAIN_MANIFEST}"
-for ((i=(40-${#XBT_MPFR}) ; i > 0 ; i--)) do
-        echo -n "." >>"${XBT_TOOLCHAIN_MANIFEST}"
-done
-echo " ${XBT_MPFR_URL}" >>"${XBT_TOOLCHAIN_MANIFEST}"
-
-# Get in there.
-#
-cd ${XBT_MPFR}
-
-# Configure MPFR for building.
-#
-echo "# XBT_CONFIG **********"
-./configure \
-	--build=${XBT_HOST} \
-	--host=${XBT_HOST} \
-	--prefix=${XBT_XHOST_DIR}/usr \
-	--with-gmp=${XBT_XHOST_DIR}/usr \
-	--enable-static \
-	--disable-shared
-
-xbt_debug_break "configured ${XBT_MPFR}" 
-
-# Build MPFR.
-#
-echo "# XBT_MAKE **********"
-njobs=$((${ncpus} + 1))
-make -j ${njobs} || exit 1
-unset njobs
-
-xbt_debug_break "maked ${XBT_MPFR}"
-
-# Install MPFR.
-#
-echo "# XBT_INSTALL **********"
-xbt_files_timestamp
-#
-make install || exit 1
-#
-echo "# XBT_FILES **********"
-xbt_files_find
-
-xbt_debug_break "installed ${XBT_MPFR}"
-
-# Move out and clean up.
-#
-cd ..
-rm -rf "${XBT_MPFR}"
-
-echo "done [${XBT_MPFR} is complete]" >&${CONSOLE_FD}
-
-return 0
-}
-
-
-# *****************************************************************************
 # internal_build_mpc
 # *****************************************************************************
 
@@ -358,6 +281,81 @@ return 0
 
 
 # *****************************************************************************
+# internal_build_mpfr
+# *****************************************************************************
+
+internal_build_mpfr() {
+
+msg="Building library ${XBT_MPFR} "
+echo -n "${msg}"          >&${CONSOLE_FD}
+xbt_print_dots_35 ${#msg} >&${CONSOLE_FD}
+echo -n " "               >&${CONSOLE_FD}
+
+xbt_debug_break ""
+
+# Find, uncompress and untarr ${XBT_MPFR}.
+#
+xbt_src_get ${XBT_MPFR}
+unset _name
+
+# Make entry in the manifest.
+#
+echo -n "${XBT_MPFR} " >>"${XBT_TOOLCHAIN_MANIFEST}"
+for ((i=(40-${#XBT_MPFR}) ; i > 0 ; i--)) do
+        echo -n "." >>"${XBT_TOOLCHAIN_MANIFEST}"
+done
+echo " ${XBT_MPFR_URL}" >>"${XBT_TOOLCHAIN_MANIFEST}"
+
+# Get in there.
+#
+cd ${XBT_MPFR}
+
+# Configure MPFR for building.
+#
+echo "# XBT_CONFIG **********"
+./configure \
+	--build=${XBT_HOST} \
+	--host=${XBT_HOST} \
+	--prefix=${XBT_XHOST_DIR}/usr \
+	--with-gmp=${XBT_XHOST_DIR}/usr \
+	--enable-static \
+	--disable-shared
+
+xbt_debug_break "configured ${XBT_MPFR}" 
+
+# Build MPFR.
+#
+echo "# XBT_MAKE **********"
+njobs=$((${ncpus} + 1))
+make -j ${njobs} || exit 1
+unset njobs
+
+xbt_debug_break "maked ${XBT_MPFR}"
+
+# Install MPFR.
+#
+echo "# XBT_INSTALL **********"
+xbt_files_timestamp
+#
+make install || exit 1
+#
+echo "# XBT_FILES **********"
+xbt_files_find
+
+xbt_debug_break "installed ${XBT_MPFR}"
+
+# Move out and clean up.
+#
+cd ..
+rm -rf "${XBT_MPFR}"
+
+echo "done [${XBT_MPFR} is complete]" >&${CONSOLE_FD}
+
+return 0
+}
+
+
+# *****************************************************************************
 # internal_build_ppl
 # *****************************************************************************
 
@@ -395,7 +393,7 @@ CFLAGS="-fexceptions" ./configure \
         --host=${XBT_HOST} \
         --prefix=${XBT_XHOST_DIR}/usr \
         --with-gmp-prefix=${XBT_XHOST_DIR}/usr \
-        --enable-interfaces="c c++" \
+        --enable-interfaces="c cxx" \
         --enable-static \
         --enable-watchdog \
         --disable-assertions \
@@ -404,10 +402,6 @@ CFLAGS="-fexceptions" ./configure \
         --disable-ppl_lcdd \
         --disable-ppl_lcsol \
         --disable-shared || exit 1
-
-#       --with-libgmp-prefix=${XBT_XHOST_DIR}/usr \
-#       --with-libgmpxx-prefix=${XBT_XHOST_DIR}/usr \
-
 
 xbt_debug_break "configured ${XBT_PPL}"
 
@@ -592,7 +586,7 @@ xbt_build_gcc_libs() {
 [[ -n "${XBT_MPFR}"  ]] && internal_build_mpfr  || true # uses gmp
 [[ -n "${XBT_MPC}"   ]] && internal_build_mpc   || true # uses gmp and mpfr
 [[ -n "${XBT_PPL}"   ]] && internal_build_ppl   || true # uses gmp
-[[ -n "${XBT_CLOOG}" ]] && internal_build_cloog || true # uses gmp and ppl
+[[ -n "${XBT_CLOOG}" ]] && internal_build_cloog || true # uses gmp
 
 }
 
@@ -693,6 +687,8 @@ if [[ "${XBT_GCC}" = "gcc-4.4.6" ]]; then
 	cd ${XBT_GCC}
 	sed -i 's/install_to_$(INSTALL_DEST) //' libiberty/Makefile.in
 	cd ..
+	CONFIGURE_LDFLAGS=""
+	CONFIGURE_ENABLES=""
 	CONFIGURE_DISABLES=""
 	CONFIGURE_WITHS="
 --with-gmp=${XBT_XHOST_DIR}/usr \
@@ -700,25 +696,11 @@ if [[ "${XBT_GCC}" = "gcc-4.4.6" ]]; then
 	CONFIGURE_WITHOUTS=""
 fi
 
-# GCC-4.6.2:
-# Suppress the installation of libiberty.a; it is provided by binutils.
-#
-if [[ "${XBT_GCC}" = "gcc-4.6.2" ]]; then
-	CONFIGURE_DISABLES="\
---disable-libquadmath \
---disable-target-libiberty \
---disable-target-zlib"
-	CONFIGURE_WITHS="\
---with-gmp=${XBT_XHOST_DIR}/usr \
---with-mpfr=${XBT_XHOST_DIR}/usr \
---with-mpc=${XBT_XHOST_DIR}/usr"
-	CONFIGURE_WITHOUTS="--without-cloog --without-ppl"
-fi
-
 # GCC-4.7.2:
 # Suppress the installation of libiberty.a; it is provided by binutils.
 #
 if [[ "${XBT_GCC}" = "gcc-4.7.2" ]]; then
+	CONFIGURE_LDFLAGS="-lm -lstdc++"
 	CONFIGURE_ENABLES=" \
 --enable-cloog-backend=isl"
 	CONFIGURE_DISABLES="\
@@ -726,11 +708,11 @@ if [[ "${XBT_GCC}" = "gcc-4.7.2" ]]; then
 --disable-target-libiberty \
 --disable-target-zlib"
 	CONFIGURE_WITHS="\
+--with-cloog=${XBT_XHOST_DIR}/usr \
 --with-gmp=${XBT_XHOST_DIR}/usr \
---with-mpfr=${XBT_XHOST_DIR}/usr \
 --with-mpc=${XBT_XHOST_DIR}/usr \
---with-ppl=${XBT_XHOST_DIR}/usr \
---with-cloog=${XBT_XHOST_DIR}/usr"
+--with-mpfr=${XBT_XHOST_DIR}/usr \
+--with-ppl=${XBT_XHOST_DIR}/usr"
 	CONFIGURE_WITHOUTS=""
 fi
 
@@ -746,6 +728,7 @@ cd	"build-gcc"
 # --disable-target-libiberty --disable-target-zlib are enabled by a patch.
 #
 echo "# XBT_CONFIG **********"
+LDFLAGS="${CONFIGURE_LDFLAGS}" \
 ../${XBT_GCC}/configure \
 	--build=${XBT_HOST} \
 	--host=${XBT_HOST} \
@@ -858,7 +841,11 @@ cd ${XBT_GCC}
 _headerDir="${XBT_XTARG_DIR}/usr/include"
 sed -e "s|^\(CROSS_SYSTEM_HEADER_DIR =\).*|\1 ${_headerDir}|" -i gcc/Makefile.in
 unset _headerDir
-sed -e "s|SHLIB_LC = -lc|SHLIB_LC =|" -i gcc/config/t-slibgcc-elf-ver
+_fileName="gcc/config/t-slibgcc-elf-ver"
+if [[ -f ${_fileName} ]]; then
+	sed -e "s|SHLIB_LC = -lc|SHLIB_LC =|" -i ${_fileName}
+fi
+unset _fileName
 cd ..
 
 # GCC-4.4.6:
@@ -868,6 +855,8 @@ if [[ "${XBT_GCC}" = "gcc-4.4.6" ]]; then
 	cd ${XBT_GCC}
 	sed -i 's/install_to_$(INSTALL_DEST) //' libiberty/Makefile.in
 	cd ..
+	CONFIGURE_LDFLAGS=""
+	CONFIGURE_ENABLES=""
 	CONFIGURE_DISABLES=""
 	CONFIGURE_WITHS="
 --with-gmp=${XBT_XHOST_DIR}/usr \
@@ -875,25 +864,11 @@ if [[ "${XBT_GCC}" = "gcc-4.4.6" ]]; then
 	CONFIGURE_WITHOUTS=""
 fi
 
-# GCC-4.6.2:
-# Suppress the installation of libiberty.a; it is provided by binutils.
-#
-if [[ "${XBT_GCC}" = "gcc-4.6.2" ]]; then
-	CONFIGURE_DISABLES="\
---disable-libquadmath \
---disable-target-libiberty \
---disable-target-zlib"
-	CONFIGURE_WITHS="\
---with-gmp=${XBT_XHOST_DIR}/usr \
---with-mpfr=${XBT_XHOST_DIR}/usr \
---with-mpc=${XBT_XHOST_DIR}/usr"
-	CONFIGURE_WITHOUTS="--without-cloog --without-ppl"
-fi
-
 # GCC-4.7.2:
 # Suppress the installation of libiberty.a; it is provided by binutils.
 #
 if [[ "${XBT_GCC}" = "gcc-4.7.2" ]]; then
+	CONFIGURE_LDFLAGS="-lm -lstdc++"
 	CONFIGURE_ENABLES=" \
 --enable-cloog-backend=isl"
 	CONFIGURE_DISABLES="\
@@ -922,6 +897,7 @@ ENABLE_THREADS="--disable-threads"
 # Configure GCC for building.
 #
 echo "# XBT_CONFIG **********"
+LDFLAGS="${CONFIGURE_LDFLAGS}" \
 ../${XBT_GCC}/configure \
 	--build=${XBT_HOST} \
 	--host=${XBT_HOST} \
@@ -1035,7 +1011,11 @@ cd ${XBT_GCC}
 _headerDir="${XBT_XTARG_DIR}/usr/include"
 sed -e "s|^\(CROSS_SYSTEM_HEADER_DIR =\).*|\1 ${_headerDir}|" -i gcc/Makefile.in
 unset _headerDir
-sed -e "s|SHLIB_LC = -lc|SHLIB_LC =|" -i gcc/config/t-slibgcc-elf-ver
+_fileName="gcc/config/t-slibgcc-elf-ver"
+if [[ -f ${_fileName} ]]; then
+	sed -e "s|SHLIB_LC = -lc|SHLIB_LC =|" -i ${_fileName}
+fi
+unset _fileName
 cd ..
 
 # GCC-4.4.6:
@@ -1045,6 +1025,8 @@ if [[ "${XBT_GCC}" = "gcc-4.4.6" ]]; then
 	cd ${XBT_GCC}
 	sed -i 's/install_to_$(INSTALL_DEST) //' libiberty/Makefile.in
 	cd ..
+	CONFIGURE_LDFLAGS="-lm -lstdc++"
+	CONFIGURE_ENABLES=""
 	CONFIGURE_DISABLES=""
 	CONFIGURE_WITHS="
 --with-gmp=${XBT_XHOST_DIR}/usr \
@@ -1052,22 +1034,11 @@ if [[ "${XBT_GCC}" = "gcc-4.4.6" ]]; then
 	CONFIGURE_WITHOUTS=""
 fi
 
-# GCC-4.6.2:
-# Suppress the installation of libiberty.a; it is provided by binutils.
-#
-if [[ "${XBT_GCC}" = "gcc-4.6.2" ]]; then
-	CONFIGURE_DISABLES=" --disable-target-libiberty --disable-target-zlib"
-	CONFIGURE_WITHS="\
---with-gmp=${XBT_XHOST_DIR}/usr \
---with-mpfr=${XBT_XHOST_DIR}/usr \
---with-mpc=${XBT_XHOST_DIR}/usr"
-	CONFIGURE_WITHOUTS="--without-cloog --without-ppl"
-fi
-
 # GCC-4.7.2:
 # Suppress the installation of libiberty.a; it is provided by binutils.
 #
 if [[ "${XBT_GCC}" = "gcc-4.7.2" ]]; then
+	CONFIGURE_LDFLAGS="-lm -lstdc++"
 	CONFIGURE_ENABLES=" \
 --enable-cloog-backend=isl"
 	CONFIGURE_DISABLES="\
@@ -1124,6 +1095,7 @@ ENABLE_THREADS="--enable-threads=no"
 # This command is a failsafe for incomplete locale data.
 #
 echo "# XBT_CONFIG **********"
+LDFLAGS="${CONFIGURE_LDFLAGS}" \
 ../${XBT_GCC}/configure \
 	--build=${XBT_HOST} \
 	--host=${XBT_HOST} \

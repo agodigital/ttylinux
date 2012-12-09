@@ -10,17 +10,17 @@
 # Glibc
 # *****************************************************************************
 
-_GLIBC[0]="glibc-2.9"    ; _GLIBC_EXT[0]=".tar.gz"
-_GLIBC[1]="glibc-2.13"   ; _GLIBC_EXT[1]=".tar.gz"
-_GLIBC[2]="glibc-2.14"   ; _GLIBC_EXT[2]=".tar.gz"
-_GLIBC[3]="glibc-2.14.1" ; _GLIBC_EXT[3]=".tar.gz"
-_GLIBC[4]="glibc-2.16.0" ; _GLIBC_EXT[4]=".tar.gz"
+_GLIBC[0]="glibc-2.9"    ; _GLIBC_EXT[0]=".tar.bz2"
+_GLIBC[1]="glibc-2.13"   ; _GLIBC_EXT[1]=".tar.bz2"
+_GLIBC[2]="glibc-2.14"   ; _GLIBC_EXT[2]=".tar.bz2"
+_GLIBC[3]="glibc-2.14.1" ; _GLIBC_EXT[3]=".tar.bz2"
+_GLIBC[4]="glibc-2.16.0" ; _GLIBC_EXT[4]=".tar.bz2"
 
 _GLIBC_MD5SUM[0]="21e4c70a6819c821b2a219e26fb414fb"
 _GLIBC_MD5SUM[1]="38808215a7c40aa0bb47a5e6d3d12475"
 _GLIBC_MD5SUM[2]="1588cc22e796c296223744895ebc4cef"
 _GLIBC_MD5SUM[3]="5869a2620c6917dd392289864c6ce595"
-_GLIBC_MD5SUM[4]="b5f786fa7df4ff947bcd240c0e595f98"
+_GLIBC_MD5SUM[4]="b1030e3c7150419bf8bd0ba0017cdbc7"
 
 _GLIBC_URL[0]="ftp://ftp.gnu.org/gnu/glibc http://ftp.gnu.org/gnu/glibc ftp://sourceware.org/pub/glibc/releases/"
 _GLIBC_URL[1]="ftp://ftp.gnu.org/gnu/glibc http://ftp.gnu.org/gnu/glibc"
