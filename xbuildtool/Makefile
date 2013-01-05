@@ -34,7 +34,8 @@
 #
 # CHANGE LOG
 #
-#	09dec12	drj	Added i686 target for glibc-2.16.0 linux-3.6.6.
+#	05jan13	drj	Preparing other changes with updated parts.
+#	05jan13	drj	Changed i686 target for glibc-2.16.0, linux-3.7.1.
 #	14apr12	drj	Changed comment on armv7-2.14-gnueabi.
 #	27mar12	drj	Added support for build continuation.
 #	17mar12	drj	Added ttylinux beagle_bone cross-tool chain.
@@ -74,7 +75,7 @@ SHELL=/bin/bash
 
 .PHONY:	help setup clean dload
 .PHONY:	armv7-2.14-gnueabi mipsel-uclibc powerpc-2.14-gnu
-.PHONY:	i486-2.9-gnu i686-2.14-gnu i686-2.16.0-gnu x86_64-2.14-gnu
+.PHONY:	i486-2.9-gnu i686-2.16.0-gnu x86_64-2.14-gnu
 
 help:
 	@echo ""
@@ -91,13 +92,12 @@ help:
 	@echo ""
 	@echo "Make Command Examples            ttylinux Cross-tool Chain"
 	@echo "-----------------------          -------------------------"
-	@echo "make armv7-2.14-gnueabi ........ beagle_bone (linux-3.2.9)"
+	@echo "make armv7-2.14-gnueabi ........ beagle_bone (linux-xxxxx)"
 	@echo "make mipsel-uclibc ............. wrtu54g_tm  (linux-2.6.36.4)"
-	@echo "make powerpc-2.14-gnu .......... mac_g4      (linux-2.6.38.1)"
-	@echo "make i486-2.9-gnu .............. pc_i486     (linux-2.6.34.6)"
-	@echo "make i686-2.14-gnu ............. pc_i686     (linux-2.6.38.1)"
-	@echo "make i686-2.16.0-gnu ........... pc_i686     (linux-3.6.6)"
-	@echo "make x86_64-2.14-gnu ........... pc_x86_64   (linux-2.6.38.1)"
+	@echo "make powerpc-2.14-gnu .......... mac_g4      (linux-3.7.1)"
+	@echo "make i486-2.9-gnu .............. pc_i486     (linux-2.6.34.7"
+	@echo "make i686-2.16.0-gnu ........... pc_i686     (linux-3.7.1)"
+	@echo "make x86_64-2.14-gnu ........... pc_x86_64   (linux-3.7.1)"
 	@echo ""
 	@echo "Variables:"
 	@echo ""
@@ -116,39 +116,37 @@ dload:	xbt-build-config.sh
 	@scripts/_build-toolchain.sh "download"
 
 armv7-2.14-gnueabi:
+	# BeagleBone -- gcc-4.6.2, glibc-2.16.0, linux-xxxxxx
 	rm -f xbt-build-config.sh
 	cp config/ttyl-beagle_bone.cfg xbt-build-config.sh
 	./scripts/_build-toolchain.sh $${CONTINUE/yes/continue}
 
 mipsel-uclibc:
+	# WRTU54G -- gcc-4.6.2, uClibc-0.9.32, linux-2.6.36.4
 	rm -f xbt-build-config.sh
 	cp config/ttyl-wrtu54g_tm.cfg xbt-build-config.sh
 	./scripts/_build-toolchain.sh $${CONTINUE/yes/continue}
 
 powerpc-2.14-gnu:
+	# Mac G4 -- gcc-4.6.2, glibc-2.16.0, linux-3.7.1
 	rm -f xbt-build-config.sh
 	cp config/ttyl-mac_g4.cfg xbt-build-config.sh
 	./scripts/_build-toolchain.sh $${CONTINUE/yes/continue}
 
 i486-2.9-gnu:
-	# gcc-4.4.6, glibc-2.9.0, linux-2.6.34.6
+	# PC-i486 -- gcc-4.4.6, glibc-2.9.0, linux-2.6.34.7
 	rm -f xbt-build-config.sh
 	cp config/ttyl-pc_i486.cfg xbt-build-config.sh
 	./scripts/_build-toolchain.sh $${CONTINUE/yes/continue}
 
-i686-2.14-gnu:
-	# gcc-4.4.6, glibc-2.14, linux-2.6.38.1
+i686-2.16.0-gnu:
+	# PC-i686 -- gcc-4.6.3, glibc-2.16.0, linux-3.7.1
 	rm -f xbt-build-config.sh
 	cp config/ttyl-pc_i686.cfg xbt-build-config.sh
 	./scripts/_build-toolchain.sh $${CONTINUE/yes/continue}
 
-i686-2.16.0-gnu:
-	# gcc-4.7.2, glibc-2.16.0, linux-3.6.6
-	rm -f xbt-build-config.sh
-	cp config/new-ttyl-pc_i686.cfg xbt-build-config.sh
-	./scripts/_build-toolchain.sh $${CONTINUE/yes/continue}
-
 x86_64-2.14-gnu:
+	# PC-x86_64 -- gcc-4.6.3, glibc-2.16.0, linux-3.7.1
 	rm -f xbt-build-config.sh
 	cp config/ttyl-pc_x86_64.cfg xbt-build-config.sh
 	./scripts/_build-toolchain.sh $${CONTINUE/yes/continue}

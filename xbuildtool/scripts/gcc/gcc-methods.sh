@@ -36,7 +36,7 @@
 #
 # CHANGE LOG
 #
-#	08dec12	drj	Added gcc 4.7.2.
+#	05jan13	drj	Added gcc 4.6.3.
 #	07dec12	drj	Added cloog and ppl support.
 #	05dec12	drj	Added the XBT_*_EXT variables.
 #	27mar12	drj	Fixed to not link libgcc_s with libc.  My head hurts.
@@ -681,7 +681,9 @@ unset _headerDir
 cd ..
 
 # GCC-4.4.6:
-# Suppress the installation of libiberty.a; it is provided by binutils.
+#
+# Use sed to suppress the installation of libiberty.a; it is provided by
+# binutils.
 #
 if [[ "${XBT_GCC}" = "gcc-4.4.6" ]]; then
 	cd ${XBT_GCC}
@@ -696,17 +698,18 @@ if [[ "${XBT_GCC}" = "gcc-4.4.6" ]]; then
 	CONFIGURE_WITHOUTS=""
 fi
 
-# GCC-4.7.2:
-# Suppress the installation of libiberty.a; it is provided by binutils.
+# GCC-4.6.3:
 #
-if [[ "${XBT_GCC}" = "gcc-4.7.2" ]]; then
+# Use sed to suppress the installation of libiberty.a; it is provided by
+# binutils.
+#
+if [[ "${XBT_GCC}" = "gcc-4.6.3" ]]; then
+	cd ${XBT_GCC}
+	sed -i 's/install_to_$(INSTALL_DEST) //' libiberty/Makefile.in
+	cd ..
 	CONFIGURE_LDFLAGS="-lm -lstdc++"
-	CONFIGURE_ENABLES=" \
---enable-cloog-backend=isl"
-	CONFIGURE_DISABLES="\
---disable-libquadmath \
---disable-target-libiberty \
---disable-target-zlib"
+	CONFIGURE_ENABLES="--enable-cloog-backend=isl"
+	CONFIGURE_DISABLES="--disable-libquadmath --disable-lto"
 	CONFIGURE_WITHS="\
 --with-cloog=${XBT_XHOST_DIR}/usr \
 --with-gmp=${XBT_XHOST_DIR}/usr \
@@ -724,8 +727,6 @@ mkdir	"build-gcc"
 cd	"build-gcc"
 
 # Configure GCC for building.
-#
-# --disable-target-libiberty --disable-target-zlib are enabled by a patch.
 #
 echo "# XBT_CONFIG **********"
 LDFLAGS="${CONFIGURE_LDFLAGS}" \
@@ -849,7 +850,9 @@ unset _fileName
 cd ..
 
 # GCC-4.4.6:
-# Suppress the installation of libiberty.a; it is provided by binutils.
+#
+# Use sed to suppress the installation of libiberty.a; it is provided by
+# binutils.
 #
 if [[ "${XBT_GCC}" = "gcc-4.4.6" ]]; then
 	cd ${XBT_GCC}
@@ -864,23 +867,24 @@ if [[ "${XBT_GCC}" = "gcc-4.4.6" ]]; then
 	CONFIGURE_WITHOUTS=""
 fi
 
-# GCC-4.7.2:
-# Suppress the installation of libiberty.a; it is provided by binutils.
+# GCC-4.6.3:
 #
-if [[ "${XBT_GCC}" = "gcc-4.7.2" ]]; then
+# Use sed to suppress the installation of libiberty.a; it is provided by
+# binutils.
+#
+if [[ "${XBT_GCC}" = "gcc-4.6.3" ]]; then
+	cd ${XBT_GCC}
+	sed -i 's/install_to_$(INSTALL_DEST) //' libiberty/Makefile.in
+	cd ..
 	CONFIGURE_LDFLAGS="-lm -lstdc++"
-	CONFIGURE_ENABLES=" \
---enable-cloog-backend=isl"
-	CONFIGURE_DISABLES="\
---disable-libquadmath \
---disable-target-libiberty \
---disable-target-zlib"
+	CONFIGURE_ENABLES="--enable-cloog-backend=isl"
+	CONFIGURE_DISABLES="--disable-libquadmath --disable-lto"
 	CONFIGURE_WITHS="\
+--with-cloog=${XBT_XHOST_DIR}/usr \
 --with-gmp=${XBT_XHOST_DIR}/usr \
---with-mpfr=${XBT_XHOST_DIR}/usr \
 --with-mpc=${XBT_XHOST_DIR}/usr \
---with-ppl=${XBT_XHOST_DIR}/usr \
---with-cloog=${XBT_XHOST_DIR}/usr"
+--with-mpfr=${XBT_XHOST_DIR}/usr \
+--with-ppl=${XBT_XHOST_DIR}/usr"
 	CONFIGURE_WITHOUTS=""
 fi
 
@@ -1019,7 +1023,9 @@ unset _fileName
 cd ..
 
 # GCC-4.4.6:
-# Suppress the installation of libiberty.a; it is provided by binutils.
+#
+# Use sed to suppress the installation of libiberty.a; it is provided by
+# binutils.
 #
 if [[ "${XBT_GCC}" = "gcc-4.4.6" ]]; then
 	cd ${XBT_GCC}
@@ -1034,23 +1040,24 @@ if [[ "${XBT_GCC}" = "gcc-4.4.6" ]]; then
 	CONFIGURE_WITHOUTS=""
 fi
 
-# GCC-4.7.2:
-# Suppress the installation of libiberty.a; it is provided by binutils.
+# GCC-4.6.3:
 #
-if [[ "${XBT_GCC}" = "gcc-4.7.2" ]]; then
+# Use sed to suppress the installation of libiberty.a; it is provided by
+# binutils.
+#
+if [[ "${XBT_GCC}" = "gcc-4.6.3" ]]; then
+	cd ${XBT_GCC}
+	sed -i 's/install_to_$(INSTALL_DEST) //' libiberty/Makefile.in
+	cd ..
 	CONFIGURE_LDFLAGS="-lm -lstdc++"
-	CONFIGURE_ENABLES=" \
---enable-cloog-backend=isl"
-	CONFIGURE_DISABLES="\
---disable-libquadmath \
---disable-target-libiberty \
---disable-target-zlib"
+	CONFIGURE_ENABLES="--enable-cloog-backend=isl"
+	CONFIGURE_DISABLES="--disable-libquadmath --disable-lto"
 	CONFIGURE_WITHS="\
+--with-cloog=${XBT_XHOST_DIR}/usr \
 --with-gmp=${XBT_XHOST_DIR}/usr \
---with-mpfr=${XBT_XHOST_DIR}/usr \
 --with-mpc=${XBT_XHOST_DIR}/usr \
---with-ppl=${XBT_XHOST_DIR}/usr \
---with-cloog=${XBT_XHOST_DIR}/usr"
+--with-mpfr=${XBT_XHOST_DIR}/usr \
+--with-ppl=${XBT_XHOST_DIR}/usr"
 	CONFIGURE_WITHOUTS=""
 fi
 

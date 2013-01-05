@@ -133,6 +133,7 @@ return 0
 xbt_build_libc_stage1() {
 
 local msg
+local ENABLE_OBSOLETE_RPC
 local WITH_TLS_TRHEAD
 
 msg="Building ${XBT_LIBC} Stage 1 "
@@ -219,6 +220,11 @@ rm -rf	"build-glibc"
 mkdir	"build-glibc"
 cd	"build-glibc"
 
+ENABLE_OBSOLETE_RPC=""
+if [[ "${XBT_LIBC}" = "glibc-2.16.0" ]]; then
+	ENABLE_OBSOLETE_RPC="--enable-obsolete-rpc"
+fi
+
 WITH_TLS_TRHEAD=""
 if [[ "${XBT_THREAD_MODEL}" = "nptl" ]]; then
 	WITH_TLS_TRHEAD="--with-tls --with-__thread"
@@ -260,6 +266,7 @@ CFLAGS="${XBT_CFLAGS} -O2" \
 	--cache-file=config.cache \
 	--enable-add-ons \
 	--enable-kernel=${XBT_LINUX#*-} \
+	${ENABLE_OBSOLETE_RPC} \
 	--disable-multilib \
 	--disable-profile \
 	--disable-nls \
@@ -354,6 +361,7 @@ xbt_build_libc_stage2() {
 # complete target GLIBC.
 
 local msg
+local ENABLE_OBSOLETE_RPC
 local WITH_TLS_TRHEAD
 
 msg="Building ${XBT_LIBC} Stage 2 "
@@ -400,6 +408,11 @@ fi
 rm -rf	"build-glibc"
 mkdir	"build-glibc"
 cd	"build-glibc"
+
+ENABLE_OBSOLETE_RPC=""
+if [[ "${XBT_LIBC}" = "glibc-2.16.0" ]]; then
+	ENABLE_OBSOLETE_RPC="--enable-obsolete-rpc"
+fi
 
 WITH_TLS_TRHEAD=""
 if [[ "${XBT_THREAD_MODEL}" = "nptl" ]]; then
@@ -456,6 +469,7 @@ CFLAGS="${XBT_CFLAGS} -O2" \
 	--enable-kernel=${XBT_LINUX#*-} \
 	--enable-nls \
 	--enable-shared \
+	${ENABLE_OBSOLETE_RPC} \
 	--disable-multilib \
 	--disable-profile \
 	--with-binutils=${XBT_XHOST_DIR}/usr/bin \

@@ -76,10 +76,10 @@ _PPL_URL[1]="ftp://gcc.gnu.org/pub/gcc/infrastructure"
 # *****************************************************************************
 
 _GCC[0]="gcc-4.4.6" ; _GCC_EXT[0]=".tar.bz2"
-_GCC[1]="gcc-4.7.2" ; _GCC_EXT[1]=".tar.bz2"
+_GCC[1]="gcc-4.6.3" ; _GCC_EXT[1]=".tar.bz2"
 
 _GCC_MD5SUM[0]="ab525d429ee4425050a554bc9247d6c4"
-_GCC_MD5SUM[1]="cc308a0891e778cfda7a151ab8a6e762"
+_GCC_MD5SUM[1]="773092fe5194353b02bb0110052a972e"
 
 _GCC_URL[0]="ftp://ftp.gnu.org/gnu/gcc/${_GCC[0]} http://ftp.gnu.org/gnu/gcc/${_GCC[0]} ftp://sourceware.org/pub/gcc/releases/${_GCC[0]}/"
 _GCC_URL[1]="ftp://ftp.gnu.org/gnu/gcc/${_GCC[1]} http://ftp.gnu.org/gnu/gcc/${_GCC[1]} ftp://sourceware.org/pub/gcc/releases/${_GCC[1]}/"
