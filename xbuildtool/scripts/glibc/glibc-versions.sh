@@ -14,7 +14,7 @@ _GLIBC[0]="glibc-2.9"    ; _GLIBC_EXT[0]=".tar.bz2"
 _GLIBC[1]="glibc-2.14"   ; _GLIBC_EXT[1]=".tar.bz2"
 _GLIBC[2]="glibc-2.16.0" ; _GLIBC_EXT[2]=".tar.bz2"
 
-_GLIBC_MD5SUM[0]="21e4c70a6819c821b2a219e26fb414fb"
+_GLIBC_MD5SUM[0]="fc62e989cf31d015f31628609fc3757a"
 _GLIBC_MD5SUM[1]="1588cc22e796c296223744895ebc4cef"
 _GLIBC_MD5SUM[2]="b1030e3c7150419bf8bd0ba0017cdbc7"
 

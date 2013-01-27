@@ -94,10 +94,10 @@ help:
 	@echo "-----------------------          -------------------------"
 	@echo "make armv7-2.14-gnueabi ........ beagle_bone (linux-xxxxx)"
 	@echo "make mipsel-uclibc ............. wrtu54g_tm  (linux-2.6.36.4)"
-	@echo "make powerpc-2.14-gnu .......... mac_g4      (linux-3.7.1)"
+	@echo "make powerpc-2.16.0-gnu ........ mac_g4      (linux-3.7.1)"
 	@echo "make i486-2.9-gnu .............. pc_i486     (linux-2.6.34.7"
 	@echo "make i686-2.16.0-gnu ........... pc_i686     (linux-3.7.1)"
-	@echo "make x86_64-2.14-gnu ........... pc_x86_64   (linux-3.7.1)"
+	@echo "make x86_64-2.16.0-gnu ......... pc_x86_64   (linux-3.7.1)"
 	@echo ""
 	@echo "Variables:"
 	@echo ""
@@ -127,7 +127,7 @@ mipsel-uclibc:
 	cp config/ttyl-wrtu54g_tm.cfg xbt-build-config.sh
 	./scripts/_build-toolchain.sh $${CONTINUE/yes/continue}
 
-powerpc-2.14-gnu:
+powerpc-2.16.0-gnu:
 	# Mac G4 -- gcc-4.6.2, glibc-2.16.0, linux-3.7.1
 	rm -f xbt-build-config.sh
 	cp config/ttyl-mac_g4.cfg xbt-build-config.sh
@@ -145,7 +145,7 @@ i686-2.16.0-gnu:
 	cp config/ttyl-pc_i686.cfg xbt-build-config.sh
 	./scripts/_build-toolchain.sh $${CONTINUE/yes/continue}
 
-x86_64-2.14-gnu:
+x86_64-2.16.0-gnu:
 	# PC-x86_64 -- gcc-4.6.3, glibc-2.16.0, linux-3.7.1
 	rm -f xbt-build-config.sh
 	cp config/ttyl-pc_x86_64.cfg xbt-build-config.sh

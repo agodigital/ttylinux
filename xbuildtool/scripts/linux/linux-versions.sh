@@ -5,7 +5,7 @@ _LINUX[1]="linux-2.6.36.4" ; _LINUX_EXT[1]=".tar.bz2"
 _LINUX[2]="linux-3.2.9"    ; _LINUX_EXT[2]=".tar.bz2"
 _LINUX[3]="linux-3.7.1"    ; _LINUX_EXT[3]=".tar.bz2"
 
-_LINUX_MD5SUM[0]="032e1d886bf4affb506635be34a25b9d"
+_LINUX_MD5SUM[0]="8964e26120e84844998a673464a980ea"
 _LINUX_MD5SUM[1]="c05dd941d0e249695e9f72568888e1bf"
 _LINUX_MD5SUM[2]="(skip)"
 _LINUX_MD5SUM[3]="da6ee53b4389e5ce44ab8fc165a7143b"
