@@ -34,6 +34,7 @@
 #
 # CHANGE LOG
 #
+#	27jan13	drj	Return old build tools until new system work right.
 #	05jan13	drj	Preparing other changes with updated parts.
 #	05jan13	drj	Changed i686 target for glibc-2.16.0, linux-3.7.1.
 #	14apr12	drj	Changed comment on armv7-2.14-gnueabi.
@@ -149,6 +150,24 @@ x86_64-2.16.0-gnu:
 	# PC-x86_64 -- gcc-4.6.3, glibc-2.16.0, linux-3.7.1
 	rm -f xbt-build-config.sh
 	cp config/ttyl-pc_x86_64.cfg xbt-build-config.sh
+	./scripts/_build-toolchain.sh $${CONTINUE/yes/continue}
+
+
+# REMOVE OLD STUFF when new systems are running right *************************
+
+powerpc-2.14-gnu:
+	rm -f xbt-build-config.sh
+	cp config/old-ttyl-mac_g4.cfg xbt-build-config.sh
+	./scripts/_build-toolchain.sh $${CONTINUE/yes/continue}
+
+i686-2.14-gnu:
+	rm -f xbt-build-config.sh
+	cp config/old-ttyl-pc_i686.cfg xbt-build-config.sh
+	./scripts/_build-toolchain.sh $${CONTINUE/yes/continue}
+
+x86_64-2.14-gnu:
+	rm -f xbt-build-config.sh
+	cp config/old-ttyl-pc_x86_64.cfg xbt-build-config.sh
 	./scripts/_build-toolchain.sh $${CONTINUE/yes/continue}
 
 
