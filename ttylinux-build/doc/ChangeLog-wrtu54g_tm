@@ -1,7 +1,7 @@
 Current  Maintainer: (2008-    ) Douglas Jerome <douglas@ttylinux.org>
 
 
-Version 14.1, Sun May 13 18:59:49 MST 2012
+Version 14.1, Sun May 13 19:04:51 MST 2012
  - distribution named "boomslang"
  - updated from busybox-1.19.3 to busybox-1.19.4
  - updated from e2fsprogs-1.42.1 to e2fsprogs-1.42.2
