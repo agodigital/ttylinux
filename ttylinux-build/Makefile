@@ -26,6 +26,7 @@
 #
 # CHANGE LOG
 #
+#	28jan13	drj	Removed TTYLINUX_NAME and TTYLINUX_VERSION.
 #	24mar12	drj	Cleaning error paths.
 #	18mar12	drj	Call site script even if error in scripts/* script.
 #	19feb12	drj	Rewrite for build process reorganization.
@@ -58,10 +59,6 @@
 #	07oct08	drj	File creation.
 #
 # *****************************************************************************
-
-
-TTYLINUX_NAME    := boomslang
-TTYLINUX_VERSION := 14.1
 
 
 # *************************************************************************** #
@@ -195,10 +192,6 @@ getcfg:
 	cp config/platform-*/$${list[$${cfg}]} ttylinux-config.sh;	\
 	)
 	@chmod 666 ttylinux-config.sh
-	@sed -i ttylinux-config.sh					\
-		-e s/TTYLINUX_NAME=.*/TTYLINUX_NAME=${TTYLINUX_NAME}/
-	@sed -i ttylinux-config.sh					\
-		-e s/TTYLINUX_VERSION=.*/TTYLINUX_VERSION=${TTYLINUX_VERSION}/
 	@ls --color -Fl ttylinux-config.sh
 
 ttylinux-config.sh:

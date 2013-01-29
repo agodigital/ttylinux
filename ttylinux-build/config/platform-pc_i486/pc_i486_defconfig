@@ -1,18 +1,18 @@
 # vim: syntax=cfg
 
 #
-# pc_i486 - small system with glibc-2.9 and linux-2.6.34.6
-# Sun May 13 19:04:51 MST 2012
+# pc_i486 - small system with glibc-2.9 and linux-2.6.34.7
+# Mon Jan 28 19:01:26 MST 2013
 #
 
-TTYLINUX_NAME=
-TTYLINUX_VERSION=
+TTYLINUX_NAME=boomslung
+TTYLINUX_VERSION=14.2
 
 #
 # Platform, cross-tool, and CFLAGS.  Be carefull with changes.
 #
 TTYLINUX_PLATFORM=pc_i486
-TTYLINUX_XBT_DIR="../cross-tools-2.9-2.6.34.6"
+TTYLINUX_XBT_DIR="../cross-tools-2.9-2.6.34.7"
 TTYLINUX_XBT="i486-generic-linux-gnu"
 TTYLINUX_CFLAGS="-march=i486 -mtune=i486 -Os"
 
