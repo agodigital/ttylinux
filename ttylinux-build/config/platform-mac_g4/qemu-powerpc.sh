@@ -86,7 +86,7 @@ _graphic="-g 800x600x8"
 _serial=""
 _initrd=boot/filesys.gz
 _kernel=boot/vmlinux
-_rdsksz="ramdisk_size=65536"
+_rdsksz="ramdisk_size=98304"
 
 for p in ${REPLY}; do
 	if [[ x"${p:0:8}" = x"console=" ]]; then
@@ -99,7 +99,7 @@ for p in ${REPLY}; do
 done
 
 qemu-system-ppc ${_graphic}		\
-	-m 96				\
+	-m 128				\
 	-net nic,model=pcnet		\
 	${_serial}			\
 	-kernel $1/${_kernel}		\

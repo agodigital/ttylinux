@@ -26,6 +26,7 @@
 #
 # CHANGE LOG
 #
+#	05feb13	drj	Added kcfg to the help.
 #	28jan13	drj	Removed TTYLINUX_NAME and TTYLINUX_VERSION.
 #	24mar12	drj	Cleaning error paths.
 #	18mar12	drj	Call site script even if error in scripts/* script.
@@ -93,6 +94,7 @@ help:
 	@echo "getcfg   - get default config file from the config directory"
 	@echo "pkglist  - make list of source packages using default config"
 	@echo "dload    - download source packages"
+	@echo "kcfg     - make a new kernel config file"
 	@echo "mount    - mount the ttylinux file system image, if found"
 	@echo "umount   - unmount the ttylinux file system image, if mounted"
 	@echo "list     - list the packages names and versions"
