@@ -87,7 +87,7 @@ read -p "ttylinux: "
 _serial=""
 _initrd=boot/filesys.gz
 _kernel=boot/vmlinuz
-_rdsksz="ramdisk_size=65536"
+_rdsksz="ramdisk_size=98304"
 
 for p in ${REPLY}; do
 	if [[ x"${p:0:8}" = x"console=" ]]; then

@@ -99,7 +99,7 @@ for p in ${REPLY}; do
 done
 
 qemu-system-ppc ${_graphic}		\
-	-m 128				\
+	-m 256				\
 	-net nic,model=pcnet		\
 	${_serial}			\
 	-kernel $1/${_kernel}		\

@@ -87,7 +87,7 @@ read -p "ttylinux: "
 _serial=""
 _initrd=boot/filesys.gz
 _kernel=boot/vmlinuz
-_rdsksz="ramdisk_size=65536"
+_rdsksz="ramdisk_size=98304"
 
 for p in ${REPLY}; do
 	if [[ x"${p:0:8}" = x"console=" ]]; then
@@ -103,7 +103,7 @@ done
 qemu-system-i386					\
 	-cpu coreduo					\
 	-smp 2,maxcpus=2,cores=2,threads=2,sockets=2	\
-	-m 128						\
+	-m 256						\
 	-net nic,model=rtl8139				\
 	${_serial}					\
 	-kernel $1/${_kernel}				\
