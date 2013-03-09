@@ -2,11 +2,11 @@
 
 #
 # pc_i486 - small system with glibc-2.9 and linux-2.6.34.7
-# Fri Mar 08 22:32:31 MST 2013
+# Fri Mar 08 22:35:21 MST 2013
 #
 
-TTYLINUX_NAME=boomslung
-TTYLINUX_VERSION=14.2
+TTYLINUX_NAME=ocelot
+TTYLINUX_VERSION=16.0
 
 #
 # Platform, cross-tool, and CFLAGS.  Be carefull with changes.
