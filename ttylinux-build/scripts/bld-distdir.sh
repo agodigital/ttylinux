@@ -29,6 +29,8 @@
 #
 # CHANGE LOG
 #
+#	23mar13	drj	Get am335x-bone.dtb for BeagleBone.
+#	23mar13	drj	Get u-boot.img, not u-boot.bin, for BeagleBone.
 #	15mar12	drj	Changed to not need User_Guide.html and User_Guide.pdf.
 #	15mar12	drj	Fixed for BeagleBone platform.
 #	18feb12	drj	Rewrite for build process reorganization.
@@ -108,9 +110,10 @@ echo "SOURCE_KVER=\"${kver}\""                >>sdcard/LABEL
 cp ${TTYLINUX_DOC_DIR}/AUTHORS                 sdcard/AUTHORS
 cp ${TTYLINUX_DOC_DIR}/COPYING                 sdcard/COPYING
 cp ${TTYLINUX_BOOTLOADER_DIR}/uboot/MLO        sdcard/boot/MLO
-cp ${TTYLINUX_BOOTLOADER_DIR}/uboot/u-boot.bin sdcard/boot/u-boot.img
+cp ${TTYLINUX_BOOTLOADER_DIR}/uboot/u-boot.img sdcard/boot/u-boot.img
 cp ${TTYLINUX_IMG_NAME}                        sdcard/boot/filesys
 cp kroot/boot/System.map                       sdcard/boot/System.map
+cp kroot/boot/am335x-bone.dtb                  sdcard/boot/am335x-bone.dtb
 cp kroot/boot/uImage                           sdcard/boot/uImage
 cp kroot/boot/vmlinux                          sdcard/boot/vmlinux
 cp ${TTYLINUX_PLATFORM_DIR}/uEnv.txt           sdcard/boot/uEnv.txt

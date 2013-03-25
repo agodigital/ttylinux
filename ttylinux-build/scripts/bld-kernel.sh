@@ -29,6 +29,7 @@
 #
 # CHANGE LOG
 #
+#	23mar13	drj	Updated for Beaglebone 3.8.4 kernel with dev tree.
 #	16mar12	drj	Added more elaborate logging of comments and commands.
 #	08mar12	drj	Better setting njobs.
 #	18feb12	drj	Rewrite for build process reorganization.
@@ -181,10 +182,10 @@ bitch=${ncpus:-1}
 
 # Set the right kernel make target.
 case "${TTYLINUX_PLATFORM}" in
-	beagle_*)   target="uImage"  ;;
-	mac_*)      target="zImage"  ;;
-	pc_*)       target="bzImage" ;;
-	wrtu54g_tm) target="vmlinux" ;;
+	beagle_bone) target="uImage"  ;;
+	mac_g4)      target="zImage"  ;;
+	pc_*)        target="bzImage" ;;
+	wrtu54g_tm)  target="vmlinux" ;;
 esac
 
 cd "linux-${kver}"
@@ -234,7 +235,10 @@ fi
 # later.
 #
 if [[ "${target}" == "uImage" ]]; then
+	# This is the BeagleBone target; add the uboot build directory that has
+	# the mkimage program, and add the device tree to the build target.
 	_xtraPath="${TTYLINUX_BOOTLOADER_DIR}/uboot"
+	target="uImage dtbs"
 else
 	_xtraPath=""
 fi
@@ -275,6 +279,7 @@ kernel_collect() {
 
 local kver="${TTYLINUX_USER_KERNEL:-${XBT_LINUX_VER##*-}}"
 local _vmlinuz=""
+local _dtb=""
 
 echo -n "f.m__0.p." >&${CONSOLE_FD}
 
@@ -292,11 +297,13 @@ ttylinux_build_command "mkdir kroot/lib/modules"
 # $ mipsel-linux-objcopy --add-section initrd=initrd.gz vmlinux
 
 _vmlinuz="arch/${XBT_LINUX_ARCH}/boot/"
+_dtbfile=""
 case "${TTYLINUX_PLATFORM}" in
-	beagle_*)   _vmlinuz+="uImage"  ;;
-	mac_*)      _vmlinuz+="zImage"  ;;
-	pc_*)       _vmlinuz+="bzImage" ;;
-	wrtu54g_tm) _vmlinuz="vmlinux"  ;;
+	beagle_bone)	_dtbfile="${_vmlinuz}/dts/am335x-bone.dtb" ;
+			_vmlinuz+="uImage"  ;;
+	mac_g4)		_vmlinuz+="zImage"  ;;
+	pc_*)		_vmlinuz+="bzImage" ;;
+	wrtu54g_tm)	_vmlinuz="vmlinux"  ;;
 esac
 
 # Get the kernel and its system map.
@@ -305,12 +312,15 @@ bDir="kroot/boot"
 _cmd1="cp \"linux-${kver}/System.map\"  \"${bDir}/System.map\""
 _cmd2="cp \"linux-${kver}/vmlinux\"     \"${bDir}/vmlinux\""
 _cmd3="cp \"linux-${kver}/${_vmlinuz}\" \"${bDir}/$(basename ${_vmlinuz})\""
+_cmd4="cp \"linux-${kver}/${_dtbfile}\" \"${bDir}/$(basename ${_dtbfile})\""
 ttylinux_build_command "${_cmd1}"
 ttylinux_build_command "${_cmd2}"
 ttylinux_build_command "${_cmd3}"
+[[ -n "${_dtbfile}" ]] && ttylinux_build_command "${_cmd4}" || true
 unset _cmd1
 unset _cmd2
 unset _cmd3
+unset _cmd4
 unset bDir
 
 if [[ "${K_MODULES}" == "yes" ]]; then

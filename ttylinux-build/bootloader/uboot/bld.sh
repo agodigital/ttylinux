@@ -28,7 +28,7 @@ echo "=> Making u-boot-${ubootVersion} patch ${ubootPatch} for ${ubootTarget}"
 # *****************************************************************************
 
 echo "=> Removing old build products, if any, and untarring ${ubootVersion} ..."
-rm -rf MLO mlo u-boot.bin mkimage
+rm -rf MLO mlo u-boot.img mkimage
 rm -rf u-boot-${ubootVersion}
 tar -xf u-boot-${ubootVersion}.tar.bz2
 
@@ -57,14 +57,14 @@ if [[ x"${ubootTarget}" = x"mkimage" ]]; then
 	# Get the mkimage program.
 	cp tools/mkimage ..
 else
-	# Make the "u-boot.bin" and its host tools.
+	# Make MLO and u-boot.img and the host tools.
 	rm -f ../${ubootTarget}.MAKELOG
 	CROSS_COMPILE=${TTYLINUX_XBT}- ./MAKEALL ${ubootTarget} | grep -v "^$"
 	cp LOG/${ubootTarget}.MAKELOG ..
 	#
 	# Get the programs.
 	[[ -f MLO           ]] && cp MLO ..
-	[[ -f u-boot.bin    ]] && cp u-boot.bin ..
+	[[ -f u-boot.img    ]] && cp u-boot.img ..
 	[[ -f tools/mkimage ]] && cp tools/mkimage ..
 fi
 
@@ -74,7 +74,7 @@ cd ..
 
 _list=""
 [[ -f MLO        ]] && _list="${_list} MLO"
-[[ -f u-boot.bin ]] && _list="${_list} u-boot.bin"
+[[ -f u-boot.img ]] && _list="${_list} u-boot.img"
 [[ -f mkimage    ]] && _list="${_list} mkimage"
 echo ""
 echo "=> New files:"

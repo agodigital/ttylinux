@@ -30,6 +30,9 @@
 #
 # CHANGE LOG
 #
+#	23mar13	drj	Get am335x-bone.dtb for BeagleBone /boot.
+#	23mar13	drj	Get u-boot.img, not u-boot.bin, for BeagleBone /boot.
+#	22mar13	drj	Use --lazy umount.
 #	04mar11	drj	File creation.
 #
 # *****************************************************************************
@@ -128,10 +131,10 @@ echo "Using: ${sdCardDev}"
 
 pushd "${TTYLINUX_BUILD_DIR}" >/dev/null 2>&1
 
-umount "${sdCardDev}p1" >/dev/null 2>&1
-umount "${sdCardDev}p2" >/dev/null 2>&1
-umount "${sdCardDev}p3" >/dev/null 2>&1
-umount "${sdCardDev}p4" >/dev/null 2>&1
+umount --lazy "${sdCardDev}p1" >/dev/null 2>&1
+umount --lazy "${sdCardDev}p2" >/dev/null 2>&1
+umount --lazy "${sdCardDev}p3" >/dev/null 2>&1
+umount --lazy "${sdCardDev}p4" >/dev/null 2>&1
 
 # Setup Boot Partition
 
@@ -147,18 +150,19 @@ mount -t vfat "${sdCardDev}p1" ${TTYLINUX_MNT_DIR} >/dev/null 2>&1
 echo "DONE"
 
 echo -n "=> Copying the boot files to the media ..... "
-cp sdcard/boot/MLO        ${TTYLINUX_MNT_DIR}/MLO
-cp sdcard/boot/u-boot.img ${TTYLINUX_MNT_DIR}/u-boot.img
-cp sdcard/boot/uEnv.txt   ${TTYLINUX_MNT_DIR}/uEnv.txt
-cp sdcard/boot/uImage     ${TTYLINUX_MNT_DIR}/uImage
-cp sdcard/boot/vmlinux    ${TTYLINUX_MNT_DIR}/vmlinux
-cp sdcard/boot/System.map ${TTYLINUX_MNT_DIR}/System.map
+cp sdcard/boot/MLO             ${TTYLINUX_MNT_DIR}/MLO
+cp sdcard/boot/u-boot.img      ${TTYLINUX_MNT_DIR}/u-boot.img
+cp sdcard/boot/uEnv.txt        ${TTYLINUX_MNT_DIR}/uEnv.txt
+cp sdcard/boot/uImage          ${TTYLINUX_MNT_DIR}/uImage
+cp sdcard/boot/am335x-bone.dtb ${TTYLINUX_MNT_DIR}/am335x-bone.dtb
+cp sdcard/boot/vmlinux         ${TTYLINUX_MNT_DIR}/vmlinux
+cp sdcard/boot/System.map      ${TTYLINUX_MNT_DIR}/System.map
 echo "DONE"
 echo "File listing:"
 ls --color -hil ${TTYLINUX_MNT_DIR} | sort | grep -v "^ *$"
 
 echo -n "=> Unmounting the partition ................ "
-umount "${sdCardDev}p1"
+umount --lazy "${sdCardDev}p1"
 echo "DONE"
 
 # Setup File Systems Partitions
@@ -207,8 +211,8 @@ echo -n "=> File system usage: "
 du -sh ${TTYLINUX_MNT_DIR} | awk '{print $1}'
 
 echo -n "=> Unmounting the file system partitions ... "
-umount "${sdCardDev}p3"
-umount "${sdCardDev}p2"
+umount --lazy "${sdCardDev}p3"
+umount --lazy "${sdCardDev}p2"
 echo "DONE"
 
 # Setup Swap Partition

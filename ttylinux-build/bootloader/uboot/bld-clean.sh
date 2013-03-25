@@ -5,4 +5,4 @@
 # *****************************************************************************
 
 echo "=> Removing U-Boot, if any."
-rm -rf MLO u-boot.bin mkimage *.MAKELOG
+rm -rf MLO u-boot.img mkimage *.MAKELOG

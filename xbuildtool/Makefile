@@ -34,6 +34,7 @@
 #
 # CHANGE LOG
 #
+#	24mar13	drj	Fixed BeagleBone tool chain.
 #	27jan13	drj	Return old build tools until new system work right.
 #	05jan13	drj	Preparing other changes with updated parts.
 #	05jan13	drj	Changed i686 target for glibc-2.16.0, linux-3.7.1.
@@ -75,8 +76,8 @@ SHELL=/bin/bash
 # *****************************************************************************
 
 .PHONY:	help setup clean dload
-.PHONY:	armv7-2.14-gnueabi mipsel-uclibc powerpc-2.14-gnu
-.PHONY:	i486-2.9-gnu i686-2.16.0-gnu x86_64-2.14-gnu
+.PHONY:	armv7-2.16.0-gnueabi mipsel-uclibc powerpc-2.16.0-gnu
+.PHONY:	i486-2.9-gnu i686-2.16.0-gnu x86_64-2.16.0-gnu
 
 help:
 	@echo ""
@@ -93,7 +94,7 @@ help:
 	@echo ""
 	@echo "Make Command Examples            ttylinux Cross-tool Chain"
 	@echo "-----------------------          -------------------------"
-	@echo "make armv7-2.14-gnueabi ........ beagle_bone (linux-xxxxx)"
+	@echo "make armv7-2.16.0-gnueabi ...... beagle_bone (linux-3.8.4)"
 	@echo "make mipsel-uclibc ............. wrtu54g_tm  (linux-2.6.36.4)"
 	@echo "make powerpc-2.16.0-gnu ........ mac_g4      (linux-3.7.1)"
 	@echo "make i486-2.9-gnu .............. pc_i486     (linux-2.6.34.7"
@@ -116,8 +117,8 @@ clean:	xbt-build-config.sh
 dload:	xbt-build-config.sh
 	@scripts/_build-toolchain.sh "download"
 
-armv7-2.14-gnueabi:
-	# BeagleBone -- gcc-4.6.2, glibc-2.16.0, linux-xxxxxx
+armv7-2.16.0-gnueabi:
+	# BeagleBone -- gcc-4.6.3, glibc-2.16.0, linux-3.8.4
 	rm -f xbt-build-config.sh
 	cp config/ttyl-beagle_bone.cfg xbt-build-config.sh
 	./scripts/_build-toolchain.sh $${CONTINUE/yes/continue}

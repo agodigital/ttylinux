@@ -30,6 +30,8 @@
 #
 # CHANGE LOG
 #
+#	23mar13	drj	Added comments to have FAT32 for BeagleBone /boot.
+#	22mar13	drj	Fixed typos.
 #	19feb12	drj	Changes for build process reorganization.
 #	02feb12	drj	File creation.
 #
@@ -102,13 +104,14 @@ _gbytes=$(((${_nbytes} / 1024 / 1024 / 1024) + 1))
 _ncyls=$((${_nbytes} / 255 / 63 / 512))
 
 echo -n "=> Auto-partitioning ................................. "
-# ${sdCardDev}p1 has Cyl Count (9) for    64 MB - FAT boot
+# ${sdCardDev}p1 has Cyl Count (9) for    64 MB - FAT boot  { 74,027,520 bytes}
 # ${sdCardDev}p2 has remaining Cyl Count xxx MB - ext4 /
-# ${sdCardDev}p3 has Cyl Count (33) for  256 MB - ext4 /var
-# ${sdCardDev}p4 has Cyl Count (33) for  256 MB - swap
+# ${sdCardDev}p3 has Cyl Count (33) for  256 MB - ext4 /var {271,434,240 bytes}
+# ${sdCardDev}p4 has Cyl Count (33) for  256 MB - swap      {271,434,240 bytes}
 #
 rfs=$((${_ncyls} - 9 - 33 - 33))
 #
+#echo ,9,0x0C,*
 {
 echo ,9,b,*
 echo ,${rfs},L,-
@@ -128,19 +131,21 @@ echo ""
 
 echo -n "=> Formatting FAT 16 boot partition ${sdCardDev}p1 ... "
 mkfs.vfat -F 16 -n boot "${sdCardDev}p1" >/dev/null 2>&1
-echo "DONE"
+#mkfs.vfat -F 32 -n boot "${sdCardDev}p1" >/dev/null 2>&1
+echo "DONE (~70.6 MB)"
 
+rfs=$((${rfs} * 255 * 63 * 512 / 1024 / 1024))
 echo -n "=> Formatting ext4 root partition ${sdCardDev}p2 ..... "
 mkfs.ext4 -L rootfs "${sdCardDev}p2" >/dev/null 2>&1
-echo "DONE"
+echo "DONE (~${rfs} MB)"
 
-echo -n "=> Formatting ext4 root partition ${sdCardDev}p2 ..... "
+echo -n "=> Formatting ext4 root partition ${sdCardDev}p3 ..... "
 mkfs.ext4 -L varfs "${sdCardDev}p3" >/dev/null 2>&1
-echo "DONE"
+echo "DONE (~258.9 MB)"
 
-echo -n "=> Formatting swap partition ${sdCardDev}p2 .......... "
+echo -n "=> Formatting swap partition ${sdCardDev}p4 .......... "
 mkswap -L swap "${sdCardDev}p4" >/dev/null 2>&1
-echo "DONE"
+echo "DONE (~258.9 MB)"
 
 return 0
 
