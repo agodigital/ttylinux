@@ -15,7 +15,7 @@ lib/udev/ata_id
 lib/udev/cdrom_id
 lib/udev/collect
 # lib/udev/devices/console
-lib/udev/devices/core
+# lib/udev/devices/core
 lib/udev/devices/fd
 # lib/udev/devices/kmsg
 # lib/udev/devices/null

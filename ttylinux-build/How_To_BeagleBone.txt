@@ -92,7 +92,7 @@ make armv7-2.16-gnueabi
 # Login from client; use gtkterm.
 #
 # gtkterm config:
-#              Port: /dev/ttyUSB{0-9]
+#              Port: /dev/ttyUSB[0-9]
 #             Speed: 115200
 #            Parity: none
 #              Bits: 8
@@ -106,20 +106,28 @@ make armv7-2.16-gnueabi
 # o Use "modprobe g_mass_storage file=/dev/mmcblk0p1" so the USB host can
 #   browse the BeagleBone SDCard boot partition.
 #
-# o For ttyO2:
-#        (see Table 9-58 of the AM335x Technical Reference Manual)
-#        echo  1 >> /sys/kernel/debug/omap_mux/spi0_d0
-#        echo 21 >> /sys/kernel/debug/omap_mux/spi0_sclk
-#        wiring: yellow<->pin22, green<->pin21
+# o Mount debugfs: mount -t debugfs none /sys/kernel/debug/
+#   for /etc/fstab: nodev  /sys/kernel/debug  debugfs  defaults  0  0
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#***** broken broken broken broken broken broken broken broken broken
+# http://www.gigamegablog.com/2012/01/05/beaglebone-coding-101-blinking-an-led/
+# http://www.gigamegablog.com/2012/01/22/beaglebone-coding-101-using-the-serial-and-analog-pins/
+#***** o For ttyO2:
+#*****        (see Table 9-58 of the AM335x Technical Reference Manual)
+#*****        echo  1 >> /sys/kernel/debug/omap_mux/spi0_d0
+#*****        echo 21 >> /sys/kernel/debug/omap_mux/spi0_sclk
+#*****        wiring: yellow<->pin22, green<->pin21
+#***** broken broken broken broken broken broken broken broken broken
 
 
-# ============================ -------
+# ***************************************************************************
+# ***************************************************************************
+
+
+# ============================ *******
 # ttylinux v14.1, Kernel 3.2.9 DEFUNCT
-# ============================ -------
+# ============================ *******
 
 # For no apparent reason I am using this kernel:
 #

@@ -124,13 +124,13 @@ armv7-2.16.0-gnueabi:
 	./scripts/_build-toolchain.sh $${CONTINUE/yes/continue}
 
 mipsel-uclibc:
-	# WRTU54G -- gcc-4.6.2, uClibc-0.9.32, linux-2.6.36.4
+	# WRTU54G -- gcc-4.4.6, uClibc-0.9.32, linux-2.6.36.4
 	rm -f xbt-build-config.sh
 	cp config/ttyl-wrtu54g_tm.cfg xbt-build-config.sh
 	./scripts/_build-toolchain.sh $${CONTINUE/yes/continue}
 
 powerpc-2.16.0-gnu:
-	# Mac G4 -- gcc-4.6.2, glibc-2.16.0, linux-3.7.1
+	# Mac G4 -- gcc-4.6.3, glibc-2.16.0, linux-3.7.1
 	rm -f xbt-build-config.sh
 	cp config/ttyl-mac_g4.cfg xbt-build-config.sh
 	./scripts/_build-toolchain.sh $${CONTINUE/yes/continue}
@@ -151,24 +151,6 @@ x86_64-2.16.0-gnu:
 	# PC-x86_64 -- gcc-4.6.3, glibc-2.16.0, linux-3.7.1
 	rm -f xbt-build-config.sh
 	cp config/ttyl-pc_x86_64.cfg xbt-build-config.sh
-	./scripts/_build-toolchain.sh $${CONTINUE/yes/continue}
-
-
-# REMOVE OLD STUFF when new systems are running right *************************
-
-powerpc-2.14-gnu:
-	rm -f xbt-build-config.sh
-	cp config/old-ttyl-mac_g4.cfg xbt-build-config.sh
-	./scripts/_build-toolchain.sh $${CONTINUE/yes/continue}
-
-i686-2.14-gnu:
-	rm -f xbt-build-config.sh
-	cp config/old-ttyl-pc_i686.cfg xbt-build-config.sh
-	./scripts/_build-toolchain.sh $${CONTINUE/yes/continue}
-
-x86_64-2.14-gnu:
-	rm -f xbt-build-config.sh
-	cp config/old-ttyl-pc_x86_64.cfg xbt-build-config.sh
 	./scripts/_build-toolchain.sh $${CONTINUE/yes/continue}
 
 

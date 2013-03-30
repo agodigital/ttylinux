@@ -68,7 +68,6 @@ CFLAGS="-fexceptions ${TTYLINUX_CFLAGS}" \
 	--build=${MACHTYPE} \
 	--host=${XBT_TARGET} \
 	--prefix=/usr \
-	--enable-cxx \
 	--enable-fft \
 	--enable-mpbsd \
 	--enable-shared || return 1

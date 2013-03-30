@@ -10,7 +10,6 @@ usr/bin/objdump
 usr/bin/ranlib
 usr/bin/readelf
 usr/bin/size
-usr/bin/strings
 usr/bin/strip
 usr/x86_64-generic-linux-gnu/bin/ar
 usr/x86_64-generic-linux-gnu/bin/as

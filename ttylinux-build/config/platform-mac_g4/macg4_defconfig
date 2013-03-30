@@ -59,8 +59,8 @@ TTYLINUX_PACKAGE[i++]="ncurses-5.9"
 TTYLINUX_PACKAGE[i++]="kmod-12"
 TTYLINUX_PACKAGE[i++]="readline-6.2"
 TTYLINUX_PACKAGE[i++]="alsa-lib-1.0.25"
-TTYLINUX_PACKAGE[i++]="gmp-5.0.5"    # for gcc-4.4.6
-TTYLINUX_PACKAGE[i++]="mpfr-3.1.1"   # for gcc-4.4.6
+TTYLINUX_PACKAGE[i++]="gmp-5.0.5"    # for gcc-4.6.3
+TTYLINUX_PACKAGE[i++]="mpfr-3.1.1"   # for gcc-4.6.3
 TTYLINUX_PACKAGE[i++]="mpc-1.0.1"    # for gcc-4.6.3
 # -------------------------------------------------------- programs & libraries
 TTYLINUX_PACKAGE[i++]="util-linux-2.22"
