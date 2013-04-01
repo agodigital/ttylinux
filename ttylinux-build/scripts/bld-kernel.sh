@@ -29,6 +29,7 @@
 #
 # CHANGE LOG
 #
+#	29mar13	drj	Fixed bug with dev tree handling.
 #	23mar13	drj	Updated for Beaglebone 3.8.4 kernel with dev tree.
 #	16mar12	drj	Added more elaborate logging of comments and commands.
 #	08mar12	drj	Better setting njobs.
@@ -297,7 +298,7 @@ ttylinux_build_command "mkdir kroot/lib/modules"
 # $ mipsel-linux-objcopy --add-section initrd=initrd.gz vmlinux
 
 _vmlinuz="arch/${XBT_LINUX_ARCH}/boot/"
-_dtbfile=""
+_dtbfile="(none)"
 case "${TTYLINUX_PLATFORM}" in
 	beagle_bone)	_dtbfile="${_vmlinuz}/dts/am335x-bone.dtb" ;
 			_vmlinuz+="uImage"  ;;

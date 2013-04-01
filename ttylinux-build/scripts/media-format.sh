@@ -30,7 +30,7 @@
 #
 # CHANGE LOG
 #
-#	23mar13	drj	Added comments to have FAT32 for BeagleBone /boot.
+#	30mar13	drj	Use FAT32 for BeagleBone /boot.
 #	22mar13	drj	Fixed typos.
 #	19feb12	drj	Changes for build process reorganization.
 #	02feb12	drj	File creation.
@@ -95,6 +95,14 @@ umount "${sdCardDev}p8" >/dev/null 2>&1
 echo "=> Whacking the everything."
 dd if=/dev/zero of=${sdCardDev} bs=1M count=1 >/dev/null 2>&1
 
+# SCDard is formatted as:
+#      255 heads
+#       63 sectors
+#      512 bytes/sector
+#
+# Calculate number of cylinders based upon size of SDCard and the given number
+# of heads, sectors, and sector size.
+#   
 # Get the number of bytes in the media and calculate the number of
 # 255*63*512 byte cylinders.
 # Each cylinder has 255 * 63 * 512 = 8,225,280 bytes.
@@ -111,9 +119,8 @@ echo -n "=> Auto-partitioning ................................. "
 #
 rfs=$((${_ncyls} - 9 - 33 - 33))
 #
-#echo ,9,0x0C,*
 {
-echo ,9,b,*
+echo ,9,0x0C,*
 echo ,${rfs},L,-
 echo ,33,L,-
 echo ,33,S,-
@@ -130,17 +137,17 @@ fdisk -l "${sdCardDev}" | sed -e "s#swap / Solaris#Swap#"
 echo ""
 
 echo -n "=> Formatting FAT 16 boot partition ${sdCardDev}p1 ... "
-mkfs.vfat -F 16 -n boot "${sdCardDev}p1" >/dev/null 2>&1
-#mkfs.vfat -F 32 -n boot "${sdCardDev}p1" >/dev/null 2>&1
+dd if=/dev/zero of="${sdCardDev}p1" bs=512 count=1
+mkfs.vfat -F 32 -n boot "${sdCardDev}p1" >/dev/null 2>&1
 echo "DONE (~70.6 MB)"
 
 rfs=$((${rfs} * 255 * 63 * 512 / 1024 / 1024))
 echo -n "=> Formatting ext4 root partition ${sdCardDev}p2 ..... "
-mkfs.ext4 -L rootfs "${sdCardDev}p2" >/dev/null 2>&1
+mkfs.ext4 -j -L rootfs "${sdCardDev}p2" >/dev/null 2>&1
 echo "DONE (~${rfs} MB)"
 
 echo -n "=> Formatting ext4 root partition ${sdCardDev}p3 ..... "
-mkfs.ext4 -L varfs "${sdCardDev}p3" >/dev/null 2>&1
+mkfs.ext4 -j -L varfs "${sdCardDev}p3" >/dev/null 2>&1
 echo "DONE (~258.9 MB)"
 
 echo -n "=> Formatting swap partition ${sdCardDev}p4 .......... "

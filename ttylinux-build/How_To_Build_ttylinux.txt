@@ -9,6 +9,7 @@ How_To_Build_ttylinux.txt
 March 13, 2012
 
 
+30mar13	drj	Fixed typos.
 13mar12	drj	Added fixes for some common problems.
 04mar12	drj	Changed for new build process.
 22apr11	drj	Changed "make iso" to "make boot".
@@ -261,7 +262,7 @@ or try these:
 
 NOTE About True Cross-building With xbuildtools
      GLIBC is built with, and is a part of, the cross-compiling tool chains
-     built with xbuildtool; it is configure with something like
+     built with xbuildtool; it is configured with something like
      "--enable-kernel=2.6.0" and built against the Linux kernel headers files
      used by the cross tool chain.  All other ttylinux packages are cross-built
      against this GLIBC and its Linux kernel header files.  Please, don't use a

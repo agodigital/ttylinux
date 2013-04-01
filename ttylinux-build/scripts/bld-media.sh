@@ -30,6 +30,7 @@
 #
 # CHANGE LOG
 #
+#	30mar13	drj	Use FAT32 for BeagleBone /boot.
 #	23mar13	drj	Get am335x-bone.dtb for BeagleBone /boot.
 #	23mar13	drj	Get u-boot.img, not u-boot.bin, for BeagleBone /boot.
 #	22mar13	drj	Use --lazy umount.
@@ -142,7 +143,8 @@ echo ""
 echo "i> Setup BOOT Partition [${sdCardDev}p1]"
 
 echo -n "=> Formatting partition [fat32] ............ "
-mkfs.vfat -F 16 -n boot "${sdCardDev}p1" >/dev/null 2>&1
+dd if=/dev/zero of="${sdCardDev}p1" bs=512 count=1
+mkfs.vfat -F 32 -n boot "${sdCardDev}p1" >/dev/null 2>&1
 echo "DONE"
 
 echo -n "=> Mounting the partition .................. "
