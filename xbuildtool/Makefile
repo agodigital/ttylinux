@@ -34,6 +34,7 @@
 #
 # CHANGE LOG
 #
+#	01apr13	drj	Regress MacG4 tool chain to linux-2.6.38.1.
 #	24mar13	drj	Fixed BeagleBone tool chain.
 #	27jan13	drj	Return old build tools until new system work right.
 #	05jan13	drj	Preparing other changes with updated parts.
@@ -96,7 +97,7 @@ help:
 	@echo "-----------------------          -------------------------"
 	@echo "make armv7-2.16.0-gnueabi ...... beagle_bone (linux-3.8.4)"
 	@echo "make mipsel-uclibc ............. wrtu54g_tm  (linux-2.6.36.4)"
-	@echo "make powerpc-2.16.0-gnu ........ mac_g4      (linux-3.7.1)"
+	@echo "make powerpc-2.16.0-gnu ........ mac_g4      (linux-2.6.38.1)"
 	@echo "make i486-2.9-gnu .............. pc_i486     (linux-2.6.34.7"
 	@echo "make i686-2.16.0-gnu ........... pc_i686     (linux-3.7.1)"
 	@echo "make x86_64-2.16.0-gnu ......... pc_x86_64   (linux-3.7.1)"
@@ -130,7 +131,7 @@ mipsel-uclibc:
 	./scripts/_build-toolchain.sh $${CONTINUE/yes/continue}
 
 powerpc-2.16.0-gnu:
-	# Mac G4 -- gcc-4.6.3, glibc-2.16.0, linux-3.7.1
+	# Mac G4 -- gcc-4.6.3, glibc-2.16.0, linux-2.6.38.1
 	rm -f xbt-build-config.sh
 	cp config/ttyl-mac_g4.cfg xbt-build-config.sh
 	./scripts/_build-toolchain.sh $${CONTINUE/yes/continue}

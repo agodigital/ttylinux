@@ -29,6 +29,7 @@
 #
 # CHANGE LOG
 #
+#	31mar13	drj	Fixed a weird-ass thing in function mac_dir_make.
 #	23mar13	drj	Get am335x-bone.dtb for BeagleBone.
 #	23mar13	drj	Get u-boot.img, not u-boot.bin, for BeagleBone.
 #	15mar12	drj	Changed to not need User_Guide.html and User_Guide.pdf.
@@ -247,9 +248,6 @@ echo -n "i> Set the initrd file system size ................... "
 sed --in-place \
 	--expression="s/ramdisk_size=[0-9]*/ramdisk_size=${rdSize}/" \
 	cdrom/boot/yaboot.conf
-sed --in-place \
-	--expression="s/ramdisk_size=[0-9]*/ramdisk_size=${rdSize}/" \
-	cdrom/yaboot.conf
 echo "DONE"
 
 echo ""

@@ -29,6 +29,7 @@
 #
 # CHANGE LOG
 #
+#	01apr13	drj	Crazy Hack to build linux-2.6.38.1 with gcc-4.6.3.
 #	29mar13	drj	Fixed bug with dev tree handling.
 #	23mar13	drj	Updated for Beaglebone 3.8.4 kernel with dev tree.
 #	16mar12	drj	Added more elaborate logging of comments and commands.
@@ -229,6 +230,35 @@ if [[ -z "${TTYLINUX_USER_KERNEL:-}" ]]; then
 			unset _cmd
 		fi
 	done
+	if [[ "${TTYLINUX_PLATFORM}" = "mac_g4" ]]; then
+		# This is a test to see if a gcc version 4.6.0 or newer is
+		# being used on a kernel older than 3.0; this is the case with
+		# the current ttylinux mac_g4 kernel and its xbuildtool gcc.
+		# In this case, a bunch of warnings will kill the cross-compile
+		# of the kernel, but we know the kernel will actually work; so
+		# Crazy Hack the kernel Makefile to not make warnings be errors.
+		(source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
+		_kerVer=${kver%%.*}
+		_gccVer=${XBT_XGCC_VER#gcc-}
+		_gccVer=${_gccVer//./}
+		if [[ ${_kerVer} -lt 3 && ${_gccVer} -gt 460 ]]; then
+			ttylinux_build_comment ""
+			ttylinux_build_comment "Doing the whacky fix."
+			ttylinux_build_comment ""
+			sed -e "s|^KBUILD_AFLAGS_KERNEL|KBUILD_CFLAGS += -Wno-error=unused-but-set-variable\nKBUILD_AFLAGS_KERNEL|" -i Makefile
+		else
+			echo ""                                 >${CONSOLE_FD}
+			echo "********************************" >${CONSOLE_FD}
+			echo "ERROR !! ERROR"                   >${CONSOLE_FD}
+			echo "********************************" >${CONSOLE_FD}
+			echo "Fix the cheap mac_g4 kernel hack" >${CONSOLE_FD}
+			echo "in scripts/bld-kernel.sh"         >${CONSOLE_FD}
+			echo "********************************" >${CONSOLE_FD}
+			echo "ERROR !! ERROR"                   >${CONSOLE_FD}
+			echo "********************************" >${CONSOLE_FD}
+			echo ""                                 >${CONSOLE_FD}
+		fi)
+	fi
 fi
 
 # Do the kernel cross-building.  If this kernel has modules then build them.

@@ -30,6 +30,7 @@
 #
 # CHANGE LOG
 #
+#	01apr13	drj	For cd_burn(), changed from dev=1,0,0 to dev=/dev/sr0.
 #	30mar13	drj	Use FAT32 for BeagleBone /boot.
 #	23mar13	drj	Get am335x-bone.dtb for BeagleBone /boot.
 #	23mar13	drj	Get u-boot.img, not u-boot.bin, for BeagleBone /boot.
@@ -252,7 +253,7 @@ return 0
 cd_burn() {
 
 echo ""
-cdrecord -v speed=44 dev=1,0,0 -tao -data ${TTYLINUX_ISO_NAME}
+cdrecord -v speed=44 dev=/dev/sr0 -tao -data ${TTYLINUX_ISO_NAME}
 echo ""
 
 }
