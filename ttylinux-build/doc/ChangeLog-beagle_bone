@@ -21,7 +21,6 @@ Version 16.0, Fri Mar 29 22:10:16 MST 2013
  - updated from util-linux-2.21 to util-linux-2.22
  - (bash) updated from patch level 24 to patch level 39
 
-
 Version 14.1, Thu Apr 19 20:23:26 MST 2012
  - distribution named "boomslang"
  - initial armv7 release for BeagleBone
