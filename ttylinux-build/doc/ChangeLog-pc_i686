@@ -1,6 +1,25 @@
 Current  Maintainer: (2008-    ) Douglas Jerome <douglas@ttylinux.org>
 Previous Maintainer: (2001-2008) Pascal Schmidt <ttylinux@ewetel.net>
 
+Version 16.0, Sat Apr  6 21:08:24 MST 2013
+ - distribution named "ocelot"
+ - updated from linux-2.6.38.1 to linux-3.7.1
+ - added haserl-0.9.29
+ - added mpc-1.0.1, for gcc
+ - updated from binutils-2.22 to binutils-2.23
+ - updated from busybox-1.19.4 to busybox-1.20.2
+ - updated from dropbear-0.53.1 to dropbear-2012.55
+ - updated from e2fsprogs-1.42.2 to e2fsprogs-1.42.6
+ - updated from gcc-4.4.6 to gcc-4.6.3
+ - updated from glibc-2.14 to glibc-2.16.0
+ - updated from gmp-4.3.2 to gmp-5.0.5
+ - updated from iptables-1.4.13 to iptables-1.4.17
+ - updated from kmod-7 to kmod-12
+ - updated from lua-5.2.0 to lua-5.2.1
+ - updated from mpfr-2.4.2 to mpfr-3.1.1
+ - updated from util-linux-2.21 to util-linux-2.22
+ - (bash) updated from patch level 24 to patch level 39
+
 Version 14.1, Sun May 13 18:59:49 MST 2012
  - distribution named "boomslang"
  - updated from e2fsprogs-1.42.1 to e2fsprogs-1.42.2
