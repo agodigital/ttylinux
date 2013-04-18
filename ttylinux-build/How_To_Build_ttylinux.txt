@@ -6,7 +6,7 @@ by Pascal Schmidt; some text copyright (C) Pascal Schmidt.
 
 
 How_To_Build_ttylinux.txt
-March 13, 2012
+March 30, 2013
 
 
 30mar13	drj	Fixed typos.

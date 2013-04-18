@@ -1,5 +1,7 @@
 How to Help ttylinux
 Copyright (C) 2012 Douglas Jerome <douglas@ttylinux.org>
+
+How_To_Help_ttylinux.txt
 March 17, 2012
 
 
@@ -103,11 +105,11 @@ the ttylinux mail list:
 
 If you find a problem while using a ttylinux distribution, collect this
 information:
-	-- ttylinux version number
-	-- ttylinux platform and CPU (pc_i486, mac_g4, etc.)
-	-- problem statement: describe what is the symptom
-	-- (option) proposed fix: describe what you think is the fix
-	-- (option) software patch, if less than 25 kbytes ** (see below)
+        -- ttylinux version number
+        -- ttylinux platform and CPU (pc_i486, mac_g4, etc.)
+        -- problem statement: describe what is the symptom
+        -- (option) proposed fix: describe what you think is the fix
+        -- (option) software patch, if less than 25 kbytes ** (see below)
 
 Email this information to the ttylinux mail list:
      ttylinux@googlegroups.com
@@ -128,12 +130,12 @@ together on something.  Bug fixes should be given as one or more small patch in
 the mail list, if at all feasible.
 
 If you find a problem while building ttylinux, collect this information:
-	-- ttylinux version number in the Makefile, before you changed it
-	-- COMPRESSED platform config file: ttylinux-config.sh, if changed
-	-- kernel config file, if applicable and you changed it ** (see below)
-	-- problem statement: describe what is the symptom
-	-- (option) proposed fix: describe what you think is the fix
-	-- (option) software patch, if less than 25 kbytes ** (see below)
+        -- ttylinux version number in the Makefile, before you changed it
+        -- COMPRESSED platform config file: ttylinux-config.sh, if changed
+        -- kernel config file, if applicable and you changed it ** (see below)
+        -- problem statement: describe what is the symptom
+        -- (option) proposed fix: describe what you think is the fix
+        -- (option) software patch, if less than 25 kbytes ** (see below)
 
 Email this information to the ttylinux mail list:
      ttylinux@googlegroups.com

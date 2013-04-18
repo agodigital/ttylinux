@@ -1,38 +1,43 @@
-How_To_WRTU54G-TM.txt
 How to Build and Run ttylinux for the WRTU54G-TM
+Copyright (C) 2008-2012 Douglas Jerome <douglas@ttylinux.org>
 
 Parts of this document are shamelessly nicked from neutronscott:
 http://wiki.scottn.us/wrtu54g-tm
 
 
-         -------------------------------------------------------------
+How_To_WRTU54G-TM.txt
+March 4, 2012
 
 
-                               Table of Contents
+04mar12	drj	First revision.
 
+
+         -------------------------------------------------------------
+
+
+How to Build and Run ttylinux for the WRTU54G-TM
+
+-- Document Outline --
 1. Background on the WRTU54G-TM CPU, ADM8668 Wildpass
 2. WRTU54G-TM Memory Information
-2.1. RAM Organization
-2.2. Flash Organization
+   2.1. RAM Organization
+   2.2. Flash Organization
 3. Accessing the WRTU54G-TM Hardrware
-3.1. Serial Port
-3.2. Ethernet Port
+   3.1. Serial Port
+   3.2. Ethernet Port
 4. Loading and Booting ttylinux
-4.1. Building ttylinux for the WRTU54G-TM
-4.2. kernel, nfsroot from network
-4.3. kernel, ramdisk from network
-4.4. kernel+ramdisk, as one file, from network
+   4.1. Building ttylinux for the WRTU54G-TM
+   4.2. kernel, nfsroot from network
+   4.3. kernel, ramdisk from network
+   4.4. kernel+ramdisk, as one file, from network
 5. Running ttylinux
-5.1. Problems
-5.2. /proc/adm8668/buttons and /proc/adm8668/sesled
+   5.1. Problems
+   5.2. /proc/adm8668/buttons and /proc/adm8668/sesled
 
 
-         -------------------------------------------------------------
-
-
-   ==================================================
+=====================================================
 1. Background on the WRTU54G-TM CPU, ADM8668 Wildpass
-   ==================================================
+=====================================================
 
 WildPass is a highly integrated SoC which incorporates a 200MHZ CPU with MMU
 support, a 802.11a/b/g MAC/Baseband, two 802.3 MACs and one 10/100BASE-Tx
@@ -60,15 +65,16 @@ Find more WRTU54G-TM information, including an OpenWRT port, at
 http://wiki.scottn.us/wrtu54g-tm
 
 
-   =============================
+================================
 2. WRTU54G-TM Memory Information
-   =============================
+================================
 
 64MB RAM
 8MB Flash
 
+---------------------
 2.1. RAM Organization
-     ----------------
+---------------------
 
 0xa4000000 - 64MB
 0xa0000000 - 0
@@ -79,8 +85,9 @@ http://wiki.scottn.us/wrtu54g-tm
 0x04000000 - 64MB
 0x00000000 - 0
 
+-----------------------
 2.2. Flash Organization
-     ------------------
+-----------------------
 
 flash is at 0xb0000000
 
@@ -99,12 +106,13 @@ Flash Memory Factory Layout
 0xb07d4000-0xb07fffff [ 176KB] unused FF
 
 
-   ==================================
+=====================================
 3. Accessing the WRTU54G-TM Hardrware
-   ==================================
+=====================================
 
+----------------
 3.1. Serial Port
-     -----------
+----------------
 
 You must open the box and connect the serial port to serial terminal or
 computer running a serial terminal emulator like minicomm.
@@ -132,9 +140,9 @@ JP2 pinout        C10-SER-INT-CONN-EXT       S13-SERIAL-INT-CONN device
 3 - RXD ....... green ----------- yellow ... RXD
 4 - GND ....... black ----------- black .... GND
 
-
+------------------
 3.2. Ethernet Port
-     -------------
+------------------
 
 Connect the WRTU54G-TM uplink Ethernet port (look for the blue-shading around
 RJ-45 connecter labeled "INTERNET") to a network with a host computer running a
@@ -142,12 +150,13 @@ tftp server, and have the ttylinux kernel and ramdisk available from that host
 computer via tftp.
 
 
-   ============================
+===============================
 4. Loading and Booting ttylinux
-   ============================
+===============================
 
+-----------------------------------------
 4.1. Building ttylinux for the WRTU54G-TM
-     ------------------------------------
+-----------------------------------------
 
 4.1.1. ttylinux versions *previous* to ttylinux-build-10
 
@@ -164,8 +173,9 @@ and then run the make process with this command:
 The following sections show WRTU54G-TM u-boot commands to give via the serial
 port for loading and running WRTU54G-TM ttylinux.
 
+---------------------------------
 4.2. kernel, nfsroot from network
-     ----------------------------
+---------------------------------
 
 Note to self: My Fedora host's tftpd gets and puts files from and to
               /var/lib/tftpboot/, so that is where you want to put the build
@@ -180,8 +190,9 @@ ADM8668 # set bootargs console=ttyS0 nologin=tty1,tty2,tty3,tty4,tty5,tty6 nofsc
 ADM8668 # tftpboot 80600000 uImage
 ADM8668 # bootm 80600000
 
+---------------------------------
 4.3. kernel, ramdisk from network
-     ----------------------------
+---------------------------------
 
 Note to self: My Fedora host's tftpd gets and puts files from and to
               /var/lib/tftpboot/, so that is where you want to put the build
@@ -196,8 +207,9 @@ ADM8668 # tftpboot 80900000 uImage
 ADM8668 # tftpboot 803FFFC0 ramdisk.gz
 ADM8668 # bootm 80900000 803FFFC0
 
+----------------------------------------------
 4.4. kernel+ramdisk, as one file, from network
-     -----------------------------------------
+----------------------------------------------
 
 Note to self: My Fedora host's tftpd gets and puts files from and to
               /var/lib/tftpboot/, so that is where you want to put the build
@@ -215,17 +227,19 @@ ADM8668 # tftpboot 80900000 vmlinux-ramdisk.bin
 ADM8668 # bootm 80900000
 
 
-   ================
+===================
 5. Running ttylinux
-   ================
+===================
 
+-------------
 5.1. Problems
-     --------
+-------------
 
 Cannot log in via ssh.
 
+---------------------------------------------------
 5.2. /proc/adm8668/buttons and /proc/adm8668/sesled
-     ----------------------------------------------
+---------------------------------------------------
 
 To sense the top "key" button: "cat /proc/adm8668/buttons" while pushing,
 holding, releasing, and not holding the top "key" button.
@@ -236,3 +250,5 @@ echo 0 >>/proc/adm8668/sesled  turn off
 echo 1 >>/proc/adm8668/sesled  turn green led on
 echo 2 >>/proc/adm8668/sesled  turn amber led on
 
+
+[eof]

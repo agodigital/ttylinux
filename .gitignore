@@ -37,11 +37,12 @@ ttylinux-build/pkg-cfg/glibc-devel-2.14/files-*
 ttylinux-build/pkg-src/[^.]*
 ttylinux-build/site/[^.]*
 ttylinux-build/sysroot/[^.]*
+ttylinux-build/test/data-*
+ttylinux-build/test/v*
 ttylinux-build/ttylinux-config.sh
 ttylinux-build/ttylinux-pkglst.txt
 ttylinux-build/var/log/[^.]*
 ttylinux-build/var/run/[^.]*
-ttylinux-build/verification
 
 # cross-tool builder
 xbuildtool/bin-link/[^.]*

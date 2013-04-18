@@ -14,4 +14,5 @@ question, then:
 
 
 If you have an idea for ttylinux, then read the "How_To_Help_ttylinux.txt" file.
+-------------------------------------------------------------------------------
 
