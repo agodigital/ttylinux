@@ -26,6 +26,7 @@
 #
 # CHANGE LOG
 #
+#	19apr13	drj	Reorganized and changed names.
 #	05feb13	drj	Added kcfg to the help.
 #	28jan13	drj	Removed TTYLINUX_NAME and TTYLINUX_VERSION.
 #	24mar12	drj	Cleaning error paths.
@@ -49,7 +50,7 @@
 #	10apr10	drj	Changed "false" to "exit 1".
 #	30mar10	drj	Changed the "bootcd" target to be "iso".
 #	07mar10	drj	"make stat" reports the build configuration.
-#	07mar10	drj	Gave a thurough workover.
+#	07mar10	drj	Gave a thorough work-over.
 #	04mar10	drj	Updated for multiple architectures and cross-tools.
 #	06dec09	drj	Corrected misspellings.
 #	22aug09	drj	Added the "add-on" target.
@@ -79,11 +80,13 @@ SHELL=/bin/bash
 # Make Targets
 # *****************************************************************************
 
-.PHONY: help
-.PHONY: is_build_coherent
-.PHONY: getcfg pkglist dload kcfg umount mount list find
-.PHONY: stat clean kclean pclean format media
-.PHONY: dist init pkgs pkgs_ kernel fsys distdir distimg src-dist
+.PHONY:	help
+.PHONY:	is_build_coherent
+.PHONY:	getcfg pkglist dload kcfg umount mount list
+.PHONY:	stat clean kclean pclean format media
+.PHONY:	dist init pkgs pkgs_ kernel fsys distdir distimg src-dist
+.PHONY:	qfile qpack
+
 
 # -----------------------------------------------------------------------------
 # -- Default Target
@@ -91,15 +94,17 @@ SHELL=/bin/bash
 
 help:
 	@echo ""
+	@echo "Housekeeping Targets:"
 	@echo "getcfg   - get default config file from the config directory"
 	@echo "pkglist  - make list of source packages using default config"
 	@echo "dload    - download source packages"
 	@echo "kcfg     - make a new kernel config file"
 	@echo "mount    - mount the ttylinux file system image, if found"
 	@echo "umount   - unmount the ttylinux file system image, if mounted"
-	@echo "list     - list the packages names and versions"
-	@echo "find     - list lost or multiply-defined files in the build"
+	@echo ""
+	@echo "Build Targets:"
 	@echo "stat     - report the status of the ttylinux build process"
+	@echo "dist     - make the distribution (probably you want to do this)"
 	@echo "clean    - remove the entire ttylinux build"
 	@echo "kclean   - remove the ttylinux kernel build"
 	@echo "pclean   - remove the ttylinux packages build"
@@ -113,6 +118,14 @@ help:
 	@echo "src-dist - get the ttylinux source packages into an ISO image"
 	@echo "format   - format target boot SDCard"
 	@echo "media    - put the boot system onto media, CDROM or SDCard"
+	@echo "PACKAGE=name name - Use this to build a single package after:"
+	@echo "        \"make init\""
+	@echo "        \"make PACKAGE=ttylinux-basefs-1.0 ttylinux-basefs-1.0\""
+	@echo "        \"make PACKAGE=glibc-<vers> glibc-<vers>\""
+	@echo ""
+	@echo "Test Targets:"
+	@echo "qfile    - list lost or multiply-owned files in the sysroot"
+	@echo "qpack    - find files listed in package lists in the sysroot"
 	@echo ""
 
 # -----------------------------------------------------------------------------
@@ -123,7 +136,7 @@ is_build_coherent:
 	@t=`cat var/run/init`;						\
 	. ./ttylinux-config.sh;						\
 	echo "Building for $${TTYLINUX_PLATFORM}";			\
-	if [ "$${t}" != "$${TTYLINUX_PLATFORM}" ]; then			\
+	if [[ "$${t}" != "$${TTYLINUX_PLATFORM}" ]]; then		\
 		echo "=> Build already in progress for \"$${t}\".";	\
 		echo "=> Build MISMATCH.";				\
 		echo "=> Did you change ttylinux-config.sh?";		\
@@ -132,37 +145,37 @@ is_build_coherent:
 	fi
 
 var/run/init:
-	@if [ ! -f var/run/init ]; then					\
+	@if [[ ! -f var/run/init ]]; then				\
 		echo "Not initialized for building.";			\
 		exit 1;							\
 	fi
 
 var/run/packages:
-	@if [ ! -f var/run/packages ]; then				\
-		echo "No packages are built.";				\
-		exit 1;							\
-	fi
-
-var/run/fsys:
-	@if [ ! -f var/run/fsys ]; then				\
-		echo "The fsys file system is not built.";		\
+	@if [[ ! -f var/run/packages ]]; then				\
+		echo "Packages are not all built.";			\
 		exit 1;							\
 	fi
 
 var/run/kernel:
-	@if [ ! -f var/run/kernel ]; then				\
+	@if [[ ! -f var/run/kernel ]]; then				\
 		echo "The kernel is not built.";			\
 		exit 1;							\
 	fi
 
+var/run/fsys:
+	@if [[ ! -f var/run/fsys ]]; then				\
+		echo "The fsys file system is not built.";		\
+		exit 1;							\
+	fi
+
 var/run/distdir:
-	@if [ ! -f var/run/distdir ]; then				\
+	@if [[ ! -f var/run/distdir ]]; then				\
 		echo "The distribution directory is not built.";	\
 		exit 1;							\
 	fi
 
 var/run/distimg:
-	@if [ ! -f var/run/distimg ]; then				\
+	@if [[ ! -f var/run/distimg ]]; then				\
 		echo "The distribution image is not built.";		\
 		exit 1;							\
 	fi
@@ -235,40 +248,35 @@ ttylinux-pkglst.txt pkglist:	ttylinux-config.sh
 dload:	ttylinux-pkglst.txt scripts/utl-dload.sh
 	@echo "Download ttylinux source packages."
 	@(scripts/utl-dload.sh)
-	@if [ $$? -ne 0 ]; then						\
+	@if [[ $$? != 0 ]]; then					\
 		echo "Download FAILED.";				\
 		exit 1;							\
 	fi
 
-kcfg:	scripts/cfg-kernel.sh
-	@(scripts/cfg-kernel.sh)
+kcfg:	scripts/utl-kconfig.sh
+	@(scripts/utl-kconfig.sh)
 
-mount:	scripts/sys-mount.sh
+mount:	scripts/utl-mount.sh
 	@echo "Mount the ttylinux file system image."
-	@(scripts/sys-mount.sh)
+	@(scripts/utl-mount.sh)
 
-umount:	scripts/sys-umount.sh
+umount:	scripts/utl-umount.sh
 	@echo "Unmount the ttylinux file system image."
-	@(scripts/sys-umount.sh)
+	@(scripts/utl-umount.sh)
 
-list:	ttylinux-pkglst.txt scripts/show-listpackages.sh
-	@(scripts/show-listpackages.sh)
-
-find:	scripts/show-lostfiles.sh
-	@(scripts/show-lostfiles.sh)
+list:	ttylinux-pkglst.txt scripts/utl-list.sh
+	@(scripts/utl-list.sh)
 
 # -----------------------------------------------------------------------------
 # -- Build Targets
 # -----------------------------------------------------------------------------
 
-dist:	dload clean init pkgs kernel fsys distdir distimg src-dist
-
 stat:
 	@. ./ttylinux-config.sh;					\
 	t1=$${TTYLINUX_PLATFORM};					\
-	if [ -f var/run/init ]; then					\
+	if [[ -f var/run/init ]]; then					\
 		t=`cat var/run/init`;					\
-		if [ "$${t}" != "$${t1}" ]; then			\
+		if [[ "$${t}" != "$${t1}" ]]; then			\
 			echo "";					\
 			echo "Build MISMATCH.";				\
 			echo "=> ttylinux-config.sh    : $${t1}";	\
@@ -281,47 +289,46 @@ stat:
 	fi;								\
 	echo "Report status of the $${TTYLINUX_PLATFORM} ttylinux build."
 	@(echo -n "> Build ";						\
-	[ ! -f var/run/init ] && echo -n "NOT ";			\
+	[[ ! -f var/run/init ]] && echo -n "NOT ";			\
 	echo "Initialized")
 	@(echo -n "> Packages ";					\
-	[ ! -f var/run/packages ] && echo -n "NOT ";			\
+	[[ ! -f var/run/packages ]] && echo -n "NOT ";			\
 	echo "Built")
 	@(echo -n "> Kernel ";						\
-	[ ! -f var/run/kernel ] && echo -n "NOT ";			\
+	[[ ! -f var/run/kernel ]] && echo -n "NOT ";			\
 	echo "Built")
 	@(echo -n "> File System initrd ";				\
-	[ ! -f var/run/fsys ] && echo -n "NOT ";			\
+	[[ ! -f var/run/fsys ]] && echo -n "NOT ";			\
 	echo "Built")
 	@(echo -n "> Distribution Directory ";				\
-	[ ! -f var/run/distdir ] && echo -n "NOT ";			\
+	[[ ! -f var/run/distdir ]] && echo -n "NOT ";			\
 	echo "Built")
 	@(echo -n "> Distribution Image ";				\
-	[ ! -f var/run/distimg ] && echo -n "NOT ";			\
+	[[ ! -f var/run/distimg ]] && echo -n "NOT ";			\
 	echo "Built")
 
-${PACKAGE}:	ttylinux-pkglst.txt var/run/init is_build_coherent scripts/bld-packages.sh 
-	@(scripts/bld-packages.sh ${PACKAGE})
+dist:	dload clean init pkgs kernel fsys distdir distimg src-dist
 
 clean:	scripts/bld-clean.sh
-	@if [ -f var/run/init ]; then					\
+	@if [[ -f var/run/init ]]; then					\
 		echo "Remove the `cat var/run/init` built items.";	\
 	else								\
 		echo "Remove the built items.";				\
 	fi
 	@. ./ttylinux-config.sh;					\
-	if [ x"$${TTYLINUX_SITE_SCRIPTS:-}" = x"y" ]; then		\
-		if [ -x site/bld-clean-0.sh ]; then			\
+	if [[ x"$${TTYLINUX_SITE_SCRIPTS:-}" == x"y" ]]; then		\
+		if [[ -x site/bld-clean-0.sh ]]; then			\
 			(site/bld-clean-0.sh all);			\
 		fi							\
 	fi;								\
 	(scripts/bld-clean.sh all);					\
 	mystat=$$?;							\
-	if [ x"$${TTYLINUX_SITE_SCRIPTS:-}" = x"y" ]; then		\
-		if [ -x site/bld-clean-1.sh ]; then			\
+	if [[ x"$${TTYLINUX_SITE_SCRIPTS:-}" == x"y" ]]; then		\
+		if [[ -x site/bld-clean-1.sh ]]; then			\
 			(site/bld-clean-1.sh all);			\
 		fi							\
 	fi;								\
-	if [ $$mystat -ne 0 ]; then					\
+	if [[ $$mystat != 0 ]]; then					\
 		echo "Clean FAILED.";					\
 		exit 1;							\
 	fi
@@ -333,25 +340,25 @@ clean:	scripts/bld-clean.sh
 	@rm -f var/run/distimg
 
 kclean:	scripts/bld-clean.sh
-	@if [ -f var/run/init ]; then					\
+	@if [[ -f var/run/init ]]; then					\
 		echo "Remove the `cat var/run/init` kernel.";		\
 	else								\
 		echo "Remove the kernel.";				\
 	fi
 	@. ./ttylinux-config.sh;					\
-	if [ x"$${TTYLINUX_SITE_SCRIPTS:-}" = x"y" ]; then		\
-		if [ -x site/bld-clean-0.sh ]; then			\
+	if [[ x"$${TTYLINUX_SITE_SCRIPTS:-}" == x"y" ]]; then		\
+		if [[ -x site/bld-clean-0.sh ]]; then			\
 			(site/bld-clean-0.sh kernel);			\
 		fi							\
 	fi;								\
 	(scripts/bld-clean.sh kernel);					\
 	mystat=$$?;							\
-	if [ x"$${TTYLINUX_SITE_SCRIPTS:-}" = x"y" ]; then		\
-		if [ -x site/bld-clean-1.sh ]; then			\
+	if [[ x"$${TTYLINUX_SITE_SCRIPTS:-}" == x"y" ]]; then		\
+		if [[ -x site/bld-clean-1.sh ]]; then			\
 			(site/bld-clean-1.sh kernel);			\
 		fi							\
 	fi;								\
-	if [ $$mystat -ne 0 ]; then					\
+	if [[ $$mystat != 0 ]]; then					\
 		echo "Clean FAILED.";					\
 		exit 1;							\
 	fi
@@ -361,25 +368,25 @@ kclean:	scripts/bld-clean.sh
 	@rm -f var/run/distimg
 
 pclean:	scripts/bld-clean.sh
-	@if [ -f var/run/init ]; then					\
+	@if [[ -f var/run/init ]]; then					\
 		echo "Remove the `cat var/run/init` packages.";		\
 	else								\
 		echo "Remove the packages.";				\
 	fi
 	@. ./ttylinux-config.sh;					\
-	if [ x"$${TTYLINUX_SITE_SCRIPTS:-}" = x"y" ]; then		\
-		if [ -x site/bld-clean-0.sh ]; then			\
+	if [[ x"$${TTYLINUX_SITE_SCRIPTS:-}" == x"y" ]]; then		\
+		if [[ -x site/bld-clean-0.sh ]]; then			\
 			(site/bld-clean-0.sh packages);			\
 		fi							\
 	fi;								\
 	(scripts/bld-clean.sh packages);				\
 	mystat=$$?;							\
-	if [ x"$${TTYLINUX_SITE_SCRIPTS:-}" = x"y" ]; then		\
-		if [ -x site/bld-clean-1.sh ]; then			\
+	if [[ x"$${TTYLINUX_SITE_SCRIPTS:-}" == x"y" ]]; then		\
+		if [[ -x site/bld-clean-1.sh ]]; then			\
 			(site/bld-clean-1.sh packages);			\
 		fi							\
 	fi;								\
-	if [ $$mystat -ne 0 ]; then					\
+	if [[ $$mystat != 0 ]]; then					\
 		echo "Clean FAILED.";					\
 		exit 1;							\
 	fi
@@ -390,69 +397,72 @@ pclean:	scripts/bld-clean.sh
 
 init:	scripts/bld-init.sh
 	@. ./ttylinux-config.sh;					\
-	if [ -f var/run/init ]; then					\
+	if [[ -f var/run/init ]]; then					\
 		echo "Already building for `cat var/run/init`";		\
 		echo "Maybe \"make clean\" first.";			\
 		exit 1;							\
 	fi;								\
 	echo "Initialize the $${TTYLINUX_PLATFORM} ttylinux build.";	\
-	if [ x"$${TTYLINUX_SITE_SCRIPTS:-}" = x"y" ]; then		\
-		if [ -x site/bld-init-0.sh ]; then			\
+	if [[ x"$${TTYLINUX_SITE_SCRIPTS:-}" == x"y" ]]; then		\
+		if [[ -x site/bld-init-0.sh ]]; then			\
 			(site/bld-init-0.sh);				\
 		fi							\
 	fi;								\
 	(scripts/bld-init.sh);						\
 	mystat=$$?;							\
-	if [ x"$${TTYLINUX_SITE_SCRIPTS:-}" = x"y" ]; then		\
-		if [ -x site/bld-init-1.sh ]; then			\
+	if [[ x"$${TTYLINUX_SITE_SCRIPTS:-}" == x"y" ]]; then		\
+		if [[ -x site/bld-init-1.sh ]]; then			\
 			(site/bld-init-1.sh $${mystat});		\
 		fi							\
 	fi;								\
-	if [ $$mystat -ne 0 ]; then					\
+	if [[ $$mystat != 0 ]]; then					\
 		echo "Initialize FAILED.";				\
 		exit 1;							\
 	fi;								\
 	echo "$${TTYLINUX_PLATFORM}" >var/run/init
 
-pkgs:	ttylinux-pkglst.txt var/run/init is_build_coherent scripts/bld-packages.sh 
+${PACKAGE}:	ttylinux-pkglst.txt var/run/init is_build_coherent scripts/bld-packages.sh
+	@(scripts/bld-packages.sh ${PACKAGE})
+
+pkgs:	ttylinux-pkglst.txt var/run/init is_build_coherent scripts/bld-packages.sh
 	@echo "Make the ttylinux packages."
 	@rm -f var/run/packages
 	@. ./ttylinux-config.sh;					\
-	if [ x"$${TTYLINUX_SITE_SCRIPTS:-}" = x"y" ]; then		\
-		if [ -x site/bld-packages-0.sh ]; then			\
+	if [[ x"$${TTYLINUX_SITE_SCRIPTS:-}" == x"y" ]]; then		\
+		if [[ -x site/bld-packages-0.sh ]]; then		\
 			(site/bld-packages-0.sh);			\
 		fi							\
 	fi;								\
 	(scripts/bld-packages.sh);					\
 	mystat=$$?;							\
-	if [ x"$${TTYLINUX_SITE_SCRIPTS:-}" = x"y" ]; then		\
-		if [ -x site/bld-packages-1.sh ]; then			\
+	if [[ x"$${TTYLINUX_SITE_SCRIPTS:-}" == x"y" ]]; then		\
+		if [[ -x site/bld-packages-1.sh ]]; then		\
 			(site/bld-packages-1.sh $${mystat});		\
 		fi							\
 	fi;								\
-	if [ $$mystat -ne 0 ]; then					\
+	if [[ $$mystat != 0 ]]; then					\
 		echo "Build FAILED.";					\
 		exit 1;							\
 	fi
 	@touch var/run/packages
 
-pkgs_:	ttylinux-pkglst.txt var/run/init is_build_coherent scripts/bld-packages.sh 
+pkgs_:	ttylinux-pkglst.txt var/run/init is_build_coherent scripts/bld-packages.sh
 	@echo "Make the ttylinux packages."
 	@rm -f var/run/packages
 	@. ./ttylinux-config.sh;					\
-	if [ x"$${TTYLINUX_SITE_SCRIPTS:-}" = x"y" ]; then		\
-		if [ -x site/bld-packages-0.sh ]; then			\
+	if [[ x"$${TTYLINUX_SITE_SCRIPTS:-}" == x"y" ]]; then		\
+		if [[ -x site/bld-packages-0.sh ]]; then		\
 			(site/bld-packages-0.sh);			\
 		fi							\
 	fi;								\
 	(scripts/bld-packages.sh continue);				\
 	mystat=$$?;							\
-	if [ x"$${TTYLINUX_SITE_SCRIPTS:-}" = x"y" ]; then		\
-		if [ -x site/bld-packages-1.sh ]; then			\
+	if [[ x"$${TTYLINUX_SITE_SCRIPTS:-}" == x"y" ]]; then		\
+		if [[ -x site/bld-packages-1.sh ]]; then		\
 			(site/bld-packages-1.sh $${mystat});		\
 		fi							\
 	fi;								\
-	if [ $$mystat -ne 0 ]; then					\
+	if [[ $$mystat != 0 ]]; then					\
 		echo "Build FAILED.";					\
 		exit 1;							\
 	fi
@@ -462,19 +472,19 @@ kernel:	scripts/bld-kernel.sh
 	@echo "Make the ttylinux kernel."
 	@rm -f var/run/kernel
 	@. ./ttylinux-config.sh;					\
-	if [ x"$${TTYLINUX_SITE_SCRIPTS:-}" = x"y" ]; then		\
-		if [ -x site/bld-kernel-0.sh ]; then			\
+	if [[ x"$${TTYLINUX_SITE_SCRIPTS:-}" == x"y" ]]; then		\
+		if [[ -x site/bld-kernel-0.sh ]]; then			\
 			(site/bld-kernel-0.sh);				\
 		fi							\
 	fi;								\
 	(scripts/bld-kernel.sh);					\
 	mystat=$$?;							\
-	if [ x"$${TTYLINUX_SITE_SCRIPTS:-}" = x"y" ]; then		\
-		if [ -x site/bld-kernel-1.sh ]; then			\
+	if [[ x"$${TTYLINUX_SITE_SCRIPTS:-}" == x"y" ]]; then		\
+		if [[ -x site/bld-kernel-1.sh ]]; then			\
 			(site/bld-kernel-1.sh $${mystat});		\
 		fi							\
 	fi;								\
-	if [ $$mystat -ne 0 ]; then					\
+	if [[ $$mystat != 0 ]]; then					\
 		echo "Kernel FAILED.";					\
 		exit 1;							\
 	fi
@@ -484,19 +494,19 @@ fsys:	var/run/packages is_build_coherent scripts/bld-fsys.sh
 	@echo "Make ttylinux root file system initrd image."
 	@rm -f var/run/fsys
 	@. ./ttylinux-config.sh;					\
-	if [ x"$${TTYLINUX_SITE_SCRIPTS:-}" = x"y" ]; then		\
-		if [ -x site/bld-fsys-0.sh ]; then			\
+	if [[ x"$${TTYLINUX_SITE_SCRIPTS:-}" == x"y" ]]; then		\
+		if [[ -x site/bld-fsys-0.sh ]]; then			\
 			(site/bld-fsys-0.sh);				\
 		fi							\
 	fi;								\
 	(scripts/bld-fsys.sh);						\
 	mystat=$$?;							\
-	if [ x"$${TTYLINUX_SITE_SCRIPTS:-}" = x"y" ]; then		\
-		if [ -x site/bld-fsys-1.sh ]; then			\
+	if [[ x"$${TTYLINUX_SITE_SCRIPTS:-}" == x"y" ]]; then		\
+		if [[ -x site/bld-fsys-1.sh ]]; then			\
 			(site/bld-fsys-1.sh $${mystat});		\
 		fi							\
 	fi;								\
-	if [ $$mystat -ne 0 ]; then					\
+	if [[ $$mystat != 0 ]]; then					\
 		echo "File system initrd FAILED.";			\
 		exit 1;							\
 	fi
@@ -506,19 +516,19 @@ distdir:	var/run/fsys var/run/kernel scripts/bld-distdir.sh
 	@echo "Make ttylinux distribution directory."
 	@rm -f var/run/distdir
 	@. ./ttylinux-config.sh;					\
-	if [ x"$${TTYLINUX_SITE_SCRIPTS:-}" = x"y" ]; then		\
-		if [ -x site/bld-distdir-0.sh ]; then			\
+	if [[ x"$${TTYLINUX_SITE_SCRIPTS:-}"== x"y" ]]; then		\
+		if [[ -x site/bld-distdir-0.sh ]]; then			\
 			(site/bld-distdir-0.sh);			\
 		fi							\
 	fi;								\
 	(scripts/bld-distdir.sh);					\
 	mystat=$$?;							\
-	if [ x"$${TTYLINUX_SITE_SCRIPTS:-}" = x"y" ]; then		\
-		if [ -x site/bld-distdir-1.sh ]; then			\
+	if [[ x"$${TTYLINUX_SITE_SCRIPTS:-}"== x"y" ]]; then		\
+		if [[ -x site/bld-distdir-1.sh ]]; then			\
 			(site/bld-distdir-1.sh $${mystat});		\
 		fi							\
 	fi;								\
-	if [ $$mystat -ne 0 ]; then					\
+	if [[ $$mystat != 0 ]]; then					\
 		echo "Distribution directory FAILED.";			\
 		exit 1;							\
 	fi
@@ -528,19 +538,19 @@ distimg:	var/run/distdir scripts/bld-distimg.sh
 	@echo "Make a ttylinux distribution image file system."
 	@rm -f var/run/distimg
 	@. ./ttylinux-config.sh;					\
-	if [ x"$${TTYLINUX_SITE_SCRIPTS:-}" = x"y" ]; then		\
-		if [ -x site/bld-distimg-0.sh ]; then			\
+	if [[ x"$${TTYLINUX_SITE_SCRIPTS:-}" == x"y" ]]; then		\
+		if [[ -x site/bld-distimg-0.sh ]]; then			\
 			(site/bld-distimg-0.sh);			\
 		fi							\
 	fi;								\
 	(scripts/bld-distimg.sh);					\
 	mystat=$$?;							\
-	if [ x"$${TTYLINUX_SITE_SCRIPTS:-}" = x"y" ]; then		\
-		if [ -x site/bld-distimg-1.sh ]; then			\
+	if [[ x"$${TTYLINUX_SITE_SCRIPTS:-}" == x"y" ]]; then		\
+		if [[ -x site/bld-distimg-1.sh ]]; then			\
 			(site/bld-distimg-1.sh $${mystat});		\
 		fi							\
 	fi;								\
-	if [ $$mystat -ne 0 ]; then					\
+	if [[ $$mystat != 0 ]]; then					\
 		echo "Distribution image FAILED.";			\
 		exit 1;							\
 	fi
@@ -550,13 +560,23 @@ src-dist:	scripts/bld-src-dist.sh
 	@echo "Make source distribution ISO image."
 	@(scripts/bld-src-dist.sh)
 
-format:	scripts/media-format.sh
+format:	scripts/bld-format.sh
 	@echo "Format ttylinux boot media SDCard."
-	@(scripts/media-format.sh)
+	@(scripts/bld-format.sh)
 
 media:	scripts/bld-media.sh
 	@echo "Make ttylinux media."
 	@(scripts/bld-media.sh)
+
+# -----------------------------------------------------------------------------
+# -- Test Targets
+# -----------------------------------------------------------------------------
+
+qfile:	var/run/packages scripts/test-qfile.sh
+	@(scripts/test-qfile.sh)
+
+qpack:	var/run/packages scripts/test-qpack.sh
+	@(scripts/test-qpack.sh)
 
 
 # end of Makefile

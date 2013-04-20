@@ -25,13 +25,13 @@
 #
 # PROGRAM DESCRIPTION
 #
-#	This script lists the files in sysroot that are not in a package
-#	list.  The package lists are in sysroot/usr/share/ttylinux.
+#	This script checks that each file listed in each package list is found
+#	in the sysroot.  Also, empty package lists are reported.  The package
+#	lists are in sysroot/usr/share/ttylinux.
 #
 # CHANGE LOG
 #
-#	19feb12	drj	Changes for build process reorganization.
-#	13jan11	drj	File creation.
+#	19apr13	drj	File creation.
 #
 # *****************************************************************************
 
@@ -69,35 +69,31 @@ source ./scripts/_functions.sh # build support
 # Main Program
 # *****************************************************************************
 
-hit=0
-hitList=""
+ht=0
+sz=0
 f=""
 p=""
 
-for f in $(find sysroot/ -type f); do
-	f=${f#sysroot/}
-	[[ "${f:0:19}" == "usr/share/ttylinux/" ]] && continue || true
-	hit=0
-	hitList=""
-	for p in $(ls sysroot/usr/share/ttylinux/*-FILES); do
-		grep "^${f}\>" ${p} >/dev/null 2>&1 && {
-			hit=$((${hit} + 1))
-			hitList+="${p} "
-		} || true
+for p in $(ls sysroot/usr/share/ttylinux/*-FILES); do
+	ht=0
+	sz=$(stat -c %s ${p})
+	if [[ ${sz} == 0 ]]; then
+		echo "=> *EMPTY* ${p}"
+	fi
+	for f in $(<${p}); do
+		[[ "${f%%/*}"/ == "dev"/ ]] && continue # skip dev/*
+		if [[ ! -f "sysroot/${f}" && ! -d "sysroot/${f}" ]]; then
+			if [[ ${ht} == 0 ]]; then
+				echo "=> ${p}"
+				ht=1
+			fi
+			echo "-> Missing file \"${f}\""
+		fi
 	done
-	case ${hit} in
-		0)	echo "=> Lost file \"${f}\"" ;;
-		1)	;;
-		*)	echo "=> Multiply-claimed file \"${f}\""
-			for p in ${hitList}; do
-				echo "   $(basename ${p})"
-			done
-			;;
-	esac
 done
 
-unset hit
-unset hitList
+unset ht
+unset sz
 unset f
 unset p
 
