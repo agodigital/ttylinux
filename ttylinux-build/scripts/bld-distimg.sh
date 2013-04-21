@@ -273,6 +273,7 @@ echo ""
 [[ "${TTYLINUX_PLATFORM}" == "pc_i486"     ]] && bootiso_x86_make     || true
 [[ "${TTYLINUX_PLATFORM}" == "pc_i686"     ]] && bootiso_x86_make     || true
 [[ "${TTYLINUX_PLATFORM}" == "pc_x86_64"   ]] && bootiso_x86_make     || true
+[[ "${TTYLINUX_PLATFORM}" == "virtio_i686" ]] && bootiso_x86_make     || true
 [[ "${TTYLINUX_PLATFORM}" == "wrtu54g_tm"  ]] && tarball_wrtu54g_make || true
 
 echo ""

@@ -29,6 +29,7 @@
 #
 # CHANGE LOG
 #
+#	20apr13	drj	Added virtio_i686.
 #	31mar13	drj	Fixed a weird-ass thing in function mac_dir_make.
 #	23mar13	drj	Get am335x-bone.dtb for BeagleBone.
 #	23mar13	drj	Get u-boot.img, not u-boot.bin, for BeagleBone.
@@ -686,6 +687,7 @@ echo ""
 [[ "${TTYLINUX_PLATFORM}" == "pc_i486"     ]] && pc_dir_make      || true
 [[ "${TTYLINUX_PLATFORM}" == "pc_i686"     ]] && pc_dir_make      || true
 [[ "${TTYLINUX_PLATFORM}" == "pc_x86_64"   ]] && pc_dir_make      || true
+[[ "${TTYLINUX_PLATFORM}" == "virtio_i686" ]] && pc_dir_make      || true
 [[ "${TTYLINUX_PLATFORM}" == "wrtu54g_tm"  ]] && wrtu54g_dir_make || true
 
 echo ""

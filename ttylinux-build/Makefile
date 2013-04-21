@@ -516,14 +516,14 @@ distdir:	var/run/fsys var/run/kernel scripts/bld-distdir.sh
 	@echo "Make ttylinux distribution directory."
 	@rm -f var/run/distdir
 	@. ./ttylinux-config.sh;					\
-	if [[ x"$${TTYLINUX_SITE_SCRIPTS:-}"== x"y" ]]; then		\
+	if [[ x"$${TTYLINUX_SITE_SCRIPTS:-}" == x"y" ]]; then		\
 		if [[ -x site/bld-distdir-0.sh ]]; then			\
 			(site/bld-distdir-0.sh);			\
 		fi							\
 	fi;								\
 	(scripts/bld-distdir.sh);					\
 	mystat=$$?;							\
-	if [[ x"$${TTYLINUX_SITE_SCRIPTS:-}"== x"y" ]]; then		\
+	if [[ x"$${TTYLINUX_SITE_SCRIPTS:-}" == x"y" ]]; then		\
 		if [[ -x site/bld-distdir-1.sh ]]; then			\
 			(site/bld-distdir-1.sh $${mystat});		\
 		fi							\

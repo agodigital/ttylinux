@@ -29,6 +29,7 @@
 #
 # CHANGE LOG
 #
+#	20apr13	drj	Handle more cases of TTYLINUX_PLATFORM.
 #	01apr13	drj	Crazy Hack to build linux-2.6.38.1 with gcc-4.6.3.
 #	29mar13	drj	Fixed bug with dev tree handling.
 #	23mar13	drj	Updated for Beaglebone 3.8.4 kernel with dev tree.
@@ -184,10 +185,12 @@ bitch=${ncpus:-1}
 
 # Set the right kernel make target.
 case "${TTYLINUX_PLATFORM}" in
-	beagle_bone) target="uImage"  ;;
-	mac_g4)      target="zImage"  ;;
-	pc_*)        target="bzImage" ;;
-	wrtu54g_tm)  target="vmlinux" ;;
+	beagle_bone)	target="uImage"  ;;
+	mac_g4)		target="zImage"  ;;
+	*_i486)		target="bzImage" ;;
+	*_i686)		target="bzImage" ;;
+	*_x86_64)	target="bzImage" ;;
+	wrtu54g_tm)	target="vmlinux" ;;
 esac
 
 cd "linux-${kver}"
@@ -333,7 +336,9 @@ case "${TTYLINUX_PLATFORM}" in
 	beagle_bone)	_dtbfile="${_vmlinuz}/dts/am335x-bone.dtb" ;
 			_vmlinuz+="uImage"  ;;
 	mac_g4)		_vmlinuz+="zImage"  ;;
-	pc_*)		_vmlinuz+="bzImage" ;;
+	*_i486)		_vmlinuz+="bzImage" ;;
+	*_i686)		_vmlinuz+="bzImage" ;;
+	*_x86_64)	_vmlinuz+="bzImage" ;;
 	wrtu54g_tm)	_vmlinuz="vmlinux"  ;;
 esac
 
