@@ -30,6 +30,7 @@
 #
 # CHANGE LOG
 #
+#	21apr12	drj	Added virtio_i686 and virtio_x86_64.
 #	15mar12	drj	Fixed for BeagleBone platform.
 #	18feb12	drj	Rewrite for build process reorganization.
 #	02feb12	drj	Removed BeagleBoard-xM, IntegratorCP, and MaltaLV.
@@ -268,13 +269,14 @@ build_config_setup || exit 1
 echo "##### START cross-building the boot image"
 echo ""
 
-[[ "${TTYLINUX_PLATFORM}" == "beagle_bone" ]] && tarball_bbone_make   || true
-[[ "${TTYLINUX_PLATFORM}" == "mac_g4"      ]] && bootiso_pmac_make    || true
-[[ "${TTYLINUX_PLATFORM}" == "pc_i486"     ]] && bootiso_x86_make     || true
-[[ "${TTYLINUX_PLATFORM}" == "pc_i686"     ]] && bootiso_x86_make     || true
-[[ "${TTYLINUX_PLATFORM}" == "pc_x86_64"   ]] && bootiso_x86_make     || true
-[[ "${TTYLINUX_PLATFORM}" == "virtio_i686" ]] && bootiso_x86_make     || true
-[[ "${TTYLINUX_PLATFORM}" == "wrtu54g_tm"  ]] && tarball_wrtu54g_make || true
+[[ "${TTYLINUX_PLATFORM}" == "beagle_bone"   ]] && tarball_bbone_make   || true
+[[ "${TTYLINUX_PLATFORM}" == "mac_g4"        ]] && bootiso_pmac_make    || true
+[[ "${TTYLINUX_PLATFORM}" == "pc_i486"       ]] && bootiso_x86_make     || true
+[[ "${TTYLINUX_PLATFORM}" == "pc_i686"       ]] && bootiso_x86_make     || true
+[[ "${TTYLINUX_PLATFORM}" == "pc_x86_64"     ]] && bootiso_x86_make     || true
+[[ "${TTYLINUX_PLATFORM}" == "virtio_i686"   ]] && bootiso_x86_make     || true
+[[ "${TTYLINUX_PLATFORM}" == "virtio_x86_64" ]] && bootiso_x86_make     || true
+[[ "${TTYLINUX_PLATFORM}" == "wrtu54g_tm"    ]] && tarball_wrtu54g_make || true
 
 echo ""
 echo "##### DONE cross-building the boot image"

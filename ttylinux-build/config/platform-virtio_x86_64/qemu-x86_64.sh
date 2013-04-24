@@ -7,13 +7,13 @@
 
 [[ $# != 1 ]] && {
 echo "This script take one argument, top-level ttylinux CD-ROM ISO directory."
-echo "Usage: qemu-i686.sh <directory>"
+echo "Usage: qemu-x86_64.sh <directory>"
 exit 1
 }
 
 [[ ! -d $1 ]] && {
 echo "\"$1\" is not a directory."
-echo "Usage: qemu-i686.sh <directory>"
+echo "Usage: qemu-x86_64.sh <directory>"
 exit 1
 }
 
@@ -24,11 +24,11 @@ exit 1
 
 _path=""
 for p in ${PATH//:/ }; do
-	if [[ -x $p/qemu-system-i386 ]]; then _path=$p/qemu-system-i386; fi
+	if [[ -x $p/qemu-system-x86_64 ]]; then _path=$p/qemu-system-x86_64; fi
 done
 if [[ x"${_path}" = x ]]; then
 	echo ""
-	echo "Cannot find an executable \"qemu-system-i386\" program"
+	echo "Cannot find an executable \"qemu-system-x86_64\" program"
 	echo "in your \$PATH setting.  Maybe you need to set your \$PATH"
 	echo "or download and install qemu."
 	echo "Qemu can be found at http://wiki.qemu.org/"
@@ -100,9 +100,8 @@ for p in ${REPLY}; do
 	fi
 done
 
-qemu-system-i386					\
+qemu-system-x86_64					\
 	-enable-kvm					\
-	-cpu coreduo					\
 	-smp 2,maxcpus=2,cores=2,threads=2,sockets=2	\
 	-m 256						\
 	-net nic,model=virtio				\

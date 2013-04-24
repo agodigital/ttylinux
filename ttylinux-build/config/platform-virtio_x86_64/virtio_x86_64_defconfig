@@ -1,8 +1,8 @@
 # vim: syntax=cfg
 
 #
-# virtio_i686
-# Sun Apr 21 12:06:47 MST 2013
+# virtio_x86_64
+# Sun Apr 21 12:07:02 MST 2013
 #
 
 TTYLINUX_NAME=ocelot
@@ -11,10 +11,10 @@ TTYLINUX_VERSION=16.0
 #
 # Platform, cross-tool, and CFLAGS.  Be carefull with changes.
 #
-TTYLINUX_PLATFORM=virtio_i686
+TTYLINUX_PLATFORM=virtio_x86_64
 TTYLINUX_XBT_DIR="../cross-tools-2.16.0-3.7.1"
-TTYLINUX_XBT="i686-generic-linux-gnu"
-TTYLINUX_CFLAGS="-march=i686 -mtune=generic -Os"
+TTYLINUX_XBT="x86_64-generic-linux-gnu"
+TTYLINUX_CFLAGS="-m64 -Os"
 
 #
 # Build process options and distribution attributes.

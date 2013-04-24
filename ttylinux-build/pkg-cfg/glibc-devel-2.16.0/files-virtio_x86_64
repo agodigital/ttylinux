@@ -268,7 +268,7 @@ usr/include/glob.h
 usr/include/gnu-versions.h
 usr/include/gnu/lib-names.h
 usr/include/gnu/libc-version.h
-usr/include/gnu/stubs-32.h
+usr/include/gnu/stubs-64.h
 usr/include/gnu/stubs.h
 usr/include/grp.h
 usr/include/gshadow.h
