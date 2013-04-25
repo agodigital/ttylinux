@@ -78,27 +78,9 @@ read -p "ttylinux: "
 # Run qemu with the kernel and file system.
 # *****************************************************************************
 
-# To use serial terminal on the host use nc: nc -u -l 6174
-#      maybe "stty -echo" after logged in
-#
-# To see the boot messages with the host nc, append to the kernel parameters:
-#      console=ttyS0,9600n8
-
-_serial=""
 _initrd=boot/filesys.gz
 _kernel=boot/vmlinuz
 _rdsksz="ramdisk_size=98304"
-
-for p in ${REPLY}; do
-	if [[ x"${p:0:8}" = x"console=" ]]; then
-		_serial="-serial udp::6174"
-		_serial="-serial stdio"
-		echo ""
-		echo "To use serial terminal on the host use nc: nc -u -l 6174"
-		echo "Maybe "stty -echo" after logged in."
-		echo ""
-	fi
-done
 
 qemu-system-i386					\
 	-enable-kvm					\
@@ -106,12 +88,10 @@ qemu-system-i386					\
 	-smp 2,maxcpus=2,cores=2,threads=2,sockets=2	\
 	-m 256						\
 	-net nic,model=virtio				\
-	${_serial}					\
 	-kernel $1/${_kernel}				\
 	-initrd $1/${_initrd}				\
 	-append "initrd=/${_initrd} root=/dev/ram0 ${_rdsksz} ro ${REPLY}"
 
-unset _serial
 unset _initrd
 unset _kernel
 unset _rdsksz

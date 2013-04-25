@@ -2,9 +2,6 @@ etc/rc.d/init.d/context
 etc/rc.d/init.d/rnd-pwd
 home/user/README-problems.txt
 root/README-problems.txt
-root/g01-t01-s01.sh
-root/g01-t01-s02.sh
-root/g01-t01-s03.sh
 root/install.conf
 sbin/ttylinux-flash
 sbin/ttylinux-installer

@@ -29,6 +29,7 @@
 #
 # CHANGE LOG
 #
+#	23apr13	drj	Released files to be named with the platform, not CPU.
 #	13mar12	drj	Hide ttylinux_target_umount stderr.
 #	08mar12	drj	Finally set ncpus to something.
 #	15feb12	drj	Rewrite for build process reorganization.
@@ -104,7 +105,7 @@ TTYLINUX_SITE_DIR="${TTYLINUX_DIR}/site"
 TTYLINUX_SYSROOT_DIR="${TTYLINUX_DIR}/sysroot"
 TTYLINUX_VAR_DIR="${TTYLINUX_DIR}/var"
 
-nameTag="${TTYLINUX_CPU}-${TTYLINUX_VERSION}"
+nameTag="${TTYLINUX_PLATFORM}-${TTYLINUX_VERSION}"
 TTYLINUX_IMG_NAME="${TTYLINUX_DIR}/img/file_sys-${nameTag}.img"
 TTYLINUX_IRD_NAME="${TTYLINUX_DIR}/img/initrd-${nameTag}"
 TTYLINUX_TAR_NAME="${TTYLINUX_DIR}/img/ttylinux-${nameTag}.tar.bz2"
