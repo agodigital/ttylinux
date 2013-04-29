@@ -29,6 +29,7 @@
 #
 # CHANGE LOG
 #
+#	25apr13	drj	Handle odd zipfile names: unzip in the bld.sh files.
 #	14apr12	drj	Make an error if a package list file is not found.
 #	26mar12	drj	Added support for xz decompressin of source tarballs.
 #	16mar12	drj	Changed the package done flags' location.
@@ -58,54 +59,6 @@
 # S U B R O U T I N E S                                                       #
 #                                                                             #
 # *************************************************************************** #
-
-
-# *****************************************************************************
-# Get and untar a source package.
-# *****************************************************************************
-
-package_get() {
-
-# Function Arguments:
-#      $1 ... Package name, like "glibc-2.19".
-
-local srcPkg="$1"
-local tarBall=""
-local unZipper=""
-
-if [[ -f "${TTYLINUX_PKGSRC_DIR}/${srcPkg}.tgz" ]]; then
-	tarBall="${srcPkg}.tgz"
-	unZipper="gunzip --force"
-fi
-
-if [[ -f "${TTYLINUX_PKGSRC_DIR}/${srcPkg}.tar.gz" ]]; then
-	tarBall="${srcPkg}.tar.gz"
-	unZipper="gunzip --force"
-fi
-
-if [[ -f "${TTYLINUX_PKGSRC_DIR}/${srcPkg}.tbz" ]]; then
-	tarBall="${srcPkg}.tbz"
-	unZipper="bunzip2 --force"
-fi
-
-if [[ -f "${TTYLINUX_PKGSRC_DIR}/${srcPkg}.tar.bz2" ]]; then
-	tarBall="${srcPkg}.tar.bz2"
-	unZipper="bunzip2 --force"
-fi
-
-if [[ -f "${TTYLINUX_PKGSRC_DIR}/${srcPkg}.tar.xz" ]]; then
-	tarBall="${srcPkg}.tar.xz"
-	unZipper="xz --decompress --force"
-fi
-
-if [[ -n "${tarBall}" ]]; then
-	cp "${TTYLINUX_PKGSRC_DIR}/${tarBall}" .
-	${unZipper} "${tarBall}" >/dev/null
-	tar --extract --file="${srcPkg}.tar"
-	rm --force "${srcPkg}.tar"
-fi
-
-}
 
 
 # *****************************************************************************
@@ -193,10 +146,8 @@ fi
 #
 # Functions
 #
-#	pkg_patch	This function applies any patches or fixups to the
-#			source package before building.
-#			NOTE -- Patches are applied before package
-#				configuration.
+#	pkg_init	This function unzips, untars, and applies patches or
+#			fixups to the source package before building.
 #
 #	pkg_configure	This function configures the source package for
 #			building.
@@ -210,40 +161,21 @@ fi
 #
 #	pkg_clean	This function is responsible for cleaning-up,
 #			particularly in error conditions.
-#			NOTE -- pkg_clean is not called until package
-#				collection in the package_collect() function
-#				below.
 #
 # Variables
 #
-#	PKG_NOBUILD	Flag to not build this package.
+#	PKG_ZIP		The name of the source package tar-zip file.
 #
 #	PKG_STATUS	Set by the above function to indicate an error worthy
 #			stopping the build process.
 #
 source "${TTYLINUX_PKGCFG_DIR}/$1/bld.sh"
 
-# Cheap mechanism to skip a package.
-#
-if [[ x"${PKG_NOBUILD:-}" == x"y" ]]; then
-	unset PKG_NOBUILD
-	BUILD_MASK=y
-	echo -n "Commanded SKIP " >&${CONSOLE_FD}
-	return 0
-fi
-
-# Self check; the package build script might be for an older version.
-#
-if [[ "$1" != "${PKG_NAME}-${PKG_VERSION}" ]]; then
-	echo 'Blammo!' >&${CONSOLE_FD}
-	return 1
-fi
-
 echo -n "g." >&${CONSOLE_FD}
 
 # Get the source package, if any.
 #
-package_get $1
+cp "${TTYLINUX_PKGSRC_DIR}/${PKG_ZIP}" .
 
 # Get the ttylinux-specific rootfs, if any.
 #
@@ -262,25 +194,23 @@ rm --force FILES
 >FILES
 sleep 1 # For detecting files newer than INSTALL_STAMP
 
-# Patch, configure, build and install.  Note: pkg_clean is not called until
-# package collection, in the package_collect() function below, unless pkg_build
-# reports an error in PKG_STATUS.
+# Init, configure, build, install and clean.
 #
 PKG_STATUS=""
 bitch=${ncpus:-1}
 [[ -z "${bitch//[0-9]}" ]] && NJOBS=$((${bitch:-1} + 1)) || NJOBS=2
 unset bitch
 echo -n "b." >&${CONSOLE_FD}
-[[ -z "${PKG_STATUS}" ]] && pkg_patch     $1
+[[ -z "${PKG_STATUS}" ]] && pkg_init      $1
 [[ -z "${PKG_STATUS}" ]] && pkg_configure $1
 [[ -z "${PKG_STATUS}" ]] && pkg_make      $1
 [[ -z "${PKG_STATUS}" ]] && pkg_install   $1
+[[ -z "${PKG_STATUS}" ]] && pkg_clean     $1
 unset NJOBS
 if [[ -n "${PKG_STATUS}" ]]; then
 	echo "ERROR ***** ${PKG_STATUS}" # Make a log file entry.
 	echo -e "${TEXT_BRED}ERROR${TEXT_NORM}" >&${CONSOLE_FD}
 	echo    "E> ${PKG_STATUS}"              >&${CONSOLE_FD}
-	pkg_clean # Call function pkg_clean from "bld.sh".
 	rm --force INSTALL_STAMP
 	rm --force FILES
 	exit 1 # Bust out of sub-shell.
@@ -293,10 +223,8 @@ unset PKG_STATUS
 rm --force ${TTYLINUX_SYSROOT_DIR}/lib/*.la
 rm --force ${TTYLINUX_SYSROOT_DIR}/usr/lib/*.la
 
-# Remove the un-tarred source package directory, the un-tarred rootfs directory
-# and any other needed un-tarred source package directories.
+# Remove the un-tarred rootfs directory.
 #
-[[ -d "$1"     ]] && rm --force --recursive "$1"     || true
 [[ -d "rootfs" ]] && rm --force --recursive "rootfs" || true
 
 # Make a list of the installed files.  Remove sysroot and its path component
@@ -468,7 +396,6 @@ else
 fi
 
 echo -n "c" >&${CONSOLE_FD}
-pkg_clean # Call function pkg_clean from "bld-$1.sh".
 
 return 0
 

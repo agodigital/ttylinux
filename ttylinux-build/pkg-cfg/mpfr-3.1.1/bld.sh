@@ -26,18 +26,25 @@
 # ******************************************************************************
 
 PKG_URL="http://www.mpfr.org/mpfr-3.1.1/"
-PKG_TAR="mpfr-3.1.1.tar.bz2"
+PKG_ZIP="mpfr-3.1.1.tar.bz2"
 PKG_SUM=""
 
-PKG_NAME="mpfr"
-PKG_VERSION="3.1.1"
+PKG_TAR="mpfr-3.1.1.tar"
+PKG_DIR="mpfr-3.1.1"
+
+
+# Function Arguments:
+#      $1 ... Package name, like "glibc-2.19".
 
 
 # ******************************************************************************
-# pkg_patch
+# pkg_init
 # ******************************************************************************
 
-pkg_patch() {
+pkg_init() {
+PKG_STATUS="init error"
+bunzip2 --verbose ${PKG_ZIP}
+tar --extract --file=${PKG_TAR}
 PKG_STATUS=""
 return 0
 }
@@ -51,7 +58,7 @@ pkg_configure() {
 
 PKG_STATUS="./configure error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 AR="${XBT_AR}" \
 AS="${XBT_AS} --sysroot=${TTYLINUX_SYSROOT_DIR}" \
@@ -87,7 +94,7 @@ pkg_make() {
 
 PKG_STATUS="make error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 PATH="${XBT_BIN_PATH}:${PATH}" make \
 	--jobs=${NJOBS} \
@@ -109,7 +116,7 @@ pkg_install() {
 
 PKG_STATUS="install error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 PATH="${XBT_BIN_PATH}:${PATH}" make \
 	DESTDIR=${TTYLINUX_SYSROOT_DIR} \
@@ -133,8 +140,9 @@ return 0
 # ******************************************************************************
 
 pkg_clean() {
-PKG_STATUS="Unspecified error -- check the ${PKG_NAME} build log"
 PKG_STATUS=""
+rm --force --recursive "${PKG_DIR}"
+rm --force --recursive "${PKG_TAR}"
 return 0
 }
 

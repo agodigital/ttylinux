@@ -26,6 +26,9 @@
 #
 # CHANGE LOG
 #
+#	28jan13	drj	Put back TTYLINUX_NAME and TTYLINUX_VERSION.
+#	27apr13	drj	Changed the building of the package list file.
+#	25apr13	drj	Changed format of the package list file.
 #	19apr13	drj	Reorganized and changed names.
 #	05feb13	drj	Added kcfg to the help.
 #	28jan13	drj	Removed TTYLINUX_NAME and TTYLINUX_VERSION.
@@ -61,6 +64,10 @@
 #	07oct08	drj	File creation.
 #
 # *****************************************************************************
+
+
+TTYLINUX_NAME    := xxxxxxx
+TTYLINUX_VERSION := 16.1rc1
 
 
 # *************************************************************************** #
@@ -207,6 +214,10 @@ getcfg:
 	cp config/platform-*/$${list[$${cfg}]} ttylinux-config.sh;	\
 	)
 	@chmod 666 ttylinux-config.sh
+	@sed -i ttylinux-config.sh					\
+		-e s/TTYLINUX_NAME=.*/TTYLINUX_NAME=${TTYLINUX_NAME}/
+	@sed -i ttylinux-config.sh					\
+		-e s/TTYLINUX_VERSION=.*/TTYLINUX_VERSION=${TTYLINUX_VERSION}/
 	@ls --color -Fl ttylinux-config.sh
 
 ttylinux-config.sh:
@@ -222,22 +233,14 @@ ttylinux-pkglst.txt pkglist:	ttylinux-config.sh
 	touch ttylinux-pkglst.txt;					\
 	for dir in $${TTYLINUX_PACKAGE[@]}; do				\
 		echo -n "$$dir " >> ttylinux-pkglst.txt;		\
-		for ((i=$${#dir} ; $${i}<40 ; i++)); do			\
+		for ((i=35 ; $${i}>$${#dir} ; i--)); do			\
 			echo -n "." >>ttylinux-pkglst.txt;		\
 		done;							\
 		. pkg-cfg/$${dir}/bld.sh;				\
-		if [[ "$${PKG_TAR}" =~ ".tar.gz"  ]]; then		\
-			echo -n " tar.gz " >>ttylinux-pkglst.txt;	\
-		fi;							\
-		if [[ "$${PKG_TAR}" =~ ".tar.bz2" ]]; then		\
-			echo -n " tar.bz2" >>ttylinux-pkglst.txt;	\
-		fi;							\
-		if [[ "$${PKG_TAR}" =~ ".tgz"     ]]; then		\
-			echo -n " tgz    " >>ttylinux-pkglst.txt;	\
-		fi;							\
-		if [[ "$${PKG_TAR}" =~ ".tbz"     ]]; then		\
-			echo -n " tbz    " >>ttylinux-pkglst.txt;	\
-		fi;							\
+		echo -n " $${PKG_ZIP} " >>ttylinux-pkglst.txt;		\
+		for ((i=35 ; $${i}>$${#PKG_ZIP} ; i--)); do		\
+			echo -n "." >>ttylinux-pkglst.txt;		\
+		done;							\
 		echo -n " $${PKG_URL}" >>ttylinux-pkglst.txt;		\
 		echo "" >>ttylinux-pkglst.txt;				\
 	done;								\

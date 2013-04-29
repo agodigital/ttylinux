@@ -26,25 +26,32 @@
 # ******************************************************************************
 
 PKG_URL="http://matt.ucc.asn.au/dropbear/releases/"
-PKG_TAR="dropbear-2012.55.tar.bz2"
+PKG_ZIP="dropbear-2012.55.tar.bz2"
 PKG_SUM=""
 
-PKG_NAME="dropbear"
-PKG_VERSION="2012.55"
+PKG_TAR="dropbear-2012.55.tar"
+PKG_DIR="dropbear-2012.55"
+
+
+# Function Arguments:
+#      $1 ... Package name, like "glibc-2.19".
 
 
 # ******************************************************************************
-# pkg_patch
+# pkg_init
 # ******************************************************************************
 
-pkg_patch() {
+pkg_init() {
 
-local patchDir="${TTYLINUX_PKGCFG_DIR}/${PKG_NAME}-${PKG_VERSION}/patch"
+local patchDir="${TTYLINUX_PKGCFG_DIR}/$1/patch"
 local patchFile=""
 
-PKG_STATUS="Unspecified error -- check the ${PKG_NAME} build log"
+PKG_STATUS="init error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+bunzip2 --verbose ${PKG_ZIP}
+tar --extract --file=${PKG_TAR}
+
+cd "${PKG_DIR}"
 for patchFile in "${patchDir}"/*; do
 	[[ -r "${patchFile}" ]] && patch -p1 <"${patchFile}"
 done
@@ -64,7 +71,7 @@ pkg_configure() {
 
 PKG_STATUS="./configure error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 AR="${XBT_AR}" \
 AS="${XBT_AS} --sysroot=${TTYLINUX_SYSROOT_DIR}" \
@@ -101,7 +108,7 @@ pkg_make() {
 
 PKG_STATUS="make error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 PATH="${XBT_BIN_PATH}:${PATH}" make --jobs=${NJOBS} \
 	ARFLAGS="rv" \
@@ -126,9 +133,9 @@ pkg_install() {
 
 local installDir="${TTYLINUX_SYSROOT_DIR}/usr/bin"
 
-PKG_STATUS="Unspecified error -- check the ${PKG_NAME} build log"
+PKG_STATUS="install error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 install --mode=755 --owner=0 --group=0 dropbearmulti "${installDir}"
 pushd "${installDir}" >/dev/null 2>&1
@@ -163,6 +170,8 @@ return 0
 
 pkg_clean() {
 PKG_STATUS=""
+rm --force --recursive "${PKG_DIR}"
+rm --force --recursive "${PKG_TAR}"
 return 0
 }
 

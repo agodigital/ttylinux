@@ -26,19 +26,25 @@
 # ******************************************************************************
 
 PKG_URL="http://www.kernel.org/pub/linux/utils/kernel/kmod/"
-PKG_TAR="kmod-12.tar.bz2"
+PKG_ZIP="kmod-12.tar.bz2"
 PKG_SUM=""
 
-PKG_NAME="kmod"
-PKG_VERSION="12"
+PKG_TAR="kmod-12.tar"
+PKG_DIR="kmod-12"
+
+
+# Function Arguments:
+#      $1 ... Package name, like "glibc-2.19".
 
 
 # ******************************************************************************
-# pkg_patch
+# pkg_init
 # ******************************************************************************
 
-pkg_patch() {
+pkg_init() {
 PKG_STATUS=""
+bunzip2 --verbose ${PKG_ZIP}
+tar --extract --file=${PKG_TAR}
 return 0
 }
 
@@ -51,7 +57,7 @@ pkg_configure() {
 
 PKG_STATUS="./configure error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 AR="${XBT_AR}" \
 AS="${XBT_AS} --sysroot=${TTYLINUX_SYSROOT_DIR}" \
@@ -90,7 +96,7 @@ pkg_make() {
 
 PKG_STATUS="make error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 PATH="${XBT_BIN_PATH}:${PATH}" make \
 	--jobs=${NJOBS} \
@@ -112,7 +118,7 @@ pkg_install() {
 
 PKG_STATUS="install error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 PATH="${XBT_BIN_PATH}:${PATH}" make \
 	CROSS_COMPILE=${XBT_TARGET}- \
@@ -145,8 +151,9 @@ return 0
 # ******************************************************************************
 
 pkg_clean() {
-PKG_STATUS="Unspecified error -- check the ${PKG_NAME} build log"
 PKG_STATUS=""
+rm --force --recursive "${PKG_DIR}"
+rm --force --recursive "${PKG_TAR}"
 return 0
 }
 

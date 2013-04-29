@@ -26,25 +26,32 @@
 # ******************************************************************************
 
 PKG_URL="http://sourceforge.net/projects/haserl/files/haserl-devel/"
-PKG_TAR="haserl-0.9.29.tar.gz"
+PKG_ZIP="haserl-0.9.29.tar.gz"
 PKG_SUM=""
 
-PKG_NAME="haserl"
-PKG_VERSION="0.9.29"
+PKG_TAR="haserl-0.9.29.tar"
+PKG_DIR="haserl-0.9.29"
+
+
+# Function Arguments:
+#      $1 ... Package name, like "glibc-2.19".
 
 
 # ******************************************************************************
-# pkg_patch
+# pkg_init
 # ******************************************************************************
 
-pkg_patch() {
+pkg_init() {
 
-local patchDir="${TTYLINUX_PKGCFG_DIR}/${PKG_NAME}-${PKG_VERSION}/patch"
+local patchDir="${TTYLINUX_PKGCFG_DIR}/$1/patch"
 local patchFile=""
 
-PKG_STATUS="Unspecified error -- check the ${PKG_NAME} build log"
+PKG_STATUS="init error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+gunzip --verbose ${PKG_ZIP}
+tar --extract --file=${PKG_TAR}
+
+cd "${PKG_DIR}"
 for patchFile in "${patchDir}"/*; do
 	[[ -r "${patchFile}" ]] && patch -p0 <"${patchFile}"
 done
@@ -64,7 +71,7 @@ pkg_configure() {
 
 PKG_STATUS="./configure error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 AR="${XBT_AR}" \
 AS="${XBT_AS} --sysroot=${TTYLINUX_SYSROOT_DIR}" \
@@ -98,7 +105,7 @@ pkg_make() {
 
 PKG_STATUS="make error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 PATH="${XBT_BIN_PATH}:${PATH}" make \
 	--jobs=${NJOBS} \
@@ -118,9 +125,9 @@ return 0
 
 pkg_install() {
 
-PKG_STATUS="Unspecified error -- check the ${PKG_NAME} build log"
+PKG_STATUS="install error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 PATH="${XBT_BIN_PATH}:${PATH}" make \
         DESTDIR=${TTYLINUX_SYSROOT_DIR} \
@@ -145,6 +152,8 @@ return 0
 
 pkg_clean() {
 PKG_STATUS=""
+rm --force --recursive "${PKG_DIR}"
+rm --force --recursive "${PKG_TAR}"
 return 0
 }
 

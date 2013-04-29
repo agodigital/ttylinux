@@ -26,18 +26,25 @@
 # ******************************************************************************
 
 PKG_URL="http://www.nico.schottelius.org/software/gpm/archives/"
-PKG_TAR="gpm-1.20.7.tar.bz2"
+PKG_ZIP="gpm-1.20.7.tar.bz2"
 PKG_SUM=""
 
-PKG_NAME="gpm"
-PKG_VERSION="1.20.7"
+PKG_TAR="gpm-1.20.7.tar"
+PKG_DIR="gpm-1.20.7"
+
+
+# Function Arguments:
+#      $1 ... Package name, like "glibc-2.19".
 
 
 # ******************************************************************************
-# pkg_patch
+# pkg_init
 # ******************************************************************************
 
-pkg_patch() {
+pkg_init() {
+PKG_STATUS="init error"
+bunzip2 --verbose ${PKG_ZIP}
+tar --extract --file=${PKG_TAR}
 PKG_STATUS=""
 return 0
 }
@@ -51,7 +58,7 @@ pkg_configure() {
 
 PKG_STATUS="./configure error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 ./autogen.sh
 AR="${XBT_AR}" \
@@ -86,7 +93,7 @@ pkg_make() {
 
 PKG_STATUS="make error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 PATH="${XBT_BIN_PATH}:${PATH}" make \
 	--jobs=${NJOBS} \
@@ -108,7 +115,7 @@ pkg_install() {
 
 PKG_STATUS="install error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 PATH="${XBT_BIN_PATH}:${PATH}" make \
 	DESTDIR=${TTYLINUX_SYSROOT_DIR} \
@@ -134,6 +141,8 @@ return 0
 
 pkg_clean() {
 PKG_STATUS=""
+rm --force --recursive "${PKG_DIR}"
+rm --force --recursive "${PKG_TAR}"
 return 0
 }
 

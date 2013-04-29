@@ -26,18 +26,25 @@
 # ******************************************************************************
 
 PKG_URL="http://sourceforge.net/projects/retawq/files/retawq/retawq-0.2.6c/"
-PKG_TAR="retawq-0.2.6c.tar.gz"
+PKG_ZIP="retawq-0.2.6c.tar.gz"
 PKG_SUM=""
 
-PKG_NAME="retawq"
-PKG_VERSION="0.2.6c"
+PKG_TAR="retawq-0.2.6c.tar"
+PKG_DIR="retawq-0.2.6c"
+
+
+# Function Arguments:
+#      $1 ... Package name, like "glibc-2.19".
 
 
 # ******************************************************************************
-# pkg_patch
+# pkg_init
 # ******************************************************************************
 
-pkg_patch() {
+pkg_init() {
+PKG_STATUS="init error"
+gunzip --verbose ${PKG_ZIP}
+tar --extract --file=${PKG_TAR}
 PKG_STATUS=""
 return 0
 }
@@ -68,7 +75,7 @@ if [[ "${TTYLINUX_PLATFORM}" == "pc_i486" || \
 	THREADING=0
 fi
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 PATH="${XBT_BIN_PATH}:${PATH}" make \
 	CC="${XBT_CC} --sysroot=${TTYLINUX_SYSROOT_DIR}" \
@@ -94,9 +101,9 @@ return 0
 
 pkg_install() {
 
-PKG_STATUS="Unspecified error -- check the ${PKG_NAME} build log"
+PKG_STATUS="install error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 install --mode=755 --owner=0 --group=0 retawq "${TTYLINUX_SYSROOT_DIR}/usr/bin"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_clr"
@@ -119,6 +126,8 @@ return 0
 
 pkg_clean() {
 PKG_STATUS=""
+rm --force --recursive "${PKG_DIR}"
+rm --force --recursive "${PKG_TAR}"
 return 0
 }
 

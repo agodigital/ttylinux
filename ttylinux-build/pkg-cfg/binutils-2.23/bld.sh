@@ -26,22 +26,34 @@
 # ******************************************************************************
 
 PKG_URL="http://ftp.gnu.org/gnu/binutils/ ftp://sourceware.org/pub/binutils/releases/"
-PKG_TAR="binutils-2.23.tar.bz2"
+PKG_ZIP="binutils-2.23.tar.bz2"
 PKG_SUM=""
 
-PKG_NAME="binutils"
-PKG_VERSION="2.23"
+PKG_TAR="binutils-2.23.tar"
+PKG_DIR="binutils-2.23"
+
+
+# Function Arguments:
+#      $1 ... Package name, like "glibc-2.19".
 
 
 # ******************************************************************************
-# pkg_patch
+# pkg_init
 # ******************************************************************************
 
-pkg_patch() {
-PKG_STATUS=""
+pkg_init() {
+
+PKG_STATUS="init error"
+
+bunzip2 --verbose ${PKG_ZIP}
+tar --extract --file=${PKG_TAR}
+
 rm --force --recursive "build-binutils"
 mkdir "build-binutils"
+
+PKG_STATUS=""
 return 0
+
 }
 
 
@@ -71,7 +83,7 @@ RANLIB="${XBT_RANLIB}" \
 SIZE="${XBT_SIZE}" \
 STRIP="${XBT_STRIP}" \
 CFLAGS="${TTYLINUX_CFLAGS}" \
-../${PKG_NAME}-${PKG_VERSION}/configure \
+../${PKG_DIR}/configure \
 	--build=${MACHTYPE} \
 	--host=${XBT_TARGET} \
 	--target=${XBT_TARGET} \
@@ -119,7 +131,7 @@ return 0
 
 pkg_install() {
 
-PKG_STATUS="make install error"
+PKG_STATUS="install error"
 
 cd "build-binutils"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
@@ -127,7 +139,7 @@ PATH="${XBT_BIN_PATH}:${PATH}" make \
 	DESTDIR=${TTYLINUX_SYSROOT_DIR} \
 	install || return 1
 install --mode=644 --owner=0 --group=0 \
-	"../${PKG_NAME}-${PKG_VERSION}/include/libiberty.h" \
+	"../${PKG_DIR}/include/libiberty.h" \
 	"${TTYLINUX_SYSROOT_DIR}/usr/include/"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_clr"
 cd ..
@@ -149,6 +161,8 @@ return 0
 
 pkg_clean() {
 PKG_STATUS=""
+rm --force --recursive "${PKG_DIR}"
+rm --force --recursive "${PKG_TAR}"
 rm --force --recursive "build-binutils"
 return 0
 }

@@ -26,25 +26,32 @@
 # ******************************************************************************
 
 PKG_URL="http://ftp.gnu.org/gnu/gcc/gcc-4.7.2/ ftp://sourceware.org/pub/gcc/releases/gcc-4.6.3/"
-PKG_TAR="gcc-4.6.3.tar.bz2"
+PKG_ZIP="gcc-4.6.3.tar.bz2"
 PKG_SUM=""
 
-PKG_NAME="gcc"
-PKG_VERSION="4.6.3"
+PKG_TAR="gcc-4.6.3.tar"
+PKG_DIR="gcc-4.6.3"
+
+
+# Function Arguments:
+#      $1 ... Package name, like "glibc-2.19".
 
 
 # ******************************************************************************
-# pkg_patch
+# pkg_init
 # ******************************************************************************
 
-pkg_patch() {
+pkg_init() {
 
-local patchDir="${TTYLINUX_PKGCFG_DIR}/${PKG_NAME}-${PKG_VERSION}/patch"
+local patchDir="${TTYLINUX_PKGCFG_DIR}/$1/patch"
 local patchFile=""
 
-PKG_STATUS="Unspecified error -- check the ${PKG_NAME} build log"
+PKG_STATUS="init error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+bunzip2 --verbose ${PKG_ZIP}
+tar --extract --file=${PKG_TAR}
+
+cd "${PKG_DIR}"
 
 for patchFile in "${patchDir}"/*; do
 	[[ -r "${patchFile}" ]] && patch -p1 <"${patchFile}"
@@ -115,7 +122,7 @@ RANLIB=${XBT_RANLIB} \
 SIZE=${XBT_SIZE} \
 STRIP=${XBT_STRIP} \
 CFLAGS="${TTYLINUX_CFLAGS}" \
-../${PKG_NAME}-${PKG_VERSION}/configure \
+../${PKG_DIR}/configure \
 	--build=${MACHTYPE} \
 	--host=${XBT_TARGET} \
 	--target=${XBT_TARGET} \
@@ -150,7 +157,6 @@ CFLAGS="${TTYLINUX_CFLAGS}" \
 #	--disable-target-zlib \
 #	--with-cloog=${TTYLINUX_SYSROOT_DIR}/usr \
 #	--with-ppl=${TTYLINUX_SYSROOT_DIR}/usr || return 1
-
 
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_clr"
 cd ..
@@ -190,7 +196,7 @@ return 0
 
 pkg_install() {
 
-PKG_STATUS="make install error"
+PKG_STATUS="install error"
 
 cd "build-gcc"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
@@ -216,9 +222,10 @@ return 0
 # ******************************************************************************
 
 pkg_clean() {
-PKG_STATUS="Unspecified error -- check the ${PKG_NAME} build log"
-rm --force --recursive "build-gcc"
 PKG_STATUS=""
+rm --force --recursive "${PKG_DIR}"
+rm --force --recursive "${PKG_TAR}"
+rm --force --recursive "build-gcc"
 return 0
 }
 

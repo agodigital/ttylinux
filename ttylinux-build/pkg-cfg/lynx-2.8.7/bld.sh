@@ -4,7 +4,7 @@
 # This file is part of the ttylinux software.
 # The license which this software falls under is GPLv2 as follows:
 #
-# Copyright (C) 2012-2012 Douglas Jerome <douglas@ttylinux.org>
+# Copyright (C) 2010-2012 Douglas Jerome <douglas@ttylinux.org>
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -25,12 +25,12 @@
 # Definitions
 # ******************************************************************************
 
-PKG_URL="http://ftp.gnu.org/gnu/gmp/"
-PKG_ZIP="gmp-5.0.5.tar.bz2"
+PKG_URL="http://lynx.isc.org/lynx2.8.7/"
+PKG_ZIP="lynx2.8.7.tar.bz2"
 PKG_SUM=""
 
-PKG_TAR="gmp-5.0.5.tar"
-PKG_DIR="gmp-5.0.5"
+PKG_TAR="lynx2.8.7.tar"
+PKG_DIR="lynx2-8-7"
 
 
 # Function Arguments:
@@ -70,14 +70,11 @@ OBJCOPY="${XBT_OBJCOPY}" \
 RANLIB="${XBT_RANLIB}" \
 SIZE="${XBT_SIZE}" \
 STRIP="${XBT_STRIP}" \
-CFLAGS="-fexceptions ${TTYLINUX_CFLAGS}" \
+CFLAGS="${TTYLINUX_CFLAGS}" \
 ./configure \
 	--build=${MACHTYPE} \
 	--host=${XBT_TARGET} \
-	--prefix=/usr \
-	--enable-fft \
-	--enable-mpbsd \
-	--enable-shared || return 1
+	--prefix=/usr || return 1
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_clr"
 cd ..
 

@@ -26,25 +26,32 @@
 # ******************************************************************************
 
 PKG_URL="ftp://ftp.netfilter.org/pub/iptables/"
-PKG_TAR="iptables-1.4.17.tar.bz2"
+PKG_ZIP="iptables-1.4.17.tar.bz2"
 PKG_SUM=""
 
-PKG_NAME="iptables"
-PKG_VERSION="1.4.17"
+PKG_TAR="iptables-1.4.17.tar"
+PKG_DIR="iptables-1.4.17"
+
+
+# Function Arguments:
+#      $1 ... Package name, like "glibc-2.19".
 
 
 # ******************************************************************************
-# pkg_patch
+# pkg_init
 # ******************************************************************************
 
-pkg_patch() {
+pkg_init() {
 
-local patchDir="${TTYLINUX_PKGCFG_DIR}/${PKG_NAME}-${PKG_VERSION}/patch"
+local patchDir="${TTYLINUX_PKGCFG_DIR}/$1/patch"
 local patchFile=""
 
-PKG_STATUS="Unspecified error -- check the ${PKG_NAME} build log"
+PKG_STATUS="init error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+bunzip2 --verbose ${PKG_ZIP}
+tar --extract --file=${PKG_TAR}
+
+cd "${PKG_DIR}"
 for patchFile in "${patchDir}"/*; do
 	[[ -r "${patchFile}" ]] && patch -p1 <"${patchFile}"
 done
@@ -64,7 +71,7 @@ pkg_configure() {
 
 PKG_STATUS="./configure error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 AR="${XBT_AR}" \
 AS="${XBT_AS} --sysroot=${TTYLINUX_SYSROOT_DIR}" \
@@ -105,7 +112,7 @@ pkg_make() {
 
 PKG_STATUS="make error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 PATH="${XBT_BIN_PATH}:${PATH}" make \
 	--jobs=${NJOBS} \
@@ -127,7 +134,7 @@ pkg_install() {
 
 PKG_STATUS="install error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 rm --force ${TTYLINUX_SYSROOT_DIR}/sbin/ip6tables
 rm --force ${TTYLINUX_SYSROOT_DIR}/sbin/ip6tables-restore
@@ -161,6 +168,8 @@ return 0
 
 pkg_clean() {
 PKG_STATUS=""
+rm --force --recursive "${PKG_DIR}"
+rm --force --recursive "${PKG_TAR}"
 return 0
 }
 

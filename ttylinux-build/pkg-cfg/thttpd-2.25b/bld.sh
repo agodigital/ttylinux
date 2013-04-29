@@ -26,25 +26,32 @@
 # ******************************************************************************
 
 PKG_URL="http://www.acme.com/software/thttpd/"
-PKG_TAR="thttpd-2.25b.tar.gz"
+PKG_ZIP="thttpd-2.25b.tar.gz"
 PKG_SUM=""
 
-PKG_NAME="thttpd"
-PKG_VERSION="2.25b"
+PKG_TAR="thttpd-2.25b.tar"
+PKG_DIR="thttpd-2.25b"
+
+
+# Function Arguments:
+#      $1 ... Package name, like "glibc-2.19".
 
 
 # ******************************************************************************
-# pkg_patch
+# pkg_init
 # ******************************************************************************
 
-pkg_patch() {
+pkg_init() {
 
-local patchDir="${TTYLINUX_PKGCFG_DIR}/${PKG_NAME}-${PKG_VERSION}/patch"
+local patchDir="${TTYLINUX_PKGCFG_DIR}/$1/patch"
 local patchFile=""
 
-PKG_STATUS="Unspecified error -- check the ${PKG_NAME} build log"
+PKG_STATUS="init error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+gunzip --verbose ${PKG_ZIP}
+tar --extract --file=${PKG_TAR}
+
+cd "${PKG_DIR}"
 for patchFile in "${patchDir}"/*; do
 	[[ -r "${patchFile}" ]] && patch -p1 <"${patchFile}"
 done
@@ -64,7 +71,7 @@ pkg_configure() {
 
 PKG_STATUS="./configure error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 AR="${XBT_AR}" \
 AS="${XBT_AS} --sysroot=${TTYLINUX_SYSROOT_DIR}" \
@@ -100,7 +107,7 @@ pkg_make() {
 
 PKG_STATUS="make error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 PATH="${XBT_BIN_PATH}:${PATH}" make \
 	--jobs=${NJOBS} \
@@ -123,9 +130,9 @@ return 0
 
 pkg_install() {
 
-PKG_STATUS="Unspecified error -- check the ${PKG_NAME} build log"
+PKG_STATUS="install error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 instCmd="install -o root"
 ${instCmd} -m 755  -g root thttpd         "${TTYLINUX_SYSROOT_DIR}/usr/sbin"
@@ -150,8 +157,9 @@ return 0
 # ******************************************************************************
 
 pkg_clean() {
-PKG_STATUS="Unspecified error -- check the ${PKG_NAME} build log"
 PKG_STATUS=""
+rm --force --recursive "${PKG_DIR}"
+rm --force --recursive "${PKG_TAR}"
 return 0
 }
 

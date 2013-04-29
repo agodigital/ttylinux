@@ -26,18 +26,25 @@
 # ******************************************************************************
 
 PKG_URL="http://www.kernel.org/pub/linux/utils/util-linux/v2.22/"
-PKG_TAR="util-linux-2.22.tar.bz2"
+PKG_ZIP="util-linux-2.22.tar.bz2"
 PKG_SUM=""
 
-PKG_NAME="util-linux"
-PKG_VERSION="2.22"
+PKG_TAR="util-linux-2.22.tar"
+PKG_DIR="util-linux-2.22"
+
+
+# Function Arguments:
+#      $1 ... Package name, like "glibc-2.19".
 
 
 # ******************************************************************************
-# pkg_patch
+# pkg_init
 # ******************************************************************************
 
-pkg_patch() {
+pkg_init() {
+PKG_STATUS="init error"
+bunzip2 --verbose ${PKG_ZIP}
+tar --extract --file=${PKG_TAR}
 PKG_STATUS=""
 return 0
 }
@@ -68,7 +75,7 @@ PKG_STATUS="./configure error"
 # => scanf_cv_alloc_modifier=ms  POSIX way to alloc mem for string
 # => scanf_cv_alloc_modifier=no  maybe: do not alloc mem for string?
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 AR="${XBT_AR}" \
 AS="${XBT_AS} --sysroot=${TTYLINUX_SYSROOT_DIR}" \
@@ -127,7 +134,7 @@ pkg_make() {
 
 PKG_STATUS="make error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 PATH="${XBT_BIN_PATH}:${PATH}" make \
 	--jobs=${NJOBS} \
@@ -149,10 +156,10 @@ pkg_install() {
 
 PKG_STATUS="install error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 
-_stageDir="${TTYLINUX_BUILD_DIR}/${PKG_NAME}-${PKG_VERSION}"
+_stageDir="${TTYLINUX_BUILD_DIR}/$1"
 mkdir "${_stageDir}"
 
 PATH="${XBT_BIN_PATH}:${PATH}" make \
@@ -201,6 +208,8 @@ return 0
 
 pkg_clean() {
 PKG_STATUS=""
+rm --force --recursive "${PKG_DIR}"
+rm --force --recursive "${PKG_TAR}"
 return 0
 }
 

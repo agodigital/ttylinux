@@ -26,25 +26,32 @@
 # ******************************************************************************
 
 PKG_URL="ftp://ftp.samba.org/pub/ppp/"
-PKG_TAR="ppp-2.4.5.tar.gz"
+PKG_ZIP="ppp-2.4.5.tar.gz"
 PKG_SUM=""
 
-PKG_NAME="ppp"
-PKG_VERSION="2.4.5"
+PKG_TAR="ppp-2.4.5.tar"
+PKG_DIR="ppp-2.4.5"
+
+
+# Function Arguments:
+#      $1 ... Package name, like "glibc-2.19".
 
 
 # ******************************************************************************
-# pkg_patch
+# pkg_init
 # ******************************************************************************
 
-pkg_patch() {
+pkg_init() {
 
-local patchDir="${TTYLINUX_PKGCFG_DIR}/${PKG_NAME}-${PKG_VERSION}/patch"
+local patchDir="${TTYLINUX_PKGCFG_DIR}/$1/patch"
 local patchFile=""
 
-PKG_STATUS="Unspecified error -- check the ${PKG_NAME} build log"
+PKG_STATUS="init error"
 
-#cd "${PKG_NAME}-${PKG_VERSION}" # ppp patches are applied above the dir.
+gunzip --verbose ${PKG_ZIP}
+tar --extract --file=${PKG_TAR}
+
+#cd "${PKG_DIR}" # ppp patches are applied above the dir.
 for patchFile in "${patchDir}"/*; do
 	[[ -r "${patchFile}" ]] && patch -p0 <"${patchFile}"
 done
@@ -64,7 +71,7 @@ pkg_configure() {
 
 PKG_STATUS="./configure error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 AR="${XBT_AR}" \
 AS="${XBT_AS} --sysroot=${TTYLINUX_SYSROOT_DIR}" \
@@ -98,7 +105,7 @@ pkg_make() {
 
 PKG_STATUS="make error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 PATH="${XBT_BIN_PATH}:${PATH}" make \
 	--jobs=${NJOBS} \
@@ -123,9 +130,9 @@ pkg_install() {
 
 local instCmd="install --owner=0"
 
-PKG_STATUS="Unspecified error -- check the ${PKG_NAME} build log"
+PKG_STATUS="install error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 ${instCmd} --mode=755  --group=0  chat/chat "${TTYLINUX_SYSROOT_DIR}/usr/sbin"
 ${instCmd} --mode=4550 --group=40 pppd/pppd "${TTYLINUX_SYSROOT_DIR}/usr/sbin"
@@ -148,8 +155,9 @@ return 0
 # ******************************************************************************
 
 pkg_clean() {
-PKG_STATUS="Unspecified error -- check the ${PKG_NAME} build log"
 PKG_STATUS=""
+rm --force --recursive "${PKG_DIR}"
+rm --force --recursive "${PKG_TAR}"
 return 0
 }
 

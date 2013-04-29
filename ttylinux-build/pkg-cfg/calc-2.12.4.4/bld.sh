@@ -26,18 +26,25 @@
 # ******************************************************************************
 
 PKG_URL="http://www.isthe.com/chongo/src/calc/"
-PKG_TAR="calc-2.12.4.4.tar.bz2"
+PKG_ZIP="calc-2.12.4.4.tar.bz2"
 PKG_SUM=""
 
-PKG_NAME="calc"
-PKG_VERSION="2.12.4.4"
+PKG_TAR="calc-2.12.4.4.tar"
+PKG_DIR="calc-2.12.4.4"
+
+
+# Function Arguments:
+#      $1 ... Package name, like "glibc-2.19".
 
 
 # ******************************************************************************
-# pkg_patch
+# pkg_init
 # ******************************************************************************
 
-pkg_patch() {
+pkg_init() {
+PKG_STATUS="init error"
+bunzip2 --verbose ${PKG_ZIP}
+tar --extract --file=${PKG_TAR}
 PKG_STATUS=""
 return 0
 }
@@ -65,7 +72,7 @@ PKG_STATUS="make error"
 
 if [[ "${TTYLINUX_CPU}" == "x86_64" ]]; then BS_BITS=64; fi
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 PATH="${XBT_BIN_PATH}:${PATH}" make clobber
 PATH="${XBT_BIN_PATH}:${PATH}" make \
@@ -97,9 +104,9 @@ return 0
 
 pkg_install() {
 
-PKG_STATUS="Unspecified error -- check the ${PKG_NAME} build log"
+PKG_STATUS="install error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 instCmd="install --owner=root --group=root"
 ${instCmd} --mode=755 calc-static  "${TTYLINUX_SYSROOT_DIR}/usr/bin/calc"
@@ -126,6 +133,8 @@ return 0
 
 pkg_clean() {
 PKG_STATUS=""
+rm --force --recursive "${PKG_DIR}"
+rm --force --recursive "${PKG_TAR}"
 return 0
 }
 

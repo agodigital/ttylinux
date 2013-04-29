@@ -26,25 +26,32 @@
 # ******************************************************************************
 
 PKG_URL="http://yaboot.ozlabs.org/releases/"
-PKG_TAR="yaboot-1.3.13.tar.gz"
+PKG_ZIP="yaboot-1.3.13.tar.gz"
 PKG_SUM=""
 
-PKG_NAME="yaboot"
-PKG_VERSION="1.3.13"
+PKG_TAR="yaboot-1.3.13.tar"
+PKG_DIR="yaboot-1.3.13"
+
+
+# Function Arguments:
+#      $1 ... Package name, like "glibc-2.19".
 
 
 # ******************************************************************************
-# pkg_patch
+# pkg_init
 # ******************************************************************************
 
-pkg_patch() {
+pkg_init() {
 
-local patchDir="${TTYLINUX_PKGCFG_DIR}/${PKG_NAME}-${PKG_VERSION}/patch"
+local patchDir="${TTYLINUX_PKGCFG_DIR}/$1/patch"
 local patchFile=""
 
-PKG_STATUS="Unspecified error -- check the ${PKG_NAME} build log"
+PKG_STATUS="init error"
 
-#cd "${PKG_NAME}-${PKG_VERSION}" # yaboot patches are applied above the dir.
+gunzip --verbose ${PKG_ZIP}
+tar --extract --file=${PKG_TAR}
+
+#cd "${PKG_DIR}" # yaboot patches are applied above the dir.
 for patchFile in "${patchDir}"/*; do
 	[[ -r "${patchFile}" ]] && patch -p0 <"${patchFile}"
 done
@@ -74,7 +81,7 @@ pkg_make() {
 
 PKG_STATUS="make error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 PATH="${XBT_BIN_PATH}:${PATH}" make \
 	CC="${XBT_CC} --sysroot=${TTYLINUX_SYSROOT_DIR}" \
@@ -97,7 +104,7 @@ pkg_install() {
 
 PKG_STATUS="install error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 PATH="${XBT_BIN_PATH}:${PATH}" make \
 	CC="${XBT_CC} --sysroot=${TTYLINUX_SYSROOT_DIR}" \
@@ -128,6 +135,8 @@ return 0
 
 pkg_clean() {
 PKG_STATUS=""
+rm --force --recursive "${PKG_DIR}"
+rm --force --recursive "${PKG_TAR}"
 return 0
 }
 

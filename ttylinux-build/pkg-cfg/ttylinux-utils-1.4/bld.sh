@@ -26,18 +26,22 @@
 # ******************************************************************************
 
 PKG_URL="(local)"
-PKG_TAR="ttylinux-utils-1.4"
+PKG_ZIP="(none)"
 PKG_SUM=""
 
-PKG_NAME="ttylinux-utils"
-PKG_VERSION="1.4"
+PKG_TAR="(none)"
+PKG_DIR="(none)"
+
+
+# Function Arguments:
+#      $1 ... Package name, like "glibc-2.19".
 
 
 # ******************************************************************************
-# pkg_patch
+# pkg_init
 # ******************************************************************************
 
-pkg_patch() {
+pkg_init() {
 PKG_STATUS=""
 return 0
 }
@@ -69,7 +73,7 @@ return 0
 
 pkg_install() {
 
-PKG_STATUS="Unspecified error -- check the ${PKG_NAME} build log"
+PKG_STATUS="install error"
 
 if [[ -d "rootfs/" ]]; then
 	find "rootfs/" ! -type d -exec touch {} \;

@@ -26,25 +26,32 @@
 # ******************************************************************************
 
 PKG_URL="http://lilo.alioth.debian.org/ftp/sources/"
-PKG_TAR="lilo-23.2.tar.gz"
+PKG_ZIP="lilo-23.2.tar.gz"
 PKG_SUM=""
 
-PKG_NAME="lilo"
-PKG_VERSION="23.2"
+PKG_TAR="lilo-23.2.tar"
+PKG_DIR="lilo-23.2"
+
+
+# Function Arguments:
+#      $1 ... Package name, like "glibc-2.19".
 
 
 # ******************************************************************************
-# pkg_patch
+# pkg_init
 # ******************************************************************************
 
-pkg_patch() {
+pkg_init() {
 
-local patchDir="${TTYLINUX_PKGCFG_DIR}/${PKG_NAME}-${PKG_VERSION}/patch"
+local patchDir="${TTYLINUX_PKGCFG_DIR}/$1/patch"
 local patchFile=""
 
-PKG_STATUS="Unspecified error -- check the ${PKG_NAME} build log"
+PKG_STATUS="init error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+gunzip --verbose ${PKG_ZIP}
+tar --extract --file=${PKG_TAR}
+
+cd "${PKG_DIR}"
 for patchFile in "${patchDir}"/*; do
 	[[ -r "${patchFile}" ]] && patch -p1 <"${patchFile}"
 done
@@ -74,7 +81,7 @@ pkg_make() {
 
 PKG_STATUS="make error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 
 [[ "$(uname -m)" != "x86_64" ]] && HOST_CC="gcc"
@@ -105,9 +112,9 @@ return 0
 
 pkg_install() {
 
-PKG_STATUS="Unspecified error -- check the ${PKG_NAME} build log"
+PKG_STATUS="install error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 install --mode=755 --owner=0 --group=0 src/lilo "${TTYLINUX_SYSROOT_DIR}/sbin"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_clr"
@@ -130,6 +137,8 @@ return 0
 
 pkg_clean() {
 PKG_STATUS=""
+rm --force --recursive "${PKG_DIR}"
+rm --force --recursive "${PKG_TAR}"
 return 0
 }
 

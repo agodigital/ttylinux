@@ -1,12 +1,7 @@
 # vim: syntax=cfg
 
-#
-# pc_i686
-# Wed Apr  3 22:50:24 MST 2013
-#
-
-TTYLINUX_NAME=ocelot
-TTYLINUX_VERSION=16.0
+TTYLINUX_NAME=
+TTYLINUX_VERSION=
 
 #
 # Platform, cross-tool, and CFLAGS.  Be carefull with changes.
@@ -87,6 +82,7 @@ TTYLINUX_PACKAGE[i++]="alsa-utils-1.0.25"
 TTYLINUX_PACKAGE[i++]="calc-2.12.4.4"
 TTYLINUX_PACKAGE[i++]="haserl-0.9.29"
 TTYLINUX_PACKAGE[i++]="lua-5.2.1"
-TTYLINUX_PACKAGE[i++]="retawq-0.2.6c"
+TTYLINUX_PACKAGE[i++]="lynx-2.8.7"
+# TTYLINUX_PACKAGE[i++]="retawq-0.2.6c"
 
 # end of file

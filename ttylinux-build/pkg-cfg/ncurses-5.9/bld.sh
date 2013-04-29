@@ -26,18 +26,25 @@
 # ******************************************************************************
 
 PKG_URL="http://ftp.gnu.org/gnu/ncurses/"
-PKG_TAR="ncurses-5.9.tar.gz"
+PKG_ZIP="ncurses-5.9.tar.gz"
 PKG_SUM=""
 
-PKG_NAME="ncurses"
-PKG_VERSION="5.9"
+PKG_TAR="ncurses-5.9.tar"
+PKG_DIR="ncurses-5.9"
+
+
+# Function Arguments:
+#      $1 ... Package name, like "glibc-2.19".
 
 
 # ******************************************************************************
-# pkg_patch
+# pkg_init
 # ******************************************************************************
 
-pkg_patch() {
+pkg_init() {
+PKG_STATUS="init error"
+gunzip --verbose ${PKG_ZIP}
+tar --extract --file=${PKG_TAR}
 PKG_STATUS=""
 return 0
 }
@@ -53,10 +60,10 @@ local WITHOUT_CXX=""
 
 PKG_STATUS="./configure error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 
 mv misc/terminfo.src misc/terminfo.src-ORIG
-cp ${TTYLINUX_PKGCFG_DIR}/${PKG_NAME}-${PKG_VERSION}/terminfo.src \
+cp ${TTYLINUX_PKGCFG_DIR}/$1/terminfo.src \
 	misc/terminfo.src
 
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
@@ -110,7 +117,7 @@ pkg_make() {
 
 PKG_STATUS="make error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 PATH="${XBT_BIN_PATH}:${PATH}" make \
 	--jobs=${NJOBS} \
@@ -132,7 +139,7 @@ pkg_install() {
 
 PKG_STATUS="install error"
 
-cd "${PKG_NAME}-${PKG_VERSION}"
+cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 
 PATH="${XBT_BIN_PATH}:${PATH}" make install || return 1
@@ -158,7 +165,6 @@ unset _ln
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_clr"
 cd ..
 
-echo "Copying ${PKG_NAME} ttylinux-specific components to build-root."
 if [[ -d "rootfs/" ]]; then
 	find "rootfs/" ! -type d -exec touch {} \;
 	cp --archive --force rootfs/* "${TTYLINUX_SYSROOT_DIR}"
@@ -176,6 +182,8 @@ return 0
 
 pkg_clean() {
 PKG_STATUS=""
+rm --force --recursive "${PKG_DIR}"
+rm --force --recursive "${PKG_TAR}"
 return 0
 }
 

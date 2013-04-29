@@ -26,18 +26,22 @@
 # ******************************************************************************
 
 PKG_URL="(cross-tools)"
-PKG_TAR=""
+PKG_ZIP="(none)"
 PKG_SUM=""
 
-PKG_NAME="glibc"
-PKG_VERSION="2.9"
+PKG_TAR="(none)"
+PKG_DIR="(none)"
+
+
+# Function Arguments:
+#      $1 ... Package name, like "glibc-2.19".
 
 
 # ******************************************************************************
-# pkg_patch
+# pkg_init
 # ******************************************************************************
 
-pkg_patch() {
+pkg_init() {
 PKG_STATUS=""
 return 0
 }
@@ -71,12 +75,12 @@ pkg_install() {
 
 local xtoolTargDir="${TTYLINUX_XTOOL_DIR}/target"
 
-PKG_STATUS="Unspecified error -- check the ${PKG_NAME} build log"
+PKG_STATUS="install error"
 
-echo "Copying cross-tool ${PKG_NAME} target components to sysroot."
+echo "Copying cross-tool $1 target components to sysroot."
 cp --no-dereference --recursive ${xtoolTargDir}/* ${TTYLINUX_SYSROOT_DIR}
 
-echo "Copying ${PKG_NAME} ttylinux-specific components to sysroot."
+echo "Copying $1 ttylinux-specific components to sysroot."
 if [[ -d "rootfs/" ]]; then
 	find "rootfs/" ! -type d -exec touch {} \;
 	cp --archive --force rootfs/* "${TTYLINUX_SYSROOT_DIR}"

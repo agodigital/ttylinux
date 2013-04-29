@@ -29,6 +29,7 @@
 #
 # CHANGE LOG
 #
+#	25apr13	drj	Changed format of the package list file.
 #	18mar12	drj	Track the failed package downloads and report on them.
 #	15feb12	drj	Rewrite for build process reorganization.
 #	16nov10	drj	Miscellaneous fussing.
@@ -48,14 +49,14 @@
 # dload_get_file
 # *****************************************************************************
 
-# Usage: dload_get_file <filename> <tag> <url> [url ...]
+# Usage: dload_get_file <pname> <fname> <url> [url ...]
 
 dload_get_file() {
 
-local fileName="$1"
-local fileTag="$2"
+local pkgName="$1"  # like glibc-2.9
+local fileName="$2" # could be like lynx2-8-7.tgz
+local url="$3"
 local loadedDn="no"
-local url
 
 # Go to the urls.
 shift
@@ -63,21 +64,21 @@ shift
 
 pushd "${TTYLINUX_PKGSRC_DIR}" >/dev/null 2>&1
 
-trap "rm -f ${fileName}.${fileTag}" EXIT
+trap "rm -f ${fileName}" EXIT
 
-echo -n "i> Checking ${fileName} " 
-for ((i=(28-${#fileName}) ; i > 0 ; i--)); do echo -n "."; done
+echo -n "i> Checking ${pkgName} " 
+for ((i=28 ; i > ${#pkgName} ; i--)); do echo -n "."; done
 
 rm -f "${fileName}.download.log"
 
 # Maybe the file doesn't get downloaded.
 #
-if [[ x"${fileTag}" == x"(cross-tools)" ]]; then
+if [[ x"${url}" == x"(cross-tools)" ]]; then
 	echo " (comes from cross-tools)" 
 	popd >/dev/null 2>&1
 	return 0
 fi
-if [[ x"${fileTag}" == x"(local)" ]]; then
+if [[ x"${url}" == x"(local)" ]]; then
 	echo " (local)" 
 	popd >/dev/null 2>&1
 	return 0
@@ -85,7 +86,7 @@ fi
 
 # If the file is already in ${TTYLINUX_PKGSRC_DIR} then return.
 #
-if [[ -f "${fileName}.${fileTag}" ]]; then
+if [[ -f "${fileName}" ]]; then
 	echo " have it" 
 	popd >/dev/null 2>&1
 	return 0
@@ -95,8 +96,8 @@ echo -n " downloading ... "
 
 # See if there is a local copy of the file.
 #
-if [[ -f "${K_CACHEDIR}/${fileName}.${fileTag}" ]]; then
-	cp "${K_CACHEDIR}/${fileName}.${fileTag}" .
+if [[ -f "${K_CACHEDIR}/${fileName}" ]]; then
+	cp "${K_CACHEDIR}/${fileName}" .
 	echo "(got from local cache)"
 	popd >/dev/null 2>&1
 	return 0
@@ -118,12 +119,12 @@ _file=""
 #
 rm -f "${fileName}.download.log"
 for url in "$@"; do
-	_file="${url}/${fileName}.${fileTag}"
+	_file="${url}/${fileName}"
 	if [[ "${loadedDn}" == "no" ]]; then
 		(${_wget} --passive-ftp "${_file}" \
 		|| ${_wget} "${_file}" \
 		|| true) >"${fileName}.download.log" 2>&1
-		if [[ -f "${fileName}.${fileTag}" ]]; then
+		if [[ -f "${fileName}" ]]; then
 			loadedDn="yes"
 		fi
 	fi
@@ -134,10 +135,10 @@ unset _file
 if [[ "${loadedDn}" == "yes" ]]; then
 	echo "done"
 	rm -f "${fileName}.download.log"
-	chmod 600 ${fileName}.${fileTag}
+	chmod 600 ${fileName}
 else
 	echo "FAILED"
-	G_MISSED_PKG[${G_NMISSING}]="${fileName}.${fileTag}"
+	G_MISSED_PKG[${G_NMISSING}]="${fileName}"
 	G_MISSED_URL[${G_NMISSING}]="${url}"
 	G_NMISSING=$((${G_NMISSING} + 1))
 fi
@@ -180,10 +181,10 @@ dist_config_setup || exit 1
 echo "i> Getting source code packages [be patient, this will not lock up]."
 echo "i> Local cache directory: ${K_CACHEDIR}"
 
-while read name pad tag url; do
-	[[ -z "${name}"         ]] && continue || true
-	[[ "${name:0:1}" == "#" ]] && continue || true
-	dload_get_file ${name} ${tag} ${url}
+while read pname pad1 fname pad2 url; do
+	[[ -z "${pname}"         ]] && continue || true
+	[[ "${pname:0:1}" == "#" ]] && continue || true
+	dload_get_file ${pname} ${fname} ${url}
 done <${K_PKGLIST}
 
 if [[ ${G_NMISSING} != 0 ]]; then
