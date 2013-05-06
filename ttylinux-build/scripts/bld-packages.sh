@@ -29,6 +29,8 @@
 #
 # CHANGE LOG
 #
+#	30apr13	drj	Changed some error handling.
+#	30apr13	drj	Put the source package unzip back into this file.
 #	25apr13	drj	Handle odd zipfile names: unzip in the bld.sh files.
 #	14apr12	drj	Make an error if a package list file is not found.
 #	26mar12	drj	Added support for xz decompressin of source tarballs.
@@ -62,6 +64,42 @@
 
 
 # *****************************************************************************
+# Get and untar a source package.
+# *****************************************************************************
+
+package_get() {
+
+# Function Arguments:
+# $1 ... Source package zip-file name, like "lynx2.8.7.tar.bz2".
+
+local srcPkg="$1"
+local tarBall=""
+local unZipper=""
+
+if   [[ "$1" =~ (.*)\.tgz$      ]]; then unZipper="gunzip --force";
+elif [[ "$1" =~ (.*)\.tar\.gz$  ]]; then unZipper="gunzip --force";
+elif [[ "$1" =~ (.*)\.tbz$      ]]; then unZipper="bunzip2 --force";
+elif [[ "$1" =~ (.*)\.tar\.bz2$ ]]; then unZipper="bunzip2 --force";
+elif [[ "$1" =~ (.*)\.tar\.xz$  ]]; then unZipper="xz --decompress --force";
+fi
+
+if [[ -n "${unZipper}" ]]; then
+	tarBall="${BASH_REMATCH[1]}.tar"
+	cp "${TTYLINUX_PKGSRC_DIR}/${srcPkg}" .
+	${unZipper} "${srcPkg}" >/dev/null
+	tar --extract --file="${tarBall}"
+	rm --force "${tarBall}"
+else
+	echo "ERROR ***** ${srcPkg} not recognized." # Make a log file entry.
+	echo -e "${TEXT_BRED}ERROR${TEXT_NORM}"         >&${CONSOLE_FD}
+	echo    "E> Source package ${srcPkg} not found" >&${CONSOLE_FD}
+	exit 1 # Bust out of sub-shell.
+fi
+
+}
+
+
+# *****************************************************************************
 # Make a file to list the ttylinux package contents.
 # *****************************************************************************
 
@@ -90,14 +128,14 @@ while read; do
 	lineNum=$((${lineNum}+1))
 	grep -q "^#if" <<<${REPLY} && {
 		if [[ ${nesting} == 1 ]]; then
-			echo "E> Cannot nest scripting in cfg-$1/files" >&2
-			echo "=> line ${lineNum}: \"${REPLY}\"" >&2
+			echo "E> Cannot nest scripting in cfg-$1/files"
+			echo "=> line ${lineNum}: \"${REPLY}\""
 			continue
 		fi
 		set ${REPLY}
 		if [[ $# != 4 ]]; then
-			echo "E> IGNORING malformed script in cfg-$1/files" >&2
-			echo "=> line ${lineNum}: \"${REPLY}\"" >&2
+			echo "E> IGNORING malformed script in cfg-$1/files"
+			echo "=> line ${lineNum}: \"${REPLY}\""
 			continue
 		fi
 		oLineUse=${nLineUse}
@@ -115,10 +153,16 @@ done <"${cfgPkgFiles}"
 
 while read; do
 	if [[ ! -e ${TTYLINUX_SYSROOT_DIR}/${REPLY} ]]; then
-		echo "***** ERROR missing => ${REPLY}"
+		echo "ERROR ***** missing \"${REPLY}\"" # Make a log file entry.
+		echo "=> in ${cfgPkgFiles}"             # Make a log file entry.
 		retStat=1
 	fi
 done <"${TTYLINUX_VAR_DIR}/files"
+
+if [[ ${retStat} -eq 1 ]]; then
+	echo -e "${TEXT_BRED}ERROR${TEXT_NORM}"          >&${CONSOLE_FD}
+	echo    "E> Cannot interpret ${cfgPkgFiles}."    >&${CONSOLE_FD}
+fi
 
 return ${retStat}
 
@@ -137,17 +181,23 @@ package_xbuild() {
 # Check for the package build script.
 #
 if [[ ! -f "${TTYLINUX_PKGCFG_DIR}/$1/bld.sh" ]]; then
-	echo "E> Cannot find build script."
-	echo "=> ${TTYLINUX_PKGCFG_DIR}/$1/bld.sh"
-	return 1
+	echo "ERROR ***** Cannot find build script." # Make a log file entry.
+	echo "=> ${TTYLINUX_PKGCFG_DIR}/$1/bld.sh"   # Make a log file entry.
+	echo -e "${TEXT_BRED}ERROR${TEXT_NORM}"          >&${CONSOLE_FD}
+	echo    "E> Cannot find build script."           >&${CONSOLE_FD}
+	echo    "   => ${TTYLINUX_PKGCFG_DIR}/$1/bld.sh" >&${CONSOLE_FD}
+	exit 1 # Bust out of sub-shell.
+
 fi
 
 # ${TTYLINUX_PKGCFG_DIR}/$1/bld.sh defines several variables and functions:
 #
 # Functions
 #
-#	pkg_init	This function unzips, untars, and applies patches or
-#			fixups to the source package before building.
+#	pkg_patch	This function applies any patches or fixups to the
+#			source package before building.
+#			NOTE -- Patches are applied before package
+#				configuration.
 #
 #	pkg_configure	This function configures the source package for
 #			building.
@@ -159,12 +209,19 @@ fi
 #	pkg_install	This function installs any built items into the build
 #			root ${TTYLINUX_SYSROOT_DIR}/ directory tree.
 #
-#	pkg_clean	This function is responsible for cleaning-up,
-#			particularly in error conditions.
+#	pkg_clean	This function is responsible for cleaning-up; notice
+#			it is not called if one of the other functions
+#			returns an error.
 #
 # Variables
 #
 #	PKG_ZIP		The name of the source package tar-zip file.
+#
+#	PKG_TAR		The name of the unzipped source package file.  This
+#			file name will end in ".tar".
+#
+#	PKG_DIR		The name of the directory created by untarring the
+#			${PKG_TAR} file.
 #
 #	PKG_STATUS	Set by the above function to indicate an error worthy
 #			stopping the build process.
@@ -173,9 +230,10 @@ source "${TTYLINUX_PKGCFG_DIR}/$1/bld.sh"
 
 echo -n "g." >&${CONSOLE_FD}
 
-# Get the source package, if any.
+# Get the source package, if any.  This function will unzip and untar the
+# soucre package.
 #
-cp "${TTYLINUX_PKGSRC_DIR}/${PKG_ZIP}" .
+[[ "x${PKG_ZIP}" == "x(none)" ]] || package_get ${PKG_ZIP}
 
 # Get the ttylinux-specific rootfs, if any.
 #
@@ -194,14 +252,14 @@ rm --force FILES
 >FILES
 sleep 1 # For detecting files newer than INSTALL_STAMP
 
-# Init, configure, build, install and clean.
+# Patch, configure, build, install and clean.
 #
 PKG_STATUS=""
 bitch=${ncpus:-1}
 [[ -z "${bitch//[0-9]}" ]] && NJOBS=$((${bitch:-1} + 1)) || NJOBS=2
 unset bitch
 echo -n "b." >&${CONSOLE_FD}
-[[ -z "${PKG_STATUS}" ]] && pkg_init      $1
+[[ -z "${PKG_STATUS}" ]] && pkg_patch     $1
 [[ -z "${PKG_STATUS}" ]] && pkg_configure $1
 [[ -z "${PKG_STATUS}" ]] && pkg_make      $1
 [[ -z "${PKG_STATUS}" ]] && pkg_install   $1
@@ -223,9 +281,11 @@ unset PKG_STATUS
 rm --force ${TTYLINUX_SYSROOT_DIR}/lib/*.la
 rm --force ${TTYLINUX_SYSROOT_DIR}/usr/lib/*.la
 
-# Remove the un-tarred rootfs directory.
+# Remove the un-tarred source package directory, the un-tarred rootfs directory
+# and any other needed un-tarred source package directories.
 #
-[[ -d "rootfs" ]] && rm --force --recursive "rootfs" || true
+[[ -d "${PKG_DIR}" ]] && rm --force --recursive "${PKG_DIR}" || true
+[[ -d "rootfs"     ]] && rm --force --recursive "rootfs"     || true
 
 # Make a list of the installed files.  Remove sysroot and its path component
 # from the file names.
@@ -377,7 +437,7 @@ if [[ -n "${fileList}" ]]; then
 	# "${fileList}"; then make a binary package from the list in
 	# "${TTYLINUX_VAR_DIR}/files".
 	#
-	package_list_make "${fileList}" || return 1
+	package_list_make "${fileList}" || exit 1 # Bust out of sub-shell.
 	uTarBall="${TTYLINUX_PKGBIN_DIR}/$1-${TTYLINUX_CPU}.tar"
 	cTarBall="${TTYLINUX_PKGBIN_DIR}/$1-${TTYLINUX_CPU}.tbz"
 	tar --create \
@@ -432,13 +492,13 @@ if [[ $# -gt 0 ]]; then
 fi
 
 if [[ ! -d "${TTYLINUX_BUILD_DIR}/packages" ]]; then
-	echo "E> The build directory does NOT exist." >&2
-	echo "E>      ${TTYLINUX_BUILD_DIR}/packages" >&2
+	echo "E> The build directory does NOT exist."
+	echo "E>      ${TTYLINUX_BUILD_DIR}/packages"
 	exit 1
 fi
 
 if [[ -z "${TTYLINUX_PACKAGE}" ]]; then
-	echo "E> No packages to build.  How did you do that?" >&2
+	echo "E> No packages to build.  How did you do that?"
 	exit 1
 fi
 
@@ -471,6 +531,11 @@ for p in ${TTYLINUX_PACKAGE[@]}; do
 
 	[[ -n "${ZIPP}" && -f "${TTYLINUX_VAR_DIR}/run/done.${p}" ]] && continue
 
+	if [[ ! -d "${TTYLINUX_PKGCFG_DIR}/${p}" ]]; then
+		echo -e "E> No ${TEXT_RED}pkg-cfg/${p}${TEXT_NORM} directory."
+		exit 1
+	fi
+
 	t1=${SECONDS}
 
 	echo -n "${p} ";
@@ -501,12 +566,6 @@ for p in ${TTYLINUX_PACKAGE[@]}; do
 
 	exec >&4     # Set fd 1 back to stdout.
 	CONSOLE_FD=1 #
-
-	if [[ ! -d "${TTYLINUX_PKGCFG_DIR}/${p}" ]]; then
-		echo -e "${TEXT_BRED}ERROR${TEXT_NORM}"
-		echo -e " no ${TEXT_RED}pkg-cfg/${p}${TEXT_NORM} directory"
-		exit 1
-	fi
 
 	touch "${TTYLINUX_VAR_DIR}/run/done.${p}"
 

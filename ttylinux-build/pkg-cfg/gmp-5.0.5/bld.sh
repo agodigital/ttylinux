@@ -38,13 +38,10 @@ PKG_DIR="gmp-5.0.5"
 
 
 # ******************************************************************************
-# pkg_init
+# pkg_patch
 # ******************************************************************************
 
-pkg_init() {
-PKG_STATUS="init error"
-bunzip2 --verbose ${PKG_ZIP}
-tar --extract --file=${PKG_TAR}
+pkg_patch() {
 PKG_STATUS=""
 return 0
 }
@@ -142,8 +139,6 @@ return 0
 
 pkg_clean() {
 PKG_STATUS=""
-rm --force --recursive "${PKG_DIR}"
-rm --force --recursive "${PKG_TAR}"
 return 0
 }
 

@@ -6,14 +6,14 @@
 # *****************************************************************************
 
 [[ $# != 1 ]] && {
-echo "This script take one argument, top-level ttylinux CD-ROM ISO directory."
-echo "Usage: qemu-x86_64.sh <directory>"
+echo "This script takes one argument, top-level ttylinux CD-ROM ISO directory."
+echo "Usage: qemu-i486.sh <directory>"
 exit 1
 }
 
 [[ ! -d $1 ]] && {
 echo "\"$1\" is not a directory."
-echo "Usage: qemu-x86_64.sh <directory>"
+echo "Usage: qemu-i486.sh <directory>"
 exit 1
 }
 
@@ -24,14 +24,13 @@ exit 1
 
 _path=""
 for p in ${PATH//:/ }; do
-	if [[ -x $p/qemu-system-x86_64 ]]; then _path=$p/qemu-system-x86_64; fi
+	if [[ -x $p/qemu-system-i386 ]]; then _path=$p/qemu-system-i386; fi
 done
 if [[ x"${_path}" = x ]]; then
 	echo ""
-	echo "Cannot find an executable \"qemu-system-x86_64\" program"
-	echo "in your \$PATH setting.  Maybe you need to set your \$PATH"
-	echo "or download and install qemu."
-	echo "Qemu can be found at http://wiki.qemu.org/"
+	echo "Cannot find an executable \"qemu\" program in your \$PATH"
+	echo "setting.  Maybe you need to set your \$PATH or download and"
+	echo "install qemu.  Qemu can be found at http://wiki.qemu.org/"
 	echo ""
 	exit 1
 fi
@@ -80,15 +79,14 @@ read -p "ttylinux: "
 
 _initrd=boot/filesys.gz
 _kernel=boot/vmlinuz
-_rdsksz="ramdisk_size=65536"
+_rdsksz="ramdisk_size=8192"
 
-qemu-system-x86_64					\
-	-enable-kvm					\
-	-smp 2,maxcpus=2,cores=2,threads=2,sockets=2	\
-	-m 192						\
-	-net nic,model=virtio				\
-	-kernel $1/${_kernel}				\
-	-initrd $1/${_initrd}				\
+qemu-system-i386		\
+	-enable-kvm		\
+	-m 32			\
+	-net nic,model=virtio	\
+	-kernel $1/${_kernel}	\
+	-initrd $1/${_initrd}	\
 	-append "initrd=/${_initrd} root=/dev/ram0 ${_rdsksz} ro ${REPLY}"
 
 unset _initrd

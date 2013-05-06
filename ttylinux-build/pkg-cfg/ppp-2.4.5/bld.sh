@@ -38,18 +38,15 @@ PKG_DIR="ppp-2.4.5"
 
 
 # ******************************************************************************
-# pkg_init
+# pkg_patch
 # ******************************************************************************
 
-pkg_init() {
+pkg_patch() {
 
 local patchDir="${TTYLINUX_PKGCFG_DIR}/$1/patch"
 local patchFile=""
 
 PKG_STATUS="init error"
-
-gunzip --verbose ${PKG_ZIP}
-tar --extract --file=${PKG_TAR}
 
 #cd "${PKG_DIR}" # ppp patches are applied above the dir.
 for patchFile in "${patchDir}"/*; do
@@ -156,8 +153,6 @@ return 0
 
 pkg_clean() {
 PKG_STATUS=""
-rm --force --recursive "${PKG_DIR}"
-rm --force --recursive "${PKG_TAR}"
 return 0
 }
 

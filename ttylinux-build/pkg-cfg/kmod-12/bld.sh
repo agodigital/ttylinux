@@ -38,13 +38,11 @@ PKG_DIR="kmod-12"
 
 
 # ******************************************************************************
-# pkg_init
+# pkg_patch
 # ******************************************************************************
 
-pkg_init() {
+pkg_patch() {
 PKG_STATUS=""
-bunzip2 --verbose ${PKG_ZIP}
-tar --extract --file=${PKG_TAR}
 return 0
 }
 
@@ -152,8 +150,6 @@ return 0
 
 pkg_clean() {
 PKG_STATUS=""
-rm --force --recursive "${PKG_DIR}"
-rm --force --recursive "${PKG_TAR}"
 return 0
 }
 

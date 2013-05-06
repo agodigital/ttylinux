@@ -38,13 +38,10 @@ PKG_DIR="mpc-1.0.1"
 
 
 # ******************************************************************************
-# pkg_init
+# pkg_patch
 # ******************************************************************************
 
-pkg_init() {
-PKG_STATUS="init error"
-gunzip --verbose ${PKG_ZIP}
-tar --extract --file=${PKG_TAR}
+pkg_patch() {
 PKG_STATUS=""
 return 0
 }
@@ -142,8 +139,6 @@ return 0
 
 pkg_clean() {
 PKG_STATUS=""
-rm --force --recursive "${PKG_DIR}"
-rm --force --recursive "${PKG_TAR}"
 return 0
 }
 

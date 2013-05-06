@@ -14,7 +14,7 @@ TTYLINUX_CFLAGS="-m64 -Os"
 #
 # Build process options and distribution attributes.
 #
-TTYLINUX_RAMDISK_SIZE=96
+TTYLINUX_RAMDISK_SIZE=64
 TTYLINUX_STRIP_BINS=y
 # TTYLINUX_USER_KERNEL is not set
 TTYLINUX_SITE_SCRIPTS=y

@@ -38,13 +38,10 @@ PKG_DIR="e2fsprogs-1.42.6"
 
 
 # ******************************************************************************
-# pkg_init
+# pkg_patch
 # ******************************************************************************
 
-pkg_init() {
-PKG_STATUS="init error"
-gunzip --verbose ${PKG_ZIP}
-tar --extract --file=${PKG_TAR}
+pkg_patch() {
 PKG_STATUS=""
 return 0
 }
@@ -62,11 +59,14 @@ local TTYLINUX_LDFLAGS="-lblkid"
 
 PKG_STATUS="./configure error"
 
-[[ "${TTYLINUX_PLATFORM}" == "pc_i486"    ]] && CONFIG_BLKID="--enable-libblkid"
-[[ "${TTYLINUX_PLATFORM}" == "wrtu54g_tm" ]] && CONFIG_BLKID="--enable-libblkid"
+if [[ x"${TTYLINUX_PACKAGE_E2FSPROGS_HAS_BLKID:-}" == x"y" ]]; then
+	CONFIG_BLKID="--enable-libblkid"
+	TTYLINUX_LDFLAGS=""
+fi
+
+# I don't remember why this is here, maybe to save space, or maybe it didn't
+# compile for this platform.
 [[ "${TTYLINUX_PLATFORM}" == "wrtu54g_tm" ]] && CONFIG_DEFRAG="--disable-defrag"
-[[ "${TTYLINUX_PLATFORM}" == "pc_i486"    ]] && TTYLINUX_LDFLAGS=""
-[[ "${TTYLINUX_PLATFORM}" == "wrtu54g_tm" ]] && TTYLINUX_LDFLAGS=""
 
 cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
@@ -178,8 +178,6 @@ return 0
 
 pkg_clean() {
 PKG_STATUS=""
-rm --force --recursive "${PKG_DIR}"
-rm --force --recursive "${PKG_TAR}"
 return 0
 }
 

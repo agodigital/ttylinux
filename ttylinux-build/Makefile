@@ -26,6 +26,7 @@
 #
 # CHANGE LOG
 #
+#	05may13	drj	Fixed getcfg target; also include any config.
 #	28jan13	drj	Put back TTYLINUX_NAME and TTYLINUX_VERSION.
 #	27apr13	drj	Changed the building of the package list file.
 #	25apr13	drj	Changed format of the package list file.
@@ -66,8 +67,8 @@
 # *****************************************************************************
 
 
-TTYLINUX_NAME    := xxxxxxx
-TTYLINUX_VERSION := 16.1rc1
+TTYLINUX_NAME    := ocelot
+TTYLINUX_VERSION := 16.0
 
 
 # *************************************************************************** #
@@ -193,11 +194,12 @@ var/run/distimg:
 
 getcfg:
 	@(								\
-	llist=`cd config; ls platform-*/*_defconfig | sed -e 's#.*/##'`;\
+	llist=`cd config; ls platform-*/*_[a-z]*config | sed -e 's#.*/##'`;\
 	list=($${llist});						\
+	declare -i i=0;							\
 	declare -i cfg=0;						\
 	declare -i cnt="$${#list[@]}";					\
-	while [[ $${cfg} == 0 || $${cfg} > $${cnt} ]]; do		\
+	while [[ $${cfg} -eq 0 || $${cfg} -gt $${cnt} ]]; do		\
 		echo "";						\
 		echo "ttylinux target configurations:";			\
 		for (( i=1 ; $${i} <= $${cnt} ; i++ )); do		\

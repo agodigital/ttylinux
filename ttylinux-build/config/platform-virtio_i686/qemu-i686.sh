@@ -80,13 +80,13 @@ read -p "ttylinux: "
 
 _initrd=boot/filesys.gz
 _kernel=boot/vmlinuz
-_rdsksz="ramdisk_size=98304"
+_rdsksz="ramdisk_size=65536"
 
 qemu-system-i386					\
 	-enable-kvm					\
 	-cpu coreduo					\
 	-smp 2,maxcpus=2,cores=2,threads=2,sockets=2	\
-	-m 256						\
+	-m 192						\
 	-net nic,model=virtio				\
 	-kernel $1/${_kernel}				\
 	-initrd $1/${_initrd}				\

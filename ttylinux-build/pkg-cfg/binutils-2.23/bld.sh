@@ -38,15 +38,12 @@ PKG_DIR="binutils-2.23"
 
 
 # ******************************************************************************
-# pkg_init
+# pkg_patch
 # ******************************************************************************
 
-pkg_init() {
+pkg_patch() {
 
 PKG_STATUS="init error"
-
-bunzip2 --verbose ${PKG_ZIP}
-tar --extract --file=${PKG_TAR}
 
 rm --force --recursive "build-binutils"
 mkdir "build-binutils"
@@ -161,8 +158,6 @@ return 0
 
 pkg_clean() {
 PKG_STATUS=""
-rm --force --recursive "${PKG_DIR}"
-rm --force --recursive "${PKG_TAR}"
 rm --force --recursive "build-binutils"
 return 0
 }

@@ -111,6 +111,7 @@ echo "SOURCE_ARCH=\"${TTYLINUX_CPU}\""        >>sdcard/LABEL
 echo "SOURCE_KVER=\"${kver}\""                >>sdcard/LABEL
 cp ${TTYLINUX_DOC_DIR}/AUTHORS                 sdcard/AUTHORS
 cp ${TTYLINUX_DOC_DIR}/COPYING                 sdcard/COPYING
+cp ${TTYLINUX_DIR}/Licenses.txt                sdcard/Licenses.txt
 cp ${TTYLINUX_BOOTLOADER_DIR}/uboot/MLO        sdcard/boot/MLO
 cp ${TTYLINUX_BOOTLOADER_DIR}/uboot/u-boot.img sdcard/boot/u-boot.img
 cp ${TTYLINUX_IMG_NAME}                        sdcard/boot/filesys
@@ -122,6 +123,7 @@ cp ${TTYLINUX_PLATFORM_DIR}/uEnv.txt           sdcard/boot/uEnv.txt
 chmod 644 sdcard/AUTHORS
 chmod 644 sdcard/COPYING
 chmod 644 sdcard/LABEL
+chmod 644 sdcard/Licenses.txt
 chmod 644 sdcard/boot/*
 chmod 755 sdcard/boot/vmlinux
 echo "DONE"
@@ -139,6 +141,7 @@ chmod 644 sdcard/config/kernel-${kver}.cfg
 echo "DONE"
 
 echo -n "i> Copying documentation files ....................... "
+cp ${TTYLINUX_DOC_DIR}/COPYING-documents sdcard/doc/FDL
 _chgLog="ChangeLog-${TTYLINUX_PLATFORM}"
 cp ${TTYLINUX_DOC_DIR}/${_chgLog} sdcard/doc/
 if [[ -f ${TTYLINUX_DOC_DIR}/User_Guide.html ]]; then
@@ -221,9 +224,10 @@ echo "SOURCE_MEDIA=\"CDROM\""                 >>cdrom/LABEL
 echo "SOURCE_VERSION=\"${TTYLINUX_VERSION}\"" >>cdrom/LABEL
 echo "SOURCE_ARCH=\"${TTYLINUX_CPU}\""        >>cdrom/LABEL
 echo "SOURCE_KVER=\"${kver}\""                >>cdrom/LABEL
-cp ${TTYLINUX_DOC_DIR}/AUTHORS cdrom/AUTHORS
-cp ${TTYLINUX_DOC_DIR}/COPYING cdrom/COPYING
-chmod 644 cdrom/AUTHORS cdrom/COPYING
+cp ${TTYLINUX_DOC_DIR}/AUTHORS  cdrom/AUTHORS
+cp ${TTYLINUX_DOC_DIR}/COPYING  cdrom/COPYING
+cp ${TTYLINUX_DIR}/Licenses.txt cdrom/Licenses.txt
+chmod 644 cdrom/AUTHORS cdrom/COPYING cdrom/Licenses.txt
 cp ${TTYLINUX_BOOTLOADER_DIR}/yaboot/boot.msg     cdrom/boot/boot.msg
 cp ${TTYLINUX_BOOTLOADER_DIR}/yaboot/hfsmap       cdrom/boot/hfsmap
 cp ${TTYLINUX_BOOTLOADER_DIR}/yaboot/ofboot.b     cdrom/boot/ofboot.b
@@ -270,6 +274,7 @@ chmod 755 cdrom/*.sh
 echo "DONE"
 
 echo -n "i> Copying documentation files to Boot CD ............ "
+cp ${TTYLINUX_DOC_DIR}/COPYING-documents cdrom/doc/FDL
 _chgLog="ChangeLog-${TTYLINUX_PLATFORM}"
 cp ${TTYLINUX_DOC_DIR}/${_chgLog} cdrom/doc/
 if [[ -f ${TTYLINUX_DOC_DIR}/User_Guide.html ]]; then
@@ -351,9 +356,10 @@ echo "SOURCE_MEDIA=\"CDROM\""                 >>cdrom/LABEL
 echo "SOURCE_VERSION=\"${TTYLINUX_VERSION}\"" >>cdrom/LABEL
 echo "SOURCE_ARCH=\"${TTYLINUX_CPU}\""        >>cdrom/LABEL
 echo "SOURCE_KVER=\"${kver}\""                >>cdrom/LABEL
-cp ${TTYLINUX_DOC_DIR}/AUTHORS cdrom/AUTHORS
-cp ${TTYLINUX_DOC_DIR}/COPYING cdrom/COPYING
-chmod 644 cdrom/AUTHORS cdrom/COPYING
+cp ${TTYLINUX_DOC_DIR}/AUTHORS  cdrom/AUTHORS
+cp ${TTYLINUX_DOC_DIR}/COPYING  cdrom/COPYING
+cp ${TTYLINUX_DIR}/Licenses.txt cdrom/Licenses.txt
+chmod 644 cdrom/AUTHORS cdrom/COPYING cdrom/Licenses.txt
 cp ${TTYLINUX_PLATFORM_DIR}/loopback.cfg cdrom/boot/grub/loopback.cfg
 chmod 644 cdrom/boot/grub/loopback.cfg
 _dest="cdrom/boot/isolinux"
@@ -404,6 +410,7 @@ chmod 755 cdrom/*.sh
 echo "DONE"
 
 echo -n "i> Copying documentation files to Boot CD ............ "
+cp ${TTYLINUX_DOC_DIR}/COPYING-documents cdrom/doc/FDL
 _chgLog="ChangeLog-${TTYLINUX_PLATFORM}"
 cp ${TTYLINUX_DOC_DIR}/${_chgLog}           cdrom/doc/
 cp ${TTYLINUX_DOC_DIR}/Flash_Disk_Howto.txt cdrom/doc/
@@ -549,9 +556,10 @@ echo "SOURCE_MEDIA=\"UNKNOWN\""               >>cdrom/LABEL
 echo "SOURCE_VERSION=\"${TTYLINUX_VERSION}\"" >>cdrom/LABEL
 echo "SOURCE_ARCH=\"${TTYLINUX_CPU}\""        >>cdrom/LABEL
 echo "SOURCE_KVER=\"${kver}\""                >>cdrom/LABEL
-cp ${TTYLINUX_DOC_DIR}/AUTHORS cdrom/AUTHORS
-cp ${TTYLINUX_DOC_DIR}/COPYING cdrom/COPYING
-chmod 644 cdrom/AUTHORS cdrom/COPYING
+cp ${TTYLINUX_DOC_DIR}/AUTHORS  cdrom/AUTHORS
+cp ${TTYLINUX_DOC_DIR}/COPYING  cdrom/COPYING
+cp ${TTYLINUX_DIR}/Licenses.txt cdrom/Licenses.txt
+chmod 644 cdrom/AUTHORS cdrom/COPYING cdrom/Licenses.txt
 cp ${TTYLINUX_IMG_NAME}        cdrom/boot/filesys
 cp kroot/boot/System.map       cdrom/boot/System.map
 cp kroot/boot/vmlinux          cdrom/boot/vmlinux
@@ -617,6 +625,7 @@ done
 echo "DONE"
 
 echo -n "i> Copying documentation files ....................... "
+cp ${TTYLINUX_DOC_DIR}/COPYING-documents cdrom/doc/FDL
 _chgLog="ChangeLog-${TTYLINUX_PLATFORM}"
 cp ${TTYLINUX_DOC_DIR}/${_chgLog} cdrom/doc/
 if [[ -f ${TTYLINUX_DOC_DIR}/User_Guide.html ]]; then
@@ -687,6 +696,7 @@ echo ""
 [[ "${TTYLINUX_PLATFORM}" == "pc_i486"       ]] && pc_dir_make      || true
 [[ "${TTYLINUX_PLATFORM}" == "pc_i686"       ]] && pc_dir_make      || true
 [[ "${TTYLINUX_PLATFORM}" == "pc_x86_64"     ]] && pc_dir_make      || true
+[[ "${TTYLINUX_PLATFORM}" == "virtio_i486"   ]] && pc_dir_make      || true
 [[ "${TTYLINUX_PLATFORM}" == "virtio_i686"   ]] && pc_dir_make      || true
 [[ "${TTYLINUX_PLATFORM}" == "virtio_x86_64" ]] && pc_dir_make      || true
 [[ "${TTYLINUX_PLATFORM}" == "wrtu54g_tm"    ]] && wrtu54g_dir_make || true
