@@ -29,6 +29,7 @@
 #
 # CHANGE LOG
 #
+#	08may13	drj	Added more possibilities for the 'pkg-cfg/files' file.
 #	30apr13	drj	Changed some error handling.
 #	30apr13	drj	Put the source package unzip back into this file.
 #	25apr13	drj	Handle odd zipfile names: unzip in the bld.sh files.
@@ -421,11 +422,15 @@ rm --force FILES # All done with the FILES file.
 
 # Look for a package configuration file list.  There does not need to be one.
 #
-if [[ -f "${TTYLINUX_PKGCFG_DIR}/$1/files" ]]; then
-	fileList="${TTYLINUX_PKGCFG_DIR}/$1/files"
+_fname="${TTYLINUX_PKGCFG_DIR}/$1/files"
+if [[ -f "${_fname}" ]]; then
+	fileList="${_fname}"
 fi
-if [[ -f "${TTYLINUX_PKGCFG_DIR}/$1/files-${TTYLINUX_PLATFORM}" ]]; then
-	fileList="${TTYLINUX_PKGCFG_DIR}/$1/files-${TTYLINUX_PLATFORM}"
+if [[ -f "${_fname}-${TTYLINUX_PLATFORM}" ]]; then
+	fileList="${_fname}-${TTYLINUX_PLATFORM}"
+fi
+if [[ -f "${_fname}-${TTYLINUX_PLATFORM}-${TTYLINUX_CONFIG}" ]]; then
+	fileList="${_fname}-${TTYLINUX_PLATFORM}-${TTYLINUX_CONFIG}"
 fi
 
 # Remark on the current activity.  Probably do something interesting.

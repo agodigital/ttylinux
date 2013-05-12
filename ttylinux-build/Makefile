@@ -26,6 +26,7 @@
 #
 # CHANGE LOG
 #
+#	07may13	drj	Changed naming convention for platform config files.
 #	05may13	drj	Fixed getcfg target; also include any config.
 #	28jan13	drj	Put back TTYLINUX_NAME and TTYLINUX_VERSION.
 #	27apr13	drj	Changed the building of the package list file.
@@ -67,8 +68,8 @@
 # *****************************************************************************
 
 
-TTYLINUX_NAME    := ocelot
-TTYLINUX_VERSION := 16.0
+TTYLINUX_NAME    := bricolage
+TTYLINUX_VERSION := 16.1-int01
 
 
 # *************************************************************************** #
@@ -194,7 +195,12 @@ var/run/distimg:
 
 getcfg:
 	@(								\
-	llist=`cd config; ls platform-*/*_[a-z]*config | sed -e 's#.*/##'`;\
+	dlist=`cd config; for d in platform-*; do echo $${d#*-}; done`;	\
+	for d in $${dlist}; do						\
+		for f in config/platform-$${d}/$${d}-*config; do	\
+			[[ -f $${f} ]] && llist+="$${f##*/} " || true;	\
+		done;							\
+	done;								\
 	list=($${llist});						\
 	declare -i i=0;							\
 	declare -i cfg=0;						\

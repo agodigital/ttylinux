@@ -29,6 +29,7 @@
 #
 # CHANGE LOG
 #
+#	10may13	drj	Adjust for kernel config file name change.
 #	21apr13	drj	Added virtio_i686 and virtio_x86_64.
 #	31mar13	drj	Fixed a weird-ass thing in function mac_dir_make.
 #	23mar13	drj	Get am335x-bone.dtb for BeagleBone.
@@ -76,7 +77,7 @@
 bbone_dir_make() {
 
 local kver="${TTYLINUX_USER_KERNEL:-${XBT_LINUX_VER##*-}}"
-local kcfg="${TTYLINUX_PLATFORM_DIR}/kernel-${kver}.cfg"
+local kcfg="${TTYLINUX_PLATFORM_DIR}/kernel-${kver}-${TTYLINUX_CONFIG}"
 local rdSize
 
 # If TTYLINUX_USER_KERNEL is set, as specified in the ttylinux-config.sh file,
@@ -189,7 +190,7 @@ return 0
 mac_dir_make() {
 
 local kver="${XBT_LINUX_VER#*-}"
-local kcfg="${TTYLINUX_PLATFORM_DIR}/kernel-${kver}.cfg"
+local kcfg="${TTYLINUX_PLATFORM_DIR}/kernel-${kver}-${TTYLINUX_CONFIG}"
 local rdSize=$((${TTYLINUX_RAMDISK_SIZE}*1024))
 
 # If TTYLINUX_USER_KERNEL is set, as specified in the ttylinux-config.sh file,
@@ -321,7 +322,7 @@ return 0
 pc_dir_make() {
 
 local kver="${TTYLINUX_USER_KERNEL:-${XBT_LINUX_VER##*-}}"
-local kcfg="${TTYLINUX_PLATFORM_DIR}/kernel-${kver}.cfg"
+local kcfg="${TTYLINUX_PLATFORM_DIR}/kernel-${kver}-${TTYLINUX_CONFIG}"
 local rdSize
 
 # If TTYLINUX_USER_KERNEL is set, as specified in the ttylinux-config.sh file,
@@ -386,6 +387,9 @@ rdSize=$((${TTYLINUX_RAMDISK_SIZE}*1024))
 sed --in-place \
 	--expression="s/root=/ramdisk_size=${rdSize} root=/" \
 	cdrom/boot/isolinux/isolinux.cfg
+sed --in-place \
+	--expression="s/ramdisk_size=[0-9]* /ramdisk_size=${rdSize} /" \
+	cdrom/boot/grub/loopback.cfg
 echo "DONE"
 
 echo ""
@@ -524,7 +528,7 @@ rm aligned.ramdisk
 wrtu54g_dir_make() {
 
 local kver="${TTYLINUX_USER_KERNEL:-${XBT_LINUX_VER##*-}}"
-local kcfg="${TTYLINUX_PLATFORM_DIR}/kernel-${kver}.cfg"
+local kcfg="${TTYLINUX_PLATFORM_DIR}/kernel-${kver}-${TTYLINUX_CONFIG}"
 
 # If TTYLINUX_USER_KERNEL is set, as specified in the ttylinux-config.sh file,
 # then there is a non-standard (user custom) ttylinux kernel to build, in which

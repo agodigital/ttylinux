@@ -34,6 +34,7 @@
 #
 # CHANGE LOG
 #
+#	06may13	drj	Added i486-2.16.0-gnu target.
 #	01apr13	drj	Regress MacG4 tool chain to linux-2.6.38.1.
 #	24mar13	drj	Fixed BeagleBone tool chain.
 #	27jan13	drj	Return old build tools until new system work right.
@@ -95,12 +96,13 @@ help:
 	@echo ""
 	@echo "Make Command Examples            ttylinux Cross-tool Chain"
 	@echo "-----------------------          -------------------------"
-	@echo "make armv7-2.16.0-gnueabi ...... beagle_bone (linux-3.8.4)"
-	@echo "make mipsel-uclibc ............. wrtu54g_tm  (linux-2.6.36.4)"
-	@echo "make powerpc-2.16.0-gnu ........ mac_g4      (linux-2.6.38.1)"
-	@echo "make i486-2.9-gnu .............. pc_i486     (linux-2.6.34.7"
-	@echo "make i686-2.16.0-gnu ........... pc_i686     (linux-3.7.1)"
-	@echo "make x86_64-2.16.0-gnu ......... pc_x86_64   (linux-3.7.1)"
+	@echo "make armv7-2.16.0-gnueabi ...... beagle_bone   (linux-3.8.4)"
+	@echo "make mipsel-uclibc ............. wrtu54g_tm    (linux-2.6.36.4)"
+	@echo "make powerpc-2.16.0-gnu ........ mac_g4        (linux-2.6.38.1)"
+	@echo "make i486-2.9-gnu .............. pc_i486       (linux-2.6.34.7"
+	@echo "make i486-2.16.0-gnu ........... pc_i486-4.6.3 (linux-3.7.1"
+	@echo "make i686-2.16.0-gnu ........... pc_i686       (linux-3.7.1)"
+	@echo "make x86_64-2.16.0-gnu ......... pc_x86_64     (linux-3.7.1)"
 	@echo ""
 	@echo "Variables:"
 	@echo ""
@@ -140,6 +142,12 @@ i486-2.9-gnu:
 	# PC-i486 -- gcc-4.4.6, glibc-2.9.0, linux-2.6.34.7
 	rm -f xbt-build-config.sh
 	cp config/ttyl-pc_i486.cfg xbt-build-config.sh
+	./scripts/_build-toolchain.sh $${CONTINUE/yes/continue}
+
+i486-2.16.0-gnu:
+	# PC-i486 -- gcc-4.6.3, glibc-2.16.0, linux-3.7.1
+	rm -f xbt-build-config.sh
+	cp config/ttyl-pc_i486-4.6.3.cfg xbt-build-config.sh
 	./scripts/_build-toolchain.sh $${CONTINUE/yes/continue}
 
 i686-2.16.0-gnu:

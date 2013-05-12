@@ -29,6 +29,7 @@
 #
 # CHANGE LOG
 #
+#	08may13	drj	Added kernel getting and patching functions.
 #	23apr13	drj	Released files to be named with the platform, not CPU.
 #	13mar12	drj	Hide ttylinux_target_umount stderr.
 #	08mar12	drj	Finally set ncpus to something.
@@ -164,6 +165,19 @@ if [[ ${err} -eq 1 ]]; then
 fi
 set -u
 
+kver="${TTYLINUX_USER_KERNEL:-${XBT_LINUX_VER##*-}}"
+srcd="${TTYLINUX_XTOOL_DIR}/_pkg-src"
+kcfg="${TTYLINUX_PLATFORM_DIR}/kernel-${kver}-${TTYLINUX_CONFIG}"
+if [[ -n "${TTYLINUX_USER_KERNEL:-}" ]]; then
+	srcd="${TTYLINUX_DIR}/site/platform-${TTYLINUX_PLATFORM}"
+	kcfg="${srcd}/kernel-${TTYLINUX_USER_KERNEL}.cfg"
+fi
+TTYLINUX_KERNEL_SRCDIR="${srcd}"
+TTYLINUX_KERNEL_CONFIG="${kcfg}"
+unset kver
+unset kcfg
+unset srcd
+
 return 0
 
 }
@@ -234,7 +248,7 @@ return 0
 
 
 # *****************************************************************************
-#
+# Make a comment.
 # *****************************************************************************
 
 ttylinux_build_comment() {
@@ -245,13 +259,160 @@ echo "#; $1"
 
 
 # *****************************************************************************
-#
+# Make a comment; then execute it.
 # *****************************************************************************
 
 ttylinux_build_command() {
 
 echo "#+ $1"
 eval $1
+
+}
+
+
+# *****************************************************************************
+# Get the ttylinux kernel source and config file.
+# *****************************************************************************
+
+ttylinux_kernel_get() {
+
+local kver="${TTYLINUX_USER_KERNEL:-${XBT_LINUX_VER##*-}}"
+local srcd="${TTYLINUX_KERNEL_SRCDIR}"
+local kcfg="${TTYLINUX_KERNEL_CONFIG}"
+
+ttylinux_build_comment ""
+ttylinux_build_comment "kernel source"
+ttylinux_build_comment "=> ${srcd}/linux-${kver}.tar.bz2"
+
+# Look for the linux kernel tarball.
+#
+if [[ ! -f "${srcd}/linux-${kver}.tar.bz2" ]]; then
+	echo "E> Linux kernel source tarball not found." >&2
+	echo "=> ${srcd}/linux-${kver}.tar.bz2" >&2
+	exit 1
+fi
+
+ttylinux_build_comment ""
+ttylinux_build_comment "kernel config"
+ttylinux_build_comment "=> ${kcfg}"
+
+# Look for the linux kernel configuration file.
+#
+if [[ ! -f "${kcfg}" ]]; then
+	echo "E> Linux kernel configuration file not found." >&2
+	echo "=> ${kcfg}" >&2
+	exit 1
+fi
+
+# Cleanup any previous left-over build results.
+#
+rm --force --recursive linux-${kver}*/
+rm --force --recursive linux/
+
+# Uncompress, untarr then remove linux-${kver}.tar.bz2 and put the kernel
+# configuration file in place.
+#
+ttylinux_build_comment ""
+ttylinux_build_command "cp ${srcd}/linux-${kver}.tar.bz2 linux-${kver}.tar.bz2"
+ttylinux_build_command "bunzip2 --force linux-${kver}.tar.bz2"
+ttylinux_build_command "tar --extract --file=linux-${kver}.tar"
+ttylinux_build_command "rm --force linux-${kver}.tar"
+ttylinux_build_command "cp ${kcfg} linux-${kver}/.config"
+
+}
+
+
+# *****************************************************************************
+# Add any add-ins and patches.
+# *****************************************************************************
+
+ttylinux_kernel_addin_and_patch() {
+
+local kver="${TTYLINUX_USER_KERNEL:-${XBT_LINUX_VER##*-}}"
+
+# Do nothing herein for custom kernels.
+#
+if [[ -n "${TTYLINUX_USER_KERNEL:-}" ]]; then
+	return 0
+fi
+
+cd "linux-${kver}"
+
+# This is for older kernels; it is harmless otherwise.
+#
+if [[ -f scripts/unifdef.c ]]; then
+	_cmd="sed -e \"s/getline/uc_&/\" -i scripts/unifdef.c"
+	ttylinux_build_comment ""
+	ttylinux_build_command "${_cmd}"
+	unset _cmd
+fi
+
+# This is for older kernels; it is harmless otherwise.
+#
+if [[ -f scripts/mod/sumversion.c ]]; then
+	_old="<string.h>"
+	_new="<limits.h>\n#include <string.h>"
+	_cmd="sed -e \"s|${_old}|${_new}|\" -i scripts/mod/sumversion.c"
+	ttylinux_build_comment ""
+	ttylinux_build_command "${_cmd}"
+	unset _old
+	unset _new
+	unset _cmd
+fi
+
+# Add-in
+#
+_tarFile="${TTYLINUX_PLATFORM_DIR}/kernel-${TTYLINUX_CONFIG}-add_in.tar.bz2"
+if [[ -f ${_tarFile} ]]; then
+	_cmd="tar --extract --file=${_tarFile}"
+	ttylinux_build_comment ""
+	ttylinux_build_comment "Adding kernel-${TTYLINUX_CONFIG}-add_in.tar.bz2"
+	ttylinux_build_command "${_cmd}"
+	unset _cmd
+fi
+unset _tarFile
+
+# Patches
+#
+for p in ${TTYLINUX_PLATFORM_DIR}/kernel-${TTYLINUX_CONFIG}-??.patch; do
+	if [[ -f "${p}" ]]; then
+		_cmd="patch -p1 <${p}"
+		ttylinux_build_command "${_cmd}"
+		unset _cmd
+	fi
+done
+
+# This is a test to see if a gcc version 4.6.0 or newer is being used on a
+# kernel older than 3.0; this is the case with the current ttylinux mac_g4
+# kernel and its xbuildtool gcc.  In this case, a bunch of warnings will kill
+# the cross-compile of the kernel, but we know the kernel will actually work;
+# so Crazy Hack the kernel Makefile to not make warnings be errors.
+#
+if [[ "${TTYLINUX_PLATFORM}" = "mac_g4" ]]; then
+	(source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
+	_kerVer=${kver%%.*}
+	_gccVer=${XBT_XGCC_VER#gcc-}
+	_gccVer=${_gccVer//./}
+	if [[ ${_kerVer} -lt 3 && ${_gccVer} -gt 460 ]]; then
+		ttylinux_build_comment ""
+		ttylinux_build_comment "Doing the whacky fix."
+		ttylinux_build_comment ""
+		sed -e "s|^KBUILD_AFLAGS_KERNEL|KBUILD_CFLAGS += -Wno-error=unused-but-set-variable\nKBUILD_AFLAGS_KERNEL|" -i Makefile
+	else
+		echo ""                                 >${CONSOLE_FD}
+		echo "********************************" >${CONSOLE_FD}
+		echo "ERROR !! ERROR"                   >${CONSOLE_FD}
+		echo "********************************" >${CONSOLE_FD}
+		echo "Fix the cheap mac_g4 kernel hack" >${CONSOLE_FD}
+		echo "in scripts/bld-kernel.sh"         >${CONSOLE_FD}
+		echo "********************************" >${CONSOLE_FD}
+		echo "ERROR !! ERROR"                   >${CONSOLE_FD}
+		echo "********************************" >${CONSOLE_FD}
+		echo ""                                 >${CONSOLE_FD}
+	fi)
+fi
+
+cd ..
 
 }
 

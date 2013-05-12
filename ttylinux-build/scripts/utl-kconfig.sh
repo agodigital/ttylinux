@@ -31,6 +31,7 @@
 #
 # CHANGE LOG
 #
+#	10may13	drj	Changed to use kernel getting and setting functions.
 #	19feb12	drj	Changed for build system reorganization.
 #	12feb12	drj	Changed kernel source location.
 #	14mar11	drj	Put kernel config file in top-level ttylinux directory.
@@ -70,42 +71,13 @@ rm --force --recursive ${K_BLD_DIR}
 
 kernel_config() {
 
-local kver=${XBT_LINUX_VER##*-}
-local kname="kernel-${kver}"
-local kcfg="${TTYLINUX_PLATFORM_DIR}/${kname}.cfg"
-local srcd="${TTYLINUX_XTOOL_DIR}/_pkg-src"
+local kver="${TTYLINUX_USER_KERNEL:-${XBT_LINUX_VER##*-}}"
+local kname="kernel-${kver}-${TTYLINUX_CONFIG}"
 
-echo "i> Regenerate a Linux configuration file:"
-echo "=> ${TTYLINUX_TARGET_TAG}"
-echo "=> ${kname}.cfg"
-
-# Look for the linux kernel tarball.
-#
-if [[ ! -f "${srcd}/linux-${kver}.tar.bz2" ]]; then
-	echo "E> Linux kernel source tarball not found." >&2
-	echo "=> ${srcd}/linux-${kver}.tar.bz2" >&2
-	exit 1
-fi
-
-# Look for the linux kernel configuration file.
-#
-if [[ ! -f "${kcfg}" ]]; then
-	echo "w> Linux kernel configuration file not found." >&2
-	echo "=> ${kcfg}" >&2
-	: # ?? exit 1
-fi
+ttylinux_kernel_get             | sed -e "s/^#[;+] //"
+ttylinux_kernel_addin_and_patch | sed -e "s/^#[;+] //"
 
 trap bail_out EXIT
-
-# Uncompress, untarr then remove linux-${kver}.tar.bz2.
-#
-echo -n "i> Getting and uncompressing linux-${kver}.tar.bz2 ... "
-rm --force --recursive linux-${kver}*
-cp "${srcd}/linux-${kver}.tar.bz2" "linux-${kver}.tar.bz2"
-bunzip2 --force "linux-${kver}.tar.bz2"
-tar --extract --file="linux-${kver}.tar"
-rm --force "linux-${kver}.tar"
-echo "DONE"
 
 # Make a kernel configuration, starting with the current configuration if there
 # is one.
@@ -118,23 +90,8 @@ echo ""
 echo "i> make menuconfig ARCH=${XBT_LINUX_ARCH} KCONFIG_CONFIG=.config"
 echo -n "Hit <enter> to continue: "
 read
-[[ -f "${kcfg}" ]] && cp "${kcfg}" "linux-${kver}/.config" || true
+
 cd "linux-${kver}"
-sed --in-place scripts/unifdef.c --expression="s/getline/uc_&/"
-sed --in-place scripts/mod/sumversion.c \
-	--expression="s|<string.h>| <limits.h>\n#include <string.h>|"
-_tarFile="${TTYLINUX_PLATFORM_DIR}/${kname}-add_in.tar.bz2"
-if [[ -f ${_tarFile} ]]; then
-	echo "Adding-in ${kname}-add_in.tar.bz2"
-	tar --extract --file="${_tarFile}"
-fi
-unset _tarFile
-for p in "${TTYLINUX_PLATFORM_DIR}/${kname}-??.patch"; do
-	if [[ -f "${p}" ]]; then
-		echo "=> patching with $(basename ${p})"
-		patch -p1 <${p} >/dev/null
-	fi
-done
 TERM=xterm-color make menuconfig ARCH=${XBT_LINUX_ARCH} KCONFIG_CONFIG=.config
 cd ..
 
@@ -143,14 +100,14 @@ cd ..
 # file into its place.
 #
 if [[ -f "linux-${kver}/.config" ]]; then
-	newCfgFile="${TTYLINUX_DIR}/${kname}.cfg"
+	newCfgFile="${TTYLINUX_DIR}/${kname}"
 	if [[ -f "${newCfgFile}"  ]]; then
 		fver="00"
-		oldCfgFile="${TTYLINUX_DIR}/${kname}-${fver}.cfg"
+		oldCfgFile="${TTYLINUX_DIR}/${kname}-${fver}"
 		while [[ -f "${oldCfgFile}"  ]]; do
 			fver=$((${fver} + 1))
 			[[ ${fver} -lt 10 ]] && fver="0${fver}" || true
-			oldCfgFile="${TTYLINUX_DIR}/${kname}-${fver}.cfg"
+			oldCfgFile="${TTYLINUX_DIR}/${kname}-${fver}"
 		done
 		echo -e "i> Making backup of kernel config file."
 		echo -e "=> was: ${newCfgFile}"

@@ -29,6 +29,7 @@
 #
 # CHANGE LOG
 #
+#	07may13	drj	Moved kernel getting and patching code to _functions.
 #	20apr13	drj	Handle more cases of TTYLINUX_PLATFORM.
 #	01apr13	drj	Crazy Hack to build linux-2.6.38.1 with gcc-4.6.3.
 #	29mar13	drj	Fixed bug with dev tree handling.
@@ -92,71 +93,12 @@ rm --force --recursive "${TTYLINUX_BUILD_DIR}"/linux/
 
 kernel_get() {
 
-local kver="${TTYLINUX_USER_KERNEL:-${XBT_LINUX_VER##*-}}"
-local kcfg="${TTYLINUX_PLATFORM_DIR}/kernel-${kver}.cfg"
-local srcd="${TTYLINUX_XTOOL_DIR}/_pkg-src"
-
 echo -n "g." >&${CONSOLE_FD}
 
-# If TTYLINUX_USER_KERNEL is set then there is a user-custom kernel to build,
-# in which case the linux source and kernel configuration files are supposed
-# to be in the site/platform-${TTYLINUX_PLATFORM} directory.
-#
-if [[ -n "${TTYLINUX_USER_KERNEL:-}" ]]; then
-	srcd="${TTYLINUX_DIR}/site/platform-${TTYLINUX_PLATFORM}"
-	kcfg="${srcd}/kernel-${TTYLINUX_USER_KERNEL}.cfg"
-fi
-
-ttylinux_build_comment ""
-ttylinux_build_comment "kernel source"
-ttylinux_build_comment "=> ${srcd}/linux-${kver}.tar.bz2"
-
-# Look for the linux kernel tarball.
-#
-if [[ ! -f "${srcd}/linux-${kver}.tar.bz2" ]]; then
-	echo "E> Linux kernel source tarball not found." >&2
-	echo "=> ${srcd}/linux-${kver}.tar.bz2" >&2
-	exit 1
-fi
-
-ttylinux_build_comment ""
-ttylinux_build_comment "kernel config"
-ttylinux_build_comment "=> ${kcfg}"
-
-# Look for the linux kernel configuration file.
-#
-if [[ ! -f "${kcfg}" ]]; then
-	echo "E> Linux kernel configuration file not found." >&2
-	echo "=> ${kcfg}" >&2
-	exit 1
-fi
-
-_modules=$(set +u; source ${kcfg}; echo "${CONFIG_MODULES}")
-[[ x"${_modules}" == x"y" ]] && K_MODULES="yes"
-unset _modules
-if [[ "${K_MODULES}" == "yes" ]]; then
-	ttylinux_build_comment ""
-	ttylinux_build_comment "This kernel configuration has modules."
-else
-	ttylinux_build_comment ""
-	ttylinux_build_comment "This kernel configuration has NO modules."
-fi
-
-# Cleanup any pervious, left-over build results.
-#
-kernel_clean
-
-# Uncompress, untarr then remove linux-${kver}.tar.bz2 and put the kernel
-# configuration file in place.
-#
 trap kernel_clean EXIT
 #
-ttylinux_build_comment ""
-ttylinux_build_command "cp ${srcd}/linux-${kver}.tar.bz2 linux-${kver}.tar.bz2"
-ttylinux_build_command "bunzip2 --force linux-${kver}.tar.bz2"
-ttylinux_build_command "tar --extract --file=linux-${kver}.tar"
-ttylinux_build_command "rm --force linux-${kver}.tar"
-ttylinux_build_command "cp ${kcfg} linux-${kver}/.config"
+ttylinux_kernel_get
+ttylinux_kernel_addin_and_patch
 #
 trap - EXIT
 
@@ -195,73 +137,15 @@ esac
 
 cd "linux-${kver}"
 
-# If this is not a user-custom ttylinux kernel, then do some kernel source code
-# fix-ups, if needed.
-#
-if [[ -z "${TTYLINUX_USER_KERNEL:-}" ]]; then
-	if [[ -f scripts/unifdef.c ]]; then
-		# This is for older kernels; it is harmless otherwise.
-		_cmd="sed -e \"s/getline/uc_&/\" -i scripts/unifdef.c"
-		ttylinux_build_comment ""
-		ttylinux_build_command "${_cmd}"
-		unset _cmd
-	fi
-	if [[ -f scripts/mod/sumversion.c ]]; then
-		# This is for older kernels; it is harmless otherwise.
-		_old="<string.h>"
-		_new="<limits.h>\n#include <string.h>"
-		_cmd="sed -e \"s|${_old}|${_new}|\" -i scripts/mod/sumversion.c"
-		ttylinux_build_comment ""
-		ttylinux_build_command "${_cmd}"
-		unset _old
-		unset _new
-		unset _cmd
-	fi
-	_tarFile="${TTYLINUX_PLATFORM_DIR}/kernel-${kver}-add_in.tar.bz2"
-	if [[ -f ${_tarFile} ]]; then
-		_cmd="tar --extract --file=${_tarFile}"
-		ttylinux_build_comment ""
-		ttylinux_build_comment "Adding-in kernel-${kver}-add_in.tar.bz2"
-		ttylinux_build_command "${_cmd}"
-		unset _cmd
-	fi
-	unset _tarFile
-	for p in ${TTYLINUX_PLATFORM_DIR}/kernel-${kver}-??.patch; do
-		if [[ -f "${p}" ]]; then
-			_cmd="patch -p1 <${p}"
-			ttylinux_build_command "${_cmd}"
-			unset _cmd
-		fi
-	done
-	if [[ "${TTYLINUX_PLATFORM}" = "mac_g4" ]]; then
-		# This is a test to see if a gcc version 4.6.0 or newer is
-		# being used on a kernel older than 3.0; this is the case with
-		# the current ttylinux mac_g4 kernel and its xbuildtool gcc.
-		# In this case, a bunch of warnings will kill the cross-compile
-		# of the kernel, but we know the kernel will actually work; so
-		# Crazy Hack the kernel Makefile to not make warnings be errors.
-		(source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
-		_kerVer=${kver%%.*}
-		_gccVer=${XBT_XGCC_VER#gcc-}
-		_gccVer=${_gccVer//./}
-		if [[ ${_kerVer} -lt 3 && ${_gccVer} -gt 460 ]]; then
-			ttylinux_build_comment ""
-			ttylinux_build_comment "Doing the whacky fix."
-			ttylinux_build_comment ""
-			sed -e "s|^KBUILD_AFLAGS_KERNEL|KBUILD_CFLAGS += -Wno-error=unused-but-set-variable\nKBUILD_AFLAGS_KERNEL|" -i Makefile
-		else
-			echo ""                                 >${CONSOLE_FD}
-			echo "********************************" >${CONSOLE_FD}
-			echo "ERROR !! ERROR"                   >${CONSOLE_FD}
-			echo "********************************" >${CONSOLE_FD}
-			echo "Fix the cheap mac_g4 kernel hack" >${CONSOLE_FD}
-			echo "in scripts/bld-kernel.sh"         >${CONSOLE_FD}
-			echo "********************************" >${CONSOLE_FD}
-			echo "ERROR !! ERROR"                   >${CONSOLE_FD}
-			echo "********************************" >${CONSOLE_FD}
-			echo ""                                 >${CONSOLE_FD}
-		fi)
-	fi
+_modules=$(set +u; source ".config"; echo "${CONFIG_MODULES}")
+[[ x"${_modules}" == x"y" ]] && K_MODULES="yes"
+unset _modules
+if [[ "${K_MODULES}" == "yes" ]]; then
+	ttylinux_build_comment ""
+	ttylinux_build_comment "This kernel configuration has modules."
+else
+	ttylinux_build_comment ""
+	ttylinux_build_comment "This kernel configuration has NO modules."
 fi
 
 # Do the kernel cross-building.  If this kernel has modules then build them.
