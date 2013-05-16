@@ -81,9 +81,13 @@ TTYLINUX_PACKAGE[i++]="thttpd-2.25b"
 # ---------------------------------------------------------------- applications
 TTYLINUX_PACKAGE[i++]="alsa-utils-1.0.25"
 TTYLINUX_PACKAGE[i++]="calc-2.12.4.4"
+TTYLINUX_PACKAGE[i++]="dtach-0.8"
+TTYLINUX_PACKAGE[i++]="dvtm-0.9"
 TTYLINUX_PACKAGE[i++]="haserl-0.9.29"
+TTYLINUX_PACKAGE[i++]="ircii-20111115"
 TTYLINUX_PACKAGE[i++]="lua-5.2.1"
 TTYLINUX_PACKAGE[i++]="lynx-2.8.7"
+TTYLINUX_PACKAGE[i++]="nano-2.2.6"
 # TTYLINUX_PACKAGE[i++]="retawq-0.2.6c"
 
 # end of file

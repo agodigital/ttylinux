@@ -25,12 +25,12 @@
 # Definitions
 # ******************************************************************************
 
-PKG_URL="http://ftp.gnu.org/gnu/ncurses/"
-PKG_ZIP="ncurses-5.9.tar.gz"
+PKG_URL="http://www.nano-editor.org/dist/v2.2/"
+PKG_ZIP="nano-2.2.6.tar.gz"
 PKG_SUM=""
 
-PKG_TAR="ncurses-5.9.tar"
-PKG_DIR="ncurses-5.9"
+PKG_TAR="nano-2.2.6.tar"
+PKG_DIR="nano-2.2.6"
 
 
 # Function Arguments:
@@ -53,20 +53,10 @@ return 0
 
 pkg_configure() {
 
-local WITHOUT_CXX=""
-
 PKG_STATUS="./configure error"
 
 cd "${PKG_DIR}"
-
-mv misc/terminfo.src misc/terminfo.src-ORIG
-cp ${TTYLINUX_PKGCFG_DIR}/$1/terminfo.src \
-	misc/terminfo.src
-
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
-if [[ x"${XBT_C_PLUS_PLUS}" == x"no" ]]; then
-	WITHOUT_CXX="--without-cxx --without-cxx-bindings"
-fi
 AR="${XBT_AR}" \
 AS="${XBT_AS} --sysroot=${TTYLINUX_SYSROOT_DIR}" \
 CC="${XBT_CC} --sysroot=${TTYLINUX_SYSROOT_DIR}" \
@@ -81,24 +71,8 @@ CFLAGS="${TTYLINUX_CFLAGS}" \
 ./configure \
 	--build=${MACHTYPE} \
 	--host=${XBT_TARGET} \
-	--prefix=/usr \
-	--libdir=/lib \
-	--mandir=/usr/share/man \
-	--enable-shared \
-	--enable-overwrite \
-	--enable-widec \
-	--disable-largefile \
-	--disable-termcap \
-	--with-build-cc=gcc \
-	--with-install-prefix=${TTYLINUX_SYSROOT_DIR} \
-	--with-shared \
-	--without-ada \
-	${WITHOUT_CXX} \
-	--without-debug \
-	--without-gpm \
-	--without-normal || return 1
+	--prefix=/usr || return 1
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_clr"
-
 cd ..
 
 PKG_STATUS=""
@@ -139,68 +113,11 @@ PKG_STATUS="install error"
 
 cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
-
-PATH="${XBT_BIN_PATH}:${PATH}" make install || return 1
-
-# *****************************************************************************
-# This is the install results; it is not what I want.
-#
-# sysroot/usr/bin/captoinfo -> tic*
-# sysroot/usr/bin/clear*
-# sysroot/usr/bin/infocmp*
-# sysroot/usr/bin/infotocap -> tic*
-# sysroot/usr/bin/ncursesw5-config*
-# sysroot/usr/bin/reset -> tset*
-# sysroot/usr/bin/tabs*
-# sysroot/usr/bin/tic*
-# sysroot/usr/bin/toe*
-# sysroot/usr/bin/tput*
-# sysroot/usr/bin/tset*
-#
-# sysroot/lib/libformw.so -> libformw.so.5*
-# sysroot/lib/libformw.so.5 -> libformw.so.5.9*
-# sysroot/lib/libformw.so.5.9*
-# sysroot/lib/libmenuw.so -> libmenuw.so.5*
-# sysroot/lib/libmenuw.so.5 -> libmenuw.so.5.9*
-# sysroot/lib/libmenuw.so.5.9*
-# sysroot/lib/libncurses++w.a
-# sysroot/lib/libncursesw.so -> libncursesw.so.5*
-# sysroot/lib/libncursesw.so.5 -> libncursesw.so.5.9*
-# sysroot/lib/libncursesw.so.5.9*
-# sysroot/lib/libpanelw.so -> libpanelw.so.5*
-# sysroot/lib/libpanelw.so.5 -> libpanelw.so.5.9*
-# sysroot/lib/libpanelw.so.5.9*
-#
-# sysroot/usr/lib/terminfo -> ../share/terminfo/
-# *****************************************************************************
-
-# Move any .a files from /lib to /usr/lib; there seems to be only one .a file:
-# libncurses++w.a
-#
-mv ${TTYLINUX_SYSROOT_DIR}/lib/libncurses++w.a ${TTYLINUX_SYSROOT_DIR}/usr/lib/
-
-_usrlib="${TTYLINUX_SYSROOT_DIR}/usr/lib"
-
-# Many applications expect the linker to find non-wide character ncurses
-# libraries; make them link with wide-character libraries by way of linker
-# scripts.
-#
-for _lib in form menu ncurses panel ; do
-	rm --force --verbose      ${_usrlib}/lib${_lib}.so
-	echo "INPUT(-l${_lib}w)" >${_usrlib}/lib${_lib}.so
-done; unset _lib
-
-# Do something about builds that look for -lcurses, -lcursesw and -ltinfo.
-#
-rm --force --verbose      ${_usrlib}/libcursesw.so
-echo "INPUT(-lncursesw)" >${_usrlib}/libcursesw.so
-rm --force --verbose      ${_usrlib}/libcurses.so
-echo "INPUT(-lncursesw)" >${_usrlib}/libcurses.so
-ln --force --symbolic libncurses.so ${_usrlib}/libtinfo.so.5
-ln --force --symbolic libtinfo.so.5 ${_usrlib}/libtinfo.so
-
-unset _usrlib
-
+PATH="${XBT_BIN_PATH}:${PATH}" make \
+	CROSS_COMPILE=${XBT_TARGET}- \
+	DESTDIR=${TTYLINUX_SYSROOT_DIR} \
+	INSTALL=install \
+	install || return 1
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_clr"
 cd ..
 

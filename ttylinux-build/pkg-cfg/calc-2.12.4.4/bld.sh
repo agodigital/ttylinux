@@ -4,7 +4,7 @@
 # This file is part of the ttylinux software.
 # The license which this software falls under is GPLv2 as follows:
 #
-# Copyright (C) 2010-2012 Douglas Jerome <douglas@ttylinux.org>
+# Copyright (C) 2010-2013 Douglas Jerome <douglas@ttylinux.org>
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free

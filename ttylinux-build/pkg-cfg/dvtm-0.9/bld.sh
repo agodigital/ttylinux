@@ -25,12 +25,12 @@
 # Definitions
 # ******************************************************************************
 
-PKG_URL="http://lilo.alioth.debian.org/ftp/sources/"
-PKG_ZIP="lilo-23.2.tar.gz"
+PKG_URL="http://www.brain-dump.org/projects/dvtm/"
+PKG_ZIP="dvtm-0.9.tar.gz"
 PKG_SUM=""
 
-PKG_TAR="lilo-23.2.tar"
-PKG_DIR="lilo-23.2"
+PKG_TAR="dvtm-0.9.tar"
+PKG_DIR="dvtm-0.9"
 
 
 # Function Arguments:
@@ -42,21 +42,8 @@ PKG_DIR="lilo-23.2"
 # ******************************************************************************
 
 pkg_patch() {
-
-local patchDir="${TTYLINUX_PKGCFG_DIR}/$1/patch"
-local patchFile=""
-
-PKG_STATUS="init error"
-
-cd "${PKG_DIR}"
-for patchFile in "${patchDir}"/*; do
-	[[ -r "${patchFile}" ]] && patch -p1 <"${patchFile}"
-done
-cd ..
-
 PKG_STATUS=""
 return 0
-
 }
 
 
@@ -65,8 +52,26 @@ return 0
 # ******************************************************************************
 
 pkg_configure() {
+
+PKG_STATUS="./configure error"
+
+cd "${PKG_DIR}"
+
+sed -e "s|^PREFIX = .*$|PREFIX = /usr|"         -i config.mk
+sed -e "s|^INCS = .*$|INCS = -I.|"              -i config.mk
+sed -e "s|^LDFLAGS += .*$|LDFLAGS += \${LIBS}|" -i config.mk
+sed -e "s|-g -ggdb||"                           -i config.mk
+sed -e "s|^CC = .*$||"                          -i config.mk
+
+_destDir="${TTYLINUX_SYSROOT_DIR}/usr/share/terminfo"
+sed -e "s|tic -s dvtm.info|tic -o ${_destDir} -s dvtm.info|" -i Makefile
+unset _destDir
+
+cd ..
+
 PKG_STATUS=""
 return 0
+
 }
 
 
@@ -80,20 +85,20 @@ PKG_STATUS="make error"
 
 cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
-
-[[ "$(uname -m)" != "x86_64" ]] && HOST_CC="gcc"
-[[ "$(uname -m)" == "x86_64" ]] && HOST_CC="gcc -m64"
+AR="${XBT_AR}" \
+AS="${XBT_AS} --sysroot=${TTYLINUX_SYSROOT_DIR}" \
+CC="${XBT_CC} --sysroot=${TTYLINUX_SYSROOT_DIR}" \
+CXX="${XBT_CXX} --sysroot=${TTYLINUX_SYSROOT_DIR}" \
+LD="${XBT_LD} --sysroot=${TTYLINUX_SYSROOT_DIR}" \
+NM="${XBT_NM}" \
+OBJCOPY="${XBT_OBJCOPY}" \
+RANLIB="${XBT_RANLIB}" \
+SIZE="${XBT_SIZE}" \
+STRIP="${XBT_STRIP}" \
+CFLAGS="${TTYLINUX_CFLAGS}" \
 PATH="${XBT_BIN_PATH}:${PATH}" make \
 	--jobs=${NJOBS} \
-	BUILD_CC="${HOST_CC}" \
-	CC="${XBT_CC} --sysroot=${TTYLINUX_SYSROOT_DIR}" \
-	CONFIG="-DBDATA         -DDSECS=3    -DDEVMAPPER=\"\" -DEVMS  \
-		-DIGNORECASE    -DLVM        -DONE_SHOT       -DPASS160 \
-		-DREWRITE_TABLE -DSOLO_CHAIN -DVERSION" \
-	CROSS_COMPILE=${XBT_TARGET}- \
-	OPT="${TTYLINUX_CFLAGS}" \
-	all || return 1
-
+	CROSS_COMPILE=${XBT_TARGET}- || return 1
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_clr"
 cd ..
 
@@ -113,7 +118,11 @@ PKG_STATUS="install error"
 
 cd "${PKG_DIR}"
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
-install --mode=755 --owner=0 --group=0 src/lilo "${TTYLINUX_SYSROOT_DIR}/sbin"
+PATH="${XBT_BIN_PATH}:${PATH}" make \
+	CROSS_COMPILE=${XBT_TARGET}- \
+	DESTDIR=${TTYLINUX_SYSROOT_DIR} \
+	INSTALL=install \
+	install || return 1
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_clr"
 cd ..
 

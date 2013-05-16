@@ -15,7 +15,7 @@ TTYLINUX_CFLAGS="-march=i486 -mtune=i486 -Os"
 #
 # Build process options and distribution attributes.
 #
-TTYLINUX_RAMDISK_SIZE=64
+TTYLINUX_RAMDISK_SIZE=80
 TTYLINUX_STRIP_BINS=y
 # TTYLINUX_USER_KERNEL is not set
 TTYLINUX_SITE_SCRIPTS=y
@@ -81,8 +81,13 @@ TTYLINUX_PACKAGE[i++]="thttpd-2.25b"
 # ---------------------------------------------------------------- applications
 TTYLINUX_PACKAGE[i++]="alsa-utils-1.0.25"
 TTYLINUX_PACKAGE[i++]="calc-2.12.4.4"
+TTYLINUX_PACKAGE[i++]="dtach-0.8"
+TTYLINUX_PACKAGE[i++]="dvtm-0.9"
+TTYLINUX_PACKAGE[i++]="haserl-0.9.29"
+TTYLINUX_PACKAGE[i++]="ircii-20111115"
 TTYLINUX_PACKAGE[i++]="lua-5.2.1"
 TTYLINUX_PACKAGE[i++]="lynx-2.8.7"
+TTYLINUX_PACKAGE[i++]="nano-2.2.6"
 # TTYLINUX_PACKAGE[i++]="retawq-0.2.6c"
 
 # end of file
