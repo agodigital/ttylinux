@@ -14,8 +14,11 @@
 
 stat=0
 
-if [[ ${TTYLINUX_PLATFORM} == "beagle_bone" ||
-      ${TTYLINUX_PLATFORM} == "pc_i486"     ||
+if [[ ${TTYLINUX_PLATFORM} == "beagle_bone"   ||
+      ${TTYLINUX_PLATFORM} == "pc_i486"       ||
+      ${TTYLINUX_PLATFORM} == "virtio_i486"   ||
+      ${TTYLINUX_PLATFORM} == "virtio_i686"   ||
+      ${TTYLINUX_PLATFORM} == "virtio_x86_64" ||
       ${TTYLINUX_PLATFORM} == "wrtu54g_tm" ]]; then
 	echo "=> System has no ALSA"
 	echo "***** NA"

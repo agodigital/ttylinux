@@ -1,6 +1,14 @@
 Current  Maintainer: (2008-    ) Douglas Jerome <douglas@ttylinux.org>
 Previous Maintainer: (2001-2008) Pascal Schmidt <ttylinux@ewetel.net>
 
+Version 16.1, Mon May 27 09:10:10 MST 2013
+ - distribution named "bricolage"
+ - updated bash-4.2 patch level from 39 to 45
+ - updated from busybox-1.20.2 to busybox-1.21.0
+ - updated from dropbear-2012.55 to dropbear-2013.58
+ - updated from e2fsprogs-1.42.6 to e2fsprogs-1.42.7
+ - updated from iptables-1.4.17 to iptables-1.4.18
+
 Version 16.0, Sun Mar 31 18:34:00 MST 2013
  - distribution named "ocelot"
  - updated from busybox-1.19.4 to busybox-1.20.2

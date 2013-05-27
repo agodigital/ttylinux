@@ -10,8 +10,8 @@
 
  vga=<mode>09 ............ Use VESA frame buffer with 07<mode>09.  Try 07vga=ask07
                          09to get a list of modes support by the kernel.07
-                         vga=0x30109 640x480   8-bit | 07vga=0x16109 1152x864   8-bit07
-                         vga=0x31109 640x480  16-bit | 07vga=0x16309 1152x864  16-bit07
+                         vga=0x30109 640x480   8-bit | 07vga=0x34809 1152x864   8-bit07
+                         vga=0x31109 640x480  16-bit | 07vga=0x34A09 1152x864  16-bit07
                          vga=0x30309 800x600   8-bit | 07vga=0x30709 1280x1024  8-bit07
                          vga=0x31309 800x600  16-bit | 07vga=0x31A09 1280x1024 16-bit07
                          vga=0x30509 1024x768  8-bit | 07vga=0x31C09 1600x1200  8-bit07

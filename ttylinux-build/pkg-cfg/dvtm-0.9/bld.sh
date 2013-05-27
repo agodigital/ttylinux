@@ -66,6 +66,7 @@ sed -e "s|^CC = .*$||"                          -i config.mk
 _destDir="${TTYLINUX_SYSROOT_DIR}/usr/share/terminfo"
 sed -e "s|tic -s dvtm.info|tic -o ${_destDir} -s dvtm.info|" -i Makefile
 unset _destDir
+sed -e "s|strip -s |\${STRIP} -s |" -i Makefile
 
 cd ..
 

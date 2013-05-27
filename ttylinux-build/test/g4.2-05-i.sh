@@ -27,6 +27,7 @@ fi
 
 platform=$(</etc/ttylinux-target)
 if [[ "${platform##*-}" == "pc_i486" ||
+      "${platform##*-}" == "virtio_i486" ||
       "${platform##*-}" == "wrtu54g_tm" ]]; then
 	echo "=> System has no GCC (nothing to fail this test)"
 	echo "***** PASS"

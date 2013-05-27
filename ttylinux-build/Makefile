@@ -69,7 +69,7 @@
 
 
 TTYLINUX_NAME    := bricolage
-TTYLINUX_VERSION := 16.1-int02
+TTYLINUX_VERSION := 16.1
 
 
 # *************************************************************************** #

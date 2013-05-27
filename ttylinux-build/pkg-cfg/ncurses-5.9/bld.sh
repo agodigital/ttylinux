@@ -53,6 +53,7 @@ return 0
 
 pkg_configure() {
 
+local ENABLE_WIDEC="--enable-widec"
 local WITHOUT_CXX=""
 
 PKG_STATUS="./configure error"
@@ -60,13 +61,17 @@ PKG_STATUS="./configure error"
 cd "${PKG_DIR}"
 
 mv misc/terminfo.src misc/terminfo.src-ORIG
-cp ${TTYLINUX_PKGCFG_DIR}/$1/terminfo.src \
-	misc/terminfo.src
+cp ${TTYLINUX_PKGCFG_DIR}/$1/terminfo.src misc/terminfo.src
 
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_set"
 if [[ x"${XBT_C_PLUS_PLUS}" == x"no" ]]; then
 	WITHOUT_CXX="--without-cxx --without-cxx-bindings"
 fi
+
+if [[ "${TTYLINUX_PLATFORM}" == "wrtu54g_tm" ]]; then
+	ENABLE_WIDEC=""
+fi
+
 AR="${XBT_AR}" \
 AS="${XBT_AS} --sysroot=${TTYLINUX_SYSROOT_DIR}" \
 CC="${XBT_CC} --sysroot=${TTYLINUX_SYSROOT_DIR}" \
@@ -86,7 +91,7 @@ CFLAGS="${TTYLINUX_CFLAGS}" \
 	--mandir=/usr/share/man \
 	--enable-shared \
 	--enable-overwrite \
-	--enable-widec \
+	${ENABLE_WIDEC} \
 	--disable-largefile \
 	--disable-termcap \
 	--with-build-cc=gcc \
@@ -174,32 +179,64 @@ PATH="${XBT_BIN_PATH}:${PATH}" make install || return 1
 # sysroot/usr/lib/terminfo -> ../share/terminfo/
 # *****************************************************************************
 
-# Move any .a files from /lib to /usr/lib; there seems to be only one .a file:
-# libncurses++w.a
-#
-mv ${TTYLINUX_SYSROOT_DIR}/lib/libncurses++w.a ${TTYLINUX_SYSROOT_DIR}/usr/lib/
+if [[ "${TTYLINUX_PLATFORM}" != "wrtu54g_tm" ]]; then
 
-_usrlib="${TTYLINUX_SYSROOT_DIR}/usr/lib"
+	# Move any .a files from /lib to /usr/lib; there seems to be only
+	# one .a file: libncurses++w.a
+	#
+	_sysroot=${TTYLINUX_SYSROOT_DIR}
+	mv ${_sysroot}/lib/libncurses++w.a ${_sysroot}/usr/lib/
+	unset _sysroot
 
-# Many applications expect the linker to find non-wide character ncurses
-# libraries; make them link with wide-character libraries by way of linker
-# scripts.
-#
-for _lib in form menu ncurses panel ; do
-	rm --force --verbose      ${_usrlib}/lib${_lib}.so
-	echo "INPUT(-l${_lib}w)" >${_usrlib}/lib${_lib}.so
-done; unset _lib
+	_usrlib="${TTYLINUX_SYSROOT_DIR}/usr/lib"
 
-# Do something about builds that look for -lcurses, -lcursesw and -ltinfo.
-#
-rm --force --verbose      ${_usrlib}/libcursesw.so
-echo "INPUT(-lncursesw)" >${_usrlib}/libcursesw.so
-rm --force --verbose      ${_usrlib}/libcurses.so
-echo "INPUT(-lncursesw)" >${_usrlib}/libcurses.so
-ln --force --symbolic libncurses.so ${_usrlib}/libtinfo.so.5
-ln --force --symbolic libtinfo.so.5 ${_usrlib}/libtinfo.so
+	# Many applications expect the linker to find non-wide character
+	# ncurses libraries; make them link with wide-character libraries by
+	# way of linker scripts.
+	#
+	for _lib in form menu ncurses panel ; do
+		rm --force --verbose      ${_usrlib}/lib${_lib}.so
+		echo "INPUT(-l${_lib}w)" >${_usrlib}/lib${_lib}.so
+	done; unset _lib
 
-unset _usrlib
+	# Do something about builds that look for -lcurses, -lcursesw
+	# and -ltinfo.
+	#
+	rm --force --verbose      ${_usrlib}/libcursesw.so
+	echo "INPUT(-lncursesw)" >${_usrlib}/libcursesw.so
+	rm --force --verbose      ${_usrlib}/libcurses.so
+	echo "INPUT(-lncursesw)" >${_usrlib}/libcurses.so
+	ln --force --symbolic libncurses.so ${_usrlib}/libtinfo.so.5
+	ln --force --symbolic libtinfo.so.5 ${_usrlib}/libtinfo.so
+
+	unset _usrlib
+
+fi
+
+if [[ "${TTYLINUX_PLATFORM}" == "wrtu54g_tm" ]]; then
+
+	_usrlib="${TTYLINUX_SYSROOT_DIR}/usr/lib"
+
+	# Many applications expect the linker to find non-wide character
+	# ncurses libraries; make them link with wide-character libraries by
+	# way of linker scripts.
+	#
+	for _lib in form menu ncurses panel ; do
+		rm --force --verbose      ${_usrlib}/lib${_lib}.so
+		echo "INPUT(-l${_lib}w)" >${_usrlib}/lib${_lib}.so
+	done; unset _lib
+
+	# Do something about builds that look for -lcurses, -lcursesw
+	# and -ltinfo.
+	#
+	rm --force --verbose     ${_usrlib}/libcurses.so
+	echo "INPUT(-lncurses)" >${_usrlib}/libcurses.so
+	ln --force --symbolic libncurses.so ${_usrlib}/libtinfo.so.5
+	ln --force --symbolic libtinfo.so.5 ${_usrlib}/libtinfo.so
+
+	unset _usrlib
+
+fi
 
 source "${TTYLINUX_XTOOL_DIR}/_xbt_env_clr"
 cd ..
