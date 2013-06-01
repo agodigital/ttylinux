@@ -1,5 +1,6 @@
 This is the ttylinux build system.  It is a simple build system for a small
-family of very small Linux systems for several CPU architectures.
+family of very small Linux systems for several CPU architectures.  See the
+How_To_* files in the ttylinux-build directory.
 
 For official ISO distribution releases see the ttylinux web page:
 http://ttylinux.org/
