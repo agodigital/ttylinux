@@ -29,6 +29,7 @@
 #
 # CHANGE LOG
 #
+#	02jun13	drj	Fixed the name of ttylinux-setup on the CD-ROM.
 #	01jun13	drj	Put more files in the doc directory.
 #	01jun13	drj	Compress log files with bzip2, not xz.
 #	10may13	drj	Adjust for kernel config file name change.
@@ -413,6 +414,9 @@ sed --in-place \
 cp ${kcfg}                                      cdrom/config/kernel-${kver}.cfg
 cp ${TTYLINUX_BOOTLOADER_DIR}/isolinux/syslinux cdrom/config/
 cp ${TTYLINUX_CONFIG_DIR}/ttylinux-setup        cdrom/config/
+if [[ -f ${TTYLINUX_SYSROOT_DIR}/sbin/ttylinux-flash ]]; then
+	cp ${TTYLINUX_SYSROOT_DIR}/sbin/ttylinux-flash cdrom/config/
+fi
 for f in ${TTYLINUX_PLATFORM_DIR}/*.sh; do
 	[[ -r "${f}" ]] && cp ${f} cdrom/ || true
 done
