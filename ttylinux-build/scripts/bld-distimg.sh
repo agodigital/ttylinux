@@ -125,7 +125,7 @@ echo ""
 echo "i> Creating CD-ROM ISO image ..."
 find cdrom -type d -exec chmod 755 {} \;
 find cdrom -type f -exec chmod 755 {} \;
-mkisofs							\
+genisoimage						\
 	-v						\
 	-J						\
 	-l						\
@@ -144,7 +144,7 @@ mkisofs							\
 	cdrom
 # -----------------------------------------------------------------------------
 # Ben DeCamp's (ben@powerpup.yi.org):
-#mkisofs -output $2                    \
+#genisoimage -output $2                    \
 #    -hfs-volid ttylinux ${SOURCE_VERSION} powerpc    \
 #    -hfs -part -r -l -r -J -v            \
 #    -map /boot/hfsmap            \
@@ -154,7 +154,7 @@ mkisofs							\
 #    -hfs-bless /boot            \
 #    $1
 # -----------------------------------------------------------------------------
-#mkisofs				\
+#genisoimage				\
 #	-hide-rr-moved			\
 #	-hfs				\
 #	-part				\
@@ -171,7 +171,7 @@ mkisofs							\
 #	-o ttylinux.iso			\
 #	./ttylinux
 # -----------------------------------------------------------------------------
-# mkisofs \
+#genisoimage \
 #	-o boot.iso -chrp-boot -U \
 #	-prep-boot ppc/chrp/yaboot \
 #	-part -hfs -T -r -l -J \
@@ -180,13 +180,13 @@ mkisofs							\
 #	-map mapping -magic magic -no-desktop -allow-multidot \
 #	$(pwd)/ppc
 # -----------------------------------------------------------------------------
-# echo "ofboot.b X 'chrp' 'tbxi'" > mapping
-# volume_id="PBOOT"
-# system_id="PPC"
-# volume_set_id="6";
-# application_id="Fedora Core 6"
-# hfs_volume_id=$volume_set_id
-# mkisofs \
+#echo "ofboot.b X 'chrp' 'tbxi'" > mapping
+#volume_id="PBOOT"
+#system_id="PPC"
+#volume_set_id="6";
+#application_id="Fedora Core 6"
+#hfs_volume_id=$volume_set_id
+#genisoimage \
 #	-volid "$volume_id" -sysid "$system_id" -appid "$application_id" \
 #	-volset "$volume_set_id" -untranslated-filenames -joliet \
 #	-rational-rock -translation-table -hfs -part \
@@ -220,7 +220,8 @@ echo ""
 echo "i> Creating CD-ROM ISO image ..."
 find cdrom -type d -exec chmod 755 {} \;
 find cdrom -type f -exec chmod 755 {} \;
-mkisofs	-joliet							\
+genisoimage							\
+	-joliet							\
 	-rational-rock						\
 	-output ${TTYLINUX_ISO_NAME}				\
 	-volid "ttylinux ${TTYLINUX_VERSION} ${TTYLINUX_CPU}"	\

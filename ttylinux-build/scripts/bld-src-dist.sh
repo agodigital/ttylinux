@@ -302,11 +302,12 @@ echo "DONE"
 
 echo -n "i> Creating CD-ROM ISO image ......................... "
 rm --force ${TTYLINUX_SRC_NAME}
-mkisofs -joliet                                                    \
-        -rational-rock                                             \
-        -output ${TTYLINUX_SRC_NAME}                               \
-        -volid "ttylinux ${TTYLINUX_VERSION} ${TTYLINUX_PLATFORM}" \
-        "${TTYLINUX_BUILD_DIR}/sources" >/dev/null 2>&1
+genisoimage 								\
+	-joliet								\
+	-rational-rock							\
+	-output ${TTYLINUX_SRC_NAME}					\
+	-volid "ttylinux ${TTYLINUX_VERSION} ${TTYLINUX_PLATFORM}"	\
+	"${TTYLINUX_BUILD_DIR}/sources" >/dev/null 2>&1
 echo "DONE"
 
 echo ""
