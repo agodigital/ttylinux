@@ -30,6 +30,7 @@
 #
 # CHANGE LOG
 #
+#	01jun13	drj	Switch from mkisofs to genisoimage.
 #	21apr12	drj	Added virtio_i686 and virtio_x86_64.
 #	15mar12	drj	Fixed for BeagleBone platform.
 #	18feb12	drj	Rewrite for build process reorganization.

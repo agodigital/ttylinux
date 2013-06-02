@@ -29,6 +29,7 @@
 #
 # CHANGE LOG
 #
+#	01jun13	drj	Switch from mkisofs to genisoimage.
 #	07apr12	drj	Added the .html manifest file.
 #	18feb12	drj	File creation.
 #
