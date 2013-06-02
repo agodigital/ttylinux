@@ -1,14 +1,15 @@
 How to Build and Run ttylinux for the WRTU54G-TM
-Copyright (C) 2008-2012 Douglas Jerome <douglas@ttylinux.org>
+Copyright (C) 2008-2013 Douglas Jerome <douglas@ttylinux.org>
 
 Parts of this document are shamelessly nicked from neutronscott:
 http://wiki.scottn.us/wrtu54g-tm
 
 
 How_To_WRTU54G-TM.txt
-March 4, 2012
+June 1, 2013
 
 
+01jun13	drj	Spelling fixes.
 04mar12	drj	First revision.
 
 
@@ -106,9 +107,9 @@ Flash Memory Factory Layout
 0xb07d4000-0xb07fffff [ 176KB] unused FF
 
 
-=====================================
-3. Accessing the WRTU54G-TM Hardrware
-=====================================
+====================================
+3. Accessing the WRTU54G-TM Hardware
+====================================
 
 ----------------
 3.1. Serial Port
@@ -122,7 +123,7 @@ serial port, used with 115200 8N1.  Use a RS-232 level converter or serial
 converter that uses 3.3 VDC.  Both the Nokia CA-42 seems to work OK.  I use an
 Acroname serial interface connector S13-SERIAL-INT-CONN with extension cable
 C10-SER-INT-CONN-EXT and it works after cutting and switching some of the
-extention cable wires.
+extension cable wires.
 
 triangle/arrow above is 3.3 VDC.
 JP2 pinout: (triangle/arrow->) 1 - 3.3 VDC
@@ -145,7 +146,7 @@ JP2 pinout        C10-SER-INT-CONN-EXT       S13-SERIAL-INT-CONN device
 ------------------
 
 Connect the WRTU54G-TM uplink Ethernet port (look for the blue-shading around
-RJ-45 connecter labeled "INTERNET") to a network with a host computer running a
+RJ-45 connector labeled "INTERNET") to a network with a host computer running a
 tftp server, and have the ttylinux kernel and ramdisk available from that host
 computer via tftp.
 
@@ -197,7 +198,7 @@ ADM8668 # bootm 80600000
 Note to self: My Fedora host's tftpd gets and puts files from and to
               /var/lib/tftpboot/, so that is where you want to put the build
               outputs uImage and ramdisk.gz.  Notice the ramdisk is 5 MB and
-              that basically is the numbe of bytes from the beginning of the
+              that basically is the number of bytes from the beginning of the
               ramdisk address, 803FFFC0, to the kernel address, 80900000.
 
 ADM8668 # set ipaddr 192.168.0.30

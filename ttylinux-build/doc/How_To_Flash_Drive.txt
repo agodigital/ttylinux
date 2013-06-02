@@ -1,3 +1,47 @@
+The build/cdrom directory contains the CD-ROM mastering image source files,
+include Linux kernel and file system image.  There is a shell script that can
+be used to make USB disk bootable with ttylinux.  The shell script is in the
+sysroot/sbin/ directory; it is "ttylinux-flash".  This shell script is in the
+ttylinux file system, so ttylinux itself is capable of making a USB disk
+bootable with ttylinux.  Either lilo or syslinux can be used as the boot loader
+on the USB disk; the script options used to indicate lilo and syslinux are
+"-l", "--lilo", "-s" and "--syslinux".
+
+Example:
+
+     On your host system, if you have a USB disk mounted at /mnt/flash on device
+     /dev/sda1, then try one of the following command.
+
+     $ sysroot/sbin/ttylinux-flash --lilo build/cdrom /mnt/flash /dev/sda
+     $ sysroot/sbin/ttylinux-flash -s build/cdrom /mnt/flash /dev/sda
+
+Example:
+
+     From a CD-ROM-booted ttylinux system, if you have a USB disk mounted at
+     /mnt/flash on device /dev/sda1 and the CD-ROM mounted on /mnt/cdrom, then
+     try one of the following command.
+
+     $ ttylinux-flash -l /mnt/cdrom /mnt/flash /dev/sda
+     $ ttylinux-flash --syslinux /mnt/cdrom /mnt/flash /dev/sda
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 How to Put ttylinux on a Flash Disk and Make it Bootable
 Copyright (C) 2008-2010 Douglas Jerome <douglas@ttylinux.org>
 

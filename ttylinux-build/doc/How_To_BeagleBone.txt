@@ -19,7 +19,7 @@
 # new linux-3.8.4.tar.bz2 is used by xbuildtools and the ttylinux build system
 # to make BeagleBone ttylinux v16.0.
 
-# Step 1 -- Get the kernel getting script and the firmare binary file.
+# Step 1 -- Get the kernel getting script and the firmware binary file.
 #
 wget https://github.com/beagleboard/kernel/archive/3.8.zip -O kernel-3.8.zip
 wget http://arago-project.org/git/projects/?p=am33x-cm3.git\;a=blob_plain\;f=bin/am335x-pm-firmware.bin\;hb=HEAD -O am335x-pm-firmware.bin
