@@ -1,7 +1,7 @@
 See the files in the doc/ directory.
 
 You probably want to read the How_To_Build_ttylinux.txt file.  It says that
-you need to go to the xbuildtool directory and read somethign there to know
+you need to go to the xbuildtool directory and read something there to know
 how to build a cross-tool chain, and then build ttylinux.
 
 Chop wood, carry water.
