@@ -17,6 +17,7 @@ ttylinux-build/bootloader/uboot/*.MAKELOG
 ttylinux-build/bootloader/uboot/MLO
 ttylinux-build/bootloader/uboot/mkimage
 ttylinux-build/bootloader/uboot/u-boot.bin
+ttylinux-build/bootloader/uboot/u-boot.img
 ttylinux-build/bootloader/xload
 ttylinux-build/config/platform-wrtu54g_tm/adm8668.tar.bz2
 ttylinux-build/build/[^.]*

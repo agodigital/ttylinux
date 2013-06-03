@@ -48,9 +48,6 @@ How to Build ttylinux
    5.5. Continuing or Resuming Build of Packages
 6. Build Results
 7. Common Problems
-   7.1. ttylinux Build-time awk Problems
-   7.2. lilo Build Problem
-   7.3. bash Run-time Problem
 8. Bug Reports and Help
 
 
