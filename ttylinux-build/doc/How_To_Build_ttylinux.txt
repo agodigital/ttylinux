@@ -188,7 +188,7 @@ ought to work.
 4. Build a Cross-compiling Tool Chain
 =====================================
 
-Note you do NOT need to be root to make a cross-compiling tool chain.
+You do NOT need to be root to make a cross-compiling tool chain.
 
 ttylinux uses a cross-compiler tool set that needs to be setup.  The setup
 downloads the source packages for Binutils, GCC, and Linux, then compiles these
@@ -215,6 +215,9 @@ your own custom cross-compiling tool chain.
 
 You need to be root, uid and gid both need to be 0.
 
+If you don't want to be root, then the make commands can be prefaced with
+"sudo" or "su -c", where needed; see the examples below.
+
 -----------------------------------------
 5.1. Selecting the Platform Configuration
 -----------------------------------------
@@ -225,7 +228,7 @@ Macintosh G4, etc.
 
 Before building, you select the platform configuration with this command:
 
-     $ make getcfg
+     $ make getcfg   # No need to be root for this.
 
 You will be given a list of platform configurations; select one by typing the
 number in the list and then the Enter key.  Be careful about similar names like
@@ -237,7 +240,7 @@ pc_i486-bigconfig and pc_i486-defconfig.
 
 In the ttylinux directory, give this command to download source packages:
 
-     $ make dload
+     $ make dload   # No need to be root for this.
 
 This makes the package list for this build configuration; see the file
 ttylinux-pkglst.txt after giving the "make dload" command.
@@ -256,9 +259,11 @@ build.
 
 In the ttylinux directory, try "make help".
 
-Now give this make command:
+Now give one of these make commands:
 
      $ make dist
+     $ sudo make dist     # May need your password.
+     $ su -c 'make dist'  # Needs root password.
 
 or try these:
 
@@ -269,8 +274,24 @@ or try these:
      $ make kernel
      $ make distdir
      $ make distimg
+or
+     $ sudo make clean
+     $ sudo make init
+     $ sudo make pkgs
+     $ sudo make fsys
+     $ sudo make kernel
+     $ sudo make distdir
+     $ sudo make distimg
+or
+     $ su -c 'make clean'
+     $ su -c 'make init'
+     $ su -c 'make pkgs'
+     $ su -c 'make fsys'
+     $ su -c 'make kernel'
+     $ su -c 'make distdir'
+     $ su -c 'make distimg'
 
-NOTE About True Cross-building With xbuildtools
+Note About True Cross-building With xbuildtools:
      GLIBC is built with, and is a part of, the cross-compiling tool chains
      built with xbuildtool; it is configured with something like
      "--enable-kernel=2.6.0" and built against the Linux kernel headers files
@@ -288,6 +309,10 @@ package list or not, can be built; the following example builds the bash
 package.
 
      $ make PACKAGE=bash-4.2 bash-4.2
+or
+     $ sudo make PACKAGE=bash-4.2 bash-4.2
+or
+     $ su -c 'make PACKAGE=bash-4.2 bash-4.2'
 
 This command can be performed anytime after "make init", but is likely to fail
 if the ttylinux-basefs-1.0, ttylinux-devfs-1.0 if needed, and the glibc
@@ -299,6 +324,16 @@ following in the order shown:
      $ make PACKAGE=ttylinux-basefs-1.0 ttylinux-basefs-1.0
      $ make PACKAGE=ttylinux-devfs-1.0 ttylinux-devfs-1.0
      $ make PACKAGE=glibc-2.9 glibc-2.9
+or
+     $ sudo make init
+     $ sudo make PACKAGE=ttylinux-basefs-1.0 ttylinux-basefs-1.0
+     $ sudo make PACKAGE=ttylinux-devfs-1.0 ttylinux-devfs-1.0
+     $ sudo make PACKAGE=glibc-2.9 glibc-2.9
+or
+     $ su -c 'make init'
+     $ su -c 'make PACKAGE=ttylinux-basefs-1.0 ttylinux-basefs-1.0'
+     $ su -c 'make PACKAGE=ttylinux-devfs-1.0 ttylinux-devfs-1.0'
+     $ su -c 'make PACKAGE=glibc-2.9 glibc-2.9'
 
 You now have the environment in which you can build an arbitrary package; but
 with yet another caveat that you first need to build any package that is needed
@@ -316,6 +351,10 @@ If a package fails to build and you fix the problem, you can continue building
 the packages starting with the last failed package build; use this command:
 
      $ make pkgs_
+or
+     $ sudo make pkgs_
+or
+     $ su -c 'make pkgs_'
 
 You can test this command by interrupting the package build process with CTRL-C
 and then giving the "make pkgs_" command.
@@ -351,6 +390,8 @@ building ttylinux on a typical 32-bit or multilib x86 Linux system and build
 the i486 ttylinux:
 
      $ . ttylinux-chroot.sh
+or
+     $ su -c '. ttylinux-chroot.sh'
 
 The above command sets your top-level root directory to be the ttylinunx
 sysroot, so you are still running your build system's kernel but using the
@@ -371,6 +412,10 @@ You can burn the boot CD-ROM ISO image to a CD-ROM and boot it; try this
 command:
 
      $ make media
+or
+     $ sudo make media
+or
+     $ su -c 'make media'
 
 Bootable USB Drive
 ------------------
