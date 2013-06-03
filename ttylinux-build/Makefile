@@ -26,6 +26,7 @@
 #
 # CHANGE LOG
 #
+#	02jun13	drj	Added option to download only one file via PACKAGE var.
 #	07may13	drj	Changed naming convention for platform config files.
 #	05may13	drj	Fixed getcfg target; also include any config.
 #	28jan13	drj	Put back TTYLINUX_NAME and TTYLINUX_VERSION.
@@ -258,7 +259,7 @@ ttylinux-pkglst.txt pkglist:	ttylinux-config.sh
 
 dload:	ttylinux-pkglst.txt scripts/utl-dload.sh
 	@echo "Download ttylinux source packages."
-	@(scripts/utl-dload.sh)
+	@(scripts/utl-dload.sh ${PACKAGE})
 	@if [[ $$? != 0 ]]; then					\
 		echo "Download FAILED.";				\
 		exit 1;							\

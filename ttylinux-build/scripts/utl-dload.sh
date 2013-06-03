@@ -29,6 +29,7 @@
 #
 # CHANGE LOG
 #
+#	02jun13	drj	Added ability to download only one package.
 #	25apr13	drj	Changed format of the package list file.
 #	18mar12	drj	Track the failed package downloads and report on them.
 #	15feb12	drj	Rewrite for build process reorganization.
@@ -181,11 +182,20 @@ dist_config_setup || exit 1
 echo "i> Getting source code packages [be patient, this will not lock up]."
 echo "i> Local cache directory: ${K_CACHEDIR}"
 
+_c=0     # Download count.
+_p=${1-} # See if there is a single package to download.
 while read pname pad1 fname pad2 url; do
-	[[ -z "${pname}"         ]] && continue || true
-	[[ "${pname:0:1}" == "#" ]] && continue || true
+	[[ -z "${pname}"                       ]] && continue || true
+	[[ "${pname:0:1}" == "#"               ]] && continue || true
+	[[ -n "${_p}" && "${pname}" != "${_p}" ]] && continue || true
 	dload_get_file ${pname} ${fname} ${url}
+	_c=$((${_c} + 1))
 done <${K_PKGLIST}
+echo "i> Fetched ${_c} packages."
+if [[ ${_c} -eq 0 && -n "${_p}" ]]; then
+	echo -e "${TEXT_BRED}Error${TEXT_NORM}: no package named \"${_p}\""
+fi
+unset _p
 
 if [[ ${G_NMISSING} != 0 ]]; then
 	echo "Oops -- missing ${G_NMISSING} packages."
