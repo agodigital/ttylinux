@@ -4,7 +4,7 @@ This file is NOT part of the kegel-initiated cross-tools software.
 This file IS part of the ttylinux xbuildtool software.
 The license that this document falls under is FDLv1.2 as follows:
 
-Copyright (C) 2007-2012 Douglas Jerome <douglas@ttylinux.org>
+Copyright (C) 2007-2013 Douglas Jerome <douglas@ttylinux.org>
 
 Permission is granted to copy, distribute and/or modify this document under the
 terms of the GNU Free Documentation License, Version 1.2 or any later version
@@ -15,8 +15,8 @@ in the section entitled "GNU Free Documentation License".
 FILE NAME
 
 	xbuildtool.guide.txt
-	Revision: 1.3
-	Feb 4, 2012
+	Revision: 1.4
+	June 1, 2013
 
 PROGRAM INFORMATION
 
@@ -29,6 +29,7 @@ FILE DESCRIPTION
 
 CHANGE LOG
 
+	01jun13	drj	Fixed spelling.
 	04feb12	drj	Reorganized the project and renamed to xbuildtool.
 	20dec08	drj	Added the download separate from setup.
 	08nov08	drj	Added comments about host-based tool chain proxy.
@@ -231,7 +232,7 @@ Using make
 ----------
 
 Change directory to the top-level xbuildtool directory and type "make help";
-the output will be the list of available make commands.  To build the a
+the output will be the list of available make commands.  To build a
 cross-development tool chain, execute make with a command line like one of
 these:
 
@@ -261,7 +262,7 @@ Cross-development Tool Chain_, do the following steps.
 3. Edit xbt-build-config.sh and set the fields. You are not expected to know
    to what to set the fields.  To do that you need to know the configuration
    shell scripts in each of the component directories in the scripts directory,
-   so you should first spend time readin and correctly updating them.
+   so you should first spend time reading and correctly updating them.
 
 4. Execute the cross-development tool chain building script and wait.
    $ \time ../scripts/_build-toolchain.sh

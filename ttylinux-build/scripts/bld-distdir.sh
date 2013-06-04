@@ -29,6 +29,9 @@
 #
 # CHANGE LOG
 #
+#	02jun13	drj	Fixed the name of ttylinux-setup on the CD-ROM.
+#	01jun13	drj	Put more files in the doc directory.
+#	01jun13	drj	Compress log files with bzip2, not xz.
 #	10may13	drj	Adjust for kernel config file name change.
 #	21apr13	drj	Added virtio_i686 and virtio_x86_64.
 #	31mar13	drj	Fixed a weird-ass thing in function mac_dir_make.
@@ -144,7 +147,10 @@ echo "DONE"
 echo -n "i> Copying documentation files ....................... "
 cp ${TTYLINUX_DOC_DIR}/COPYING-documents sdcard/doc/FDL
 _chgLog="ChangeLog-${TTYLINUX_PLATFORM}"
-cp ${TTYLINUX_DOC_DIR}/${_chgLog} sdcard/doc/
+cp ${TTYLINUX_DOC_DIR}/${_chgLog}                    sdcard/doc/
+cp ${TTYLINUX_DOC_DIR}/How_To_Get_Help.txt           sdcard/doc/
+cp ${TTYLINUX_DOC_DIR}/How_To_Help_ttylinux.txt      sdcard/doc/
+cp ${TTYLINUX_DOC_DIR}/Known_Issues_And_Problems.txt sdcard/doc/
 if [[ -f ${TTYLINUX_DOC_DIR}/User_Guide.html ]]; then
 	cp ${TTYLINUX_DOC_DIR}/User_Guide.html sdcard/doc/
 else
@@ -172,7 +178,7 @@ echo "DONE"
 
 echo -n "i> Getting the build logs ............................ "
 cp ${TTYLINUX_VAR_DIR}/log/* sdcard/logs/
-xz --compress sdcard/logs/*
+bzip2 --compress sdcard/logs/*
 chmod 644 sdcard/logs/*
 echo "DONE"
 
@@ -277,7 +283,10 @@ echo "DONE"
 echo -n "i> Copying documentation files to Boot CD ............ "
 cp ${TTYLINUX_DOC_DIR}/COPYING-documents cdrom/doc/FDL
 _chgLog="ChangeLog-${TTYLINUX_PLATFORM}"
-cp ${TTYLINUX_DOC_DIR}/${_chgLog} cdrom/doc/
+cp ${TTYLINUX_DOC_DIR}/${_chgLog}                    cdrom/doc/
+cp ${TTYLINUX_DOC_DIR}/How_To_Get_Help.txt           cdrom/doc/
+cp ${TTYLINUX_DOC_DIR}/How_To_Help_ttylinux.txt      cdrom/doc/
+cp ${TTYLINUX_DOC_DIR}/Known_Issues_And_Problems.txt cdrom/doc/
 if [[ -f ${TTYLINUX_DOC_DIR}/User_Guide.html ]]; then
 	cp ${TTYLINUX_DOC_DIR}/User_Guide.html cdrom/doc/
 else
@@ -304,7 +313,7 @@ echo "DONE"
 
 echo -n "i> Getting the build logs ............................ "
 cp ${TTYLINUX_VAR_DIR}/log/* cdrom/logs/
-xz --compress cdrom/logs/*
+bzip2 --compress cdrom/logs/*
 chmod 644 cdrom/logs/*
 echo "DONE"
 
@@ -405,6 +414,9 @@ sed --in-place \
 cp ${kcfg}                                      cdrom/config/kernel-${kver}.cfg
 cp ${TTYLINUX_BOOTLOADER_DIR}/isolinux/syslinux cdrom/config/
 cp ${TTYLINUX_CONFIG_DIR}/ttylinux-setup        cdrom/config/
+if [[ -f ${TTYLINUX_SYSROOT_DIR}/sbin/ttylinux-flash ]]; then
+	cp ${TTYLINUX_SYSROOT_DIR}/sbin/ttylinux-flash cdrom/config/
+fi
 for f in ${TTYLINUX_PLATFORM_DIR}/*.sh; do
 	[[ -r "${f}" ]] && cp ${f} cdrom/ || true
 done
@@ -416,8 +428,11 @@ echo "DONE"
 echo -n "i> Copying documentation files to Boot CD ............ "
 cp ${TTYLINUX_DOC_DIR}/COPYING-documents cdrom/doc/FDL
 _chgLog="ChangeLog-${TTYLINUX_PLATFORM}"
-cp ${TTYLINUX_DOC_DIR}/${_chgLog}           cdrom/doc/
-cp ${TTYLINUX_DOC_DIR}/Flash_Disk_Howto.txt cdrom/doc/
+cp ${TTYLINUX_DOC_DIR}/${_chgLog}                    cdrom/doc/
+cp ${TTYLINUX_DOC_DIR}/How_To_Flash_Drive.txt        cdrom/doc/
+cp ${TTYLINUX_DOC_DIR}/How_To_Get_Help.txt           cdrom/doc/
+cp ${TTYLINUX_DOC_DIR}/How_To_Help_ttylinux.txt      cdrom/doc/
+cp ${TTYLINUX_DOC_DIR}/Known_Issues_And_Problems.txt cdrom/doc/
 if [[ -f ${TTYLINUX_DOC_DIR}/User_Guide.html ]]; then
 	cp ${TTYLINUX_DOC_DIR}/User_Guide.html cdrom/doc/
 else
@@ -444,7 +459,7 @@ echo "DONE"
 
 echo -n "i> Getting the build logs ............................ "
 cp ${TTYLINUX_VAR_DIR}/log/* cdrom/logs/
-xz --compress cdrom/logs/*
+bzip2 --compress cdrom/logs/*
 chmod 644 cdrom/logs/*
 echo "DONE"
 
@@ -631,7 +646,10 @@ echo "DONE"
 echo -n "i> Copying documentation files ....................... "
 cp ${TTYLINUX_DOC_DIR}/COPYING-documents cdrom/doc/FDL
 _chgLog="ChangeLog-${TTYLINUX_PLATFORM}"
-cp ${TTYLINUX_DOC_DIR}/${_chgLog} cdrom/doc/
+cp ${TTYLINUX_DOC_DIR}/${_chgLog}                    cdrom/doc/
+cp ${TTYLINUX_DOC_DIR}/How_To_Get_Help.txt           cdrom/doc/
+cp ${TTYLINUX_DOC_DIR}/How_To_Help_ttylinux.txt      cdrom/doc/
+cp ${TTYLINUX_DOC_DIR}/Known_Issues_And_Problems.txt cdrom/doc/
 if [[ -f ${TTYLINUX_DOC_DIR}/User_Guide.html ]]; then
 	cp ${TTYLINUX_DOC_DIR}/User_Guide.html cdrom/doc/
 else
@@ -658,7 +676,7 @@ echo "DONE"
 
 echo -n "i> Getting the build logs ............................ "
 cp ${TTYLINUX_VAR_DIR}/log/* cdrom/logs/
-xz --compress cdrom/logs/*
+bzip2 --compress cdrom/logs/*
 chmod 644 cdrom/logs/*
 echo "DONE"
 
