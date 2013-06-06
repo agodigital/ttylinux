@@ -1,10 +1,20 @@
-# vim: syntax=sh
+#!/bin/bash
 
 # For each index i, _UCLIBC[i] _UCLIBC_P[i] are a matched set; which means as
-# shown in the rows immediately below, these are a matched set:
+# shown in the rows immediately below, these rows are a matched set:
 #      _UCLIBC[0] _UCLIBC_P[0]
 #      _UCLIBC[1] _UCLIBC_P[1]
 # and so on.
+
+declare -a _UCLIBC
+declare -a _UCLIBC_EXT
+declare -a _UCLIBC_MD5SUM
+declare -a _UCLIBC_URL
+
+declare -a _UCLIBC_P
+declare -a _UCLIBC_P_EXT
+declare -a _UCLIBC_P_MD5SUM
+declare -a _UCLIBC_P_URL
 
 # *****************************************************************************
 # uClibc
@@ -21,4 +31,3 @@ _UCLIBC_URL[0]="http://www.uclibc.org/downloads"
 _UCLIBC_P[0]="" ; _UCLIBC_P_EXT[0]=""
 _UCLIBC_P_MD5SUM[0]=""
 _UCLIBC_P_URL[0]=""
-

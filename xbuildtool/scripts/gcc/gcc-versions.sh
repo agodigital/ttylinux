@@ -1,10 +1,40 @@
-# vim: syntax=sh
+#!/bin/bash
 
 # For each index i, _GCC[i] _CLOOG[i] _GMP[i] _MPC[i] _MPFR[i] _PPL[i] all are
-# a matched set; which means these are a matched set:
+# a matched set; which means each row is a matched set:
 #      _GCC[0]  _CLOOG[0]  _GMP[0]  _MPC[0]  _MPFR[0]  _PPL[0]
 #      _GCC[1]  _CLOOG[1]  _GMP[1]  _MPC[1]  _MPFR[1]  _PPL[1]
 # and so on.
+
+declare -a _CLOOG
+declare -a _CLOOG_EXT
+declare -a _CLOOG_MD5SUM
+declare -a _CLOOG_URL
+
+declare -a _GMP
+declare -a _GMPEXT
+declare -a _GMPMD5SUM
+declare -a _GMPURL
+
+declare -a _MPC
+declare -a _MPC_EXT
+declare -a _MPC_MD5SUM
+declare -a _MPC_URL
+
+declare -a _MPFR
+declare -a _MPFR_EXT
+declare -a _MPFR_MD5SUM
+declare -a _MPFR_URL
+
+declare -a _PPL
+declare -a _PPL_EXT
+declare -a _PPL_MD5SUM
+declare -a _PPL_URL
+
+declare -a _GCC
+declare -a _GCC_EXT
+declare -a _GCC_MD5SUM
+declare -a _GCC_URL
 
 # *****************************************************************************
 # CLOOG

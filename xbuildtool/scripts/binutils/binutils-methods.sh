@@ -6,7 +6,7 @@
 # This file IS part of the ttylinux xbuildtool software.
 # The license which this software falls under is GPLv2 as follows:
 #
-# Copyright (C) 2008-2012 Douglas Jerome <douglas@ttylinux.org>
+# Copyright (C) 2011-2013 Douglas Jerome <douglas@ttylinux.org>
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -36,6 +36,7 @@
 #
 # CHANGE LOG
 #
+#	03jun13	drj	Reorganize xbuildtool files.  Scrub architecture.
 #	05dec12	drj	Added XBT_BINUTILS_EXT
 #	19feb12	drj	Added text manifest of tool chain components.
 #	10feb12	drj	Added debug breaks.
@@ -45,36 +46,50 @@
 
 
 # *****************************************************************************
-# xbt_resolve_binutils_name
+# binutils_resolve_name
 # *****************************************************************************
 
-# Usage: xbt_resolve_binutils_name <string>
+# Usage: binutils_resolve_name <string>
 #
 # Uses:
 #      XBT_SCRIPT_DIR
+#      binutils-versions.sh
 #
 # Sets:
+#     XBT_BINUTILS_LIBS[]
+#     XBT_BINUTILS_LIBS_EXT[]
+#     XBT_BINUTILS_LIBS_MD5SUM[]
+#     XBT_BINUTILS_LIBS_URL[]
 #     XBT_BINUTILS
 #     XBT_BINUTILS_EXT
 #     XBT_BINUTILS_MD5SUM
 #     XBT_BINUTILS_URL
 
-xbt_resolve_binutils_name() {
+# declare -a XBT_BINUTILS_LIBS        # declare indexed array
+# declare -a XBT_BINUTILS_LIBS_EXT    # declare indexed array
+# declare -a XBT_BINUTILS_LIBS_MD5SUM # declare indexed array
+# declare -a XBT_BINUTILS_LIBS_URL    # declare indexed array
+
+declare XBT_BINUTILS=""
+declare XBT_BINUTILS_EXT=""
+declare XBT_BINUTILS_MD5SUM=""
+declare XBT_BINUTILS_URL=""
+
+binutils_resolve_name() {
 
 source ${XBT_SCRIPT_DIR}/binutils/binutils-versions.sh
 
-XBT_BINUTILS=""
-XBT_BINUTILS_EXT=""
-XBT_BINUTILS_MD5SUM=""
-XBT_BINUTILS_URL=""
+local -r  binutilsNameVer=${1}    # delare read-only
+local -ir rcount=${#_BINUTILS[@]} # delare integer, read-only
+local -i  i=0                     # delare integer
 
-for (( i=0 ; i<${#_BINUTILS[@]} ; i=(($i+1)) )); do
-	if [[ "${1}" = "${_BINUTILS[$i]}" ]]; then
+for (( i=0 ; i<${rcount} ; i++ )); do
+	if [[ "${binutilsNameVer}" == "${_BINUTILS[$i]}" ]]; then
 		XBT_BINUTILS="${_BINUTILS[$i]}"
 		XBT_BINUTILS_EXT="${_BINUTILS_EXT[$i]}"
 		XBT_BINUTILS_MD5SUM="${_BINUTILS_MD5SUM[$i]}"
 		XBT_BINUTILS_URL="${_BINUTILS_URL[$i]}"
-		i=${#_BINUTILS[@]}
+		break # for loop
 	fi
 done
 
@@ -84,7 +99,7 @@ unset _BINUTILS_MD5SUM
 unset _BINUTILS_URL
 
 if [[ -z "${XBT_BINUTILS}" ]]; then
-	echo "E> Cannot resolve \"${1}\""
+	echo "E> Cannot resolve \"${binutilsNameVer}\""
 	return 1
 fi
 
@@ -94,101 +109,98 @@ return 0
 
 
 # *****************************************************************************
-# xbt_build_binutils
+# binutils_build
 # *****************************************************************************
 
-xbt_build_binutils() {
+binutils_build() {
 
-local msg
-local ENABLE_BFD64
-
-msg="Building ${XBT_BINUTILS} "
-echo -n "${msg}"          >&${CONSOLE_FD}
-xbt_print_dots_35 ${#msg} >&${CONSOLE_FD}
-echo -n " "               >&${CONSOLE_FD}
-
-xbt_debug_break ""
-
-# Find, uncompress and untarr ${XBT_BINUTILS}.
+#msg="Building ${XBT_BINUTILS} "
+#echo -n "${msg}"          >&${CONSOLE_FD}
+#xbt_print_dots_35 ${#msg} >&${CONSOLE_FD}
+#echo -n " "               >&${CONSOLE_FD}
 #
-xbt_src_get ${XBT_BINUTILS}
-unset _name
-
-# Make an entry in the manifest.
+#xbt_debug_break ""
 #
-echo -n "${XBT_BINUTILS} " >>"${XBT_TOOLCHAIN_MANIFEST}"
-for ((i=(40-${#XBT_BINUTILS}) ; i > 0 ; i--)) do
-	echo -n "." >>"${XBT_TOOLCHAIN_MANIFEST}"
-done
-echo " ${XBT_BINUTILS_URL}" >>"${XBT_TOOLCHAIN_MANIFEST}"
-
-# Use any patches.
+## Find, uncompress and untarr ${XBT_BINUTILS}.
+##
+#xbt_src_get ${XBT_BINUTILS}
+#unset _name
 #
-cd ${XBT_BINUTILS}
-for p in ${XBT_PATCH_DIR}/${XBT_BINUTILS}-*.patch; do
-	if [[ -f "${p}" ]]; then patch -Np1 -i "${p}"; fi
-done; unset p
-cd ..
-
-# The Binutils documentation recommends building Binutils outside of the source
-# directory in a dedicated build directory.
+## Make an entry in the manifest.
+##
+#echo -n "${XBT_BINUTILS} " >>"${XBT_TOOLCHAIN_MANIFEST}"
+#for ((i=(40-${#XBT_BINUTILS}) ; i > 0 ; i--)) do
+#	echo -n "." >>"${XBT_TOOLCHAIN_MANIFEST}"
+#done
+#echo " ${XBT_BINUTILS_URL}" >>"${XBT_TOOLCHAIN_MANIFEST}"
 #
-rm -rf	"build-binutils"
-mkdir	"build-binutils"
-cd	"build-binutils"
-
-# Weird problem when building under ArchLinux i686 host: "makeinfo" is missing;
-# it appears to be looking for bfd/docs/*.texi files in the build directory,
-# even though they are actually in the source directory.
+## Use any patches.
+##
+#cd ${XBT_BINUTILS}
+#for p in ${XBT_PATCH_DIR}/${XBT_BINUTILS}-*.patch; do
+#	if [[ -f "${p}" ]]; then patch -Np1 -i "${p}"; fi
+#done; unset p
+#cd ..
 #
-mkdir -p bfd/doc
-cp -a ../${XBT_BINUTILS}/bfd/doc/* bfd/doc
-
-ENABLE_BFD64=""
-[[ "${XBT_LINUX_ARCH}" = "x86_64" ]] && ENABLE_BFD64="--enable-64-bit-bfd"
-
-# Configure Binutils for building.
+## The Binutils documentation recommends building Binutils outside of the source
+## directory in a dedicated build directory.
+##
+#rm -rf	"build-binutils"
+#mkdir	"build-binutils"
+#cd	"build-binutils"
 #
-echo "# XBT_CONFIG **********"
-../${XBT_BINUTILS}/configure \
-	--build=${XBT_HOST} \
-	--host=${XBT_HOST} \
-	--target=${XBT_TARGET} \
-	--prefix=${XBT_XHOST_DIR}/usr \
-	${ENABLE_BFD64} \
-	--enable-shared \
-	--disable-build-warnings \
-	--disable-multilib \
-	--with-sysroot=${XBT_XTARG_DIR} || exit 1
-
-xbt_debug_break "configured ${XBT_BINUTILS}"
-
-# Build Binutils.
+## Weird problem when building under ArchLinux i686 host: "makeinfo" is missing;
+## it appears to be looking for bfd/docs/*.texi files in the build directory,
+## even though they are actually in the source directory.
+##
+#mkdir -p bfd/doc
+#cp -a ../${XBT_BINUTILS}/bfd/doc/* bfd/doc
 #
-echo "# XBT_MAKE **********"
-make LIB_PATH="${XBT_XTARG_DIR}/lib:${XBT_XTARG_DIR}/usr/lib" || exit 1
-
-xbt_debug_break "maked ${XBT_BINUTILS}"
-
-# Install Binutils.
+#ENABLE_BFD64=""
+#[[ "${XBT_LINUX_ARCH}" == "x86_64" ]] && ENABLE_BFD64="--enable-64-bit-bfd"
 #
-echo "# XBT_INSTALL **********"
-xbt_files_timestamp
+## Configure Binutils for building.
+##
+#echo "# XBT_CONFIG **********"
+#../${XBT_BINUTILS}/configure \
+#	--build=${XBT_HOST} \
+#	--host=${XBT_HOST} \
+#	--target=${XBT_TARGET} \
+#	--prefix=${XBT_XHOST_DIR}/usr \
+#	${ENABLE_BFD64} \
+#	--enable-shared \
+#	--disable-build-warnings \
+#	--disable-multilib \
+#	--with-sysroot=${XBT_XTARG_DIR} || exit 1
 #
-make install || exit 1
+#xbt_debug_break "configured ${XBT_BINUTILS}"
 #
-echo "# XBT_FILES **********"
-xbt_files_find
-
-xbt_debug_break "installed ${XBT_BINUTILS}"
-
-# Move out and clean up.
+## Build Binutils.
+##
+#echo "# XBT_MAKE **********"
+#make LIB_PATH="${XBT_XTARG_DIR}/lib:${XBT_XTARG_DIR}/usr/lib" || exit 1
 #
-cd ..
-rm -rf "build-binutils"
-rm -rf "${XBT_BINUTILS}"
-
-echo "done [${XBT_BINUTILS} is complete]" >&${CONSOLE_FD}
+#xbt_debug_break "maked ${XBT_BINUTILS}"
+#
+## Install Binutils.
+##
+#echo "# XBT_INSTALL **********"
+#xbt_files_timestamp
+##
+#make install || exit 1
+##
+#echo "# XBT_FILES **********"
+#xbt_files_find
+#
+#xbt_debug_break "installed ${XBT_BINUTILS}"
+#
+## Move out and clean up.
+##
+#cd ..
+#rm -rf "build-binutils"
+#rm -rf "${XBT_BINUTILS}"
+#
+#echo "done [${XBT_BINUTILS} is complete]" >&${CONSOLE_FD}
 
 return 0
 

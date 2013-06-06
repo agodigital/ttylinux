@@ -6,7 +6,7 @@
 # This file IS part of the ttylinux xbuildtool software.
 # The license which this software falls under is GPLv2 as follows:
 #
-# Copyright (C) 2007-2012 Douglas Jerome <douglas@ttylinux.org>
+# Copyright (C) 2011-2013 Douglas Jerome <douglas@ttylinux.org>
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -36,6 +36,7 @@
 #
 # CHANGE LOG
 #
+#	03jun13	drj	Reorganize xbuildtool files.  Scrub architecture.
 #	05dec12	drj	Added XBT_LINUX_EXT.
 #	19feb12	drj	Added text manifest of tool chain components.
 #	10feb12	drj	Added debug breaks.
@@ -46,13 +47,14 @@
 
 
 # *****************************************************************************
-# xbt_resolve_linux_name
+# linux_resolve_name
 # *****************************************************************************
 
-# Usage: xbt_resolve_linux_name <string>
+# Usage: linux_resolve_name <string>
 #
 # Uses:
 #      XBT_SCRIPT_DIR
+#      linux-versions.sh
 #
 # Sets:
 #     XBT_LINUX
@@ -60,22 +62,26 @@
 #     XBT_LINUX_MD5SUM
 #     XBT_LINUX_URL
 
-xbt_resolve_linux_name() {
+declare XBT_LINUX=""
+declare XBT_LINUX_EXT=""
+declare XBT_LINUX_MD5SUM=""
+declare XBT_LINUX_URL=""
+
+linux_resolve_name() {
 
 source ${XBT_SCRIPT_DIR}/linux/linux-versions.sh
 
-XBT_LINUX=""
-XBT_LINUX_EXT=""
-XBT_LINUX_MD5SUM=""
-XBT_LINUX_URL=""
+local -r  linuxNameVer=${1}    # delare read-only
+local -ir rcount=${#_LINUX[@]} # delare integer, read-only
+local -i  i=0                  # delare integer
 
-for (( i=0 ; i<${#_LINUX[@]} ; i=(($i+1)) )); do
-	if [[ "${1}" = "${_LINUX[$i]}" ]]; then
+for (( i=0 ; i<${rcount} ; i++ )); do
+	if [[ "${linuxNameVer}" == "${_LINUX[$i]}" ]]; then
 		XBT_LINUX="${_LINUX[$i]}"
 		XBT_LINUX_EXT="${_LINUX_EXT[$i]}"
 		XBT_LINUX_MD5SUM="${_LINUX_MD5SUM[$i]}"
 		XBT_LINUX_URL="${_LINUX_URL[$i]}"
-		i=${#_LINUX[@]}
+		break # for loop
 	fi
 done
 
@@ -85,7 +91,7 @@ unset _LINUX_MD5SUM
 unset _LINUX_URL
 
 if [[ -z "${XBT_LINUX}" ]]; then
-	echo "E> Cannot resolve \"${1}\""
+	echo "E> Cannot resolve \"${linuxNameVer}\""
 	return 1
 fi
 
@@ -95,7 +101,7 @@ return 0
 
 
 # *****************************************************************************
-# xbt_build_kernel_headers
+# linux_headers_export
 # *****************************************************************************
 
 # When building GLIBC for Linux it is best to have the Linux kernel header
@@ -109,18 +115,21 @@ return 0
 # interface header files will be deleted: this optional part of the Linux build
 # process is rude.
 
-xbt_build_kernel_headers() {
+linux_headers_export() {
 
-local msg
+if [[ -f "${XBT_TARGET_DIR}/.done.kernel_headers" ]]; then
+        echo "get kernel headers ................ already done" >&${CONSOLE_FD}
+	return 0
+fi
 
-msg="Getting ${XBT_LINUX} Headers "
+local msg="Getting ${XBT_LINUX} Headers "
 echo -n "${msg}"          >&${CONSOLE_FD}
 xbt_print_dots_35 ${#msg} >&${CONSOLE_FD}
 echo -n " "               >&${CONSOLE_FD}
 
-xbt_debug_break ""
+xbt_debug_break "" >&${CONSOLE_FD}
 
-# Find, uncompress and untarr ${XBT_LINUX}.  The second argument is a secondary
+# Find, uncompress and untar ${XBT_LINUX}.  The second argument is a secondary
 # location to copy the source code tarball; this is so that users of the cross
 # tool chain have access to the Linux source code as any users likely will
 # cross-build the Linux kernel.
@@ -132,20 +141,20 @@ xbt_src_get ${XBT_LINUX} "${XBT_XSRC_DIR}"
 echo -n "${_name} " >>"${XBT_TOOLCHAIN_MANIFEST}"
 echo -n "${_name} " >>"${XBT_TARGET_MANIFEST}"
 for ((i=(40-${#_name}) ; i > 0 ; i--)) do
-        echo -n "." >>"${XBT_TOOLCHAIN_MANIFEST}"
-        echo -n "." >>"${XBT_TARGET_MANIFEST}"
-done
+	echo -n "." >>"${XBT_TOOLCHAIN_MANIFEST}"
+	echo -n "." >>"${XBT_TARGET_MANIFEST}"
+done; unset i
 echo " ${XBT_LINUX_URL}" >>"${XBT_TOOLCHAIN_MANIFEST}"
 echo " ${XBT_LINUX_URL}" >>"${XBT_TARGET_MANIFEST}"
 
 unset _name # from xbt_src_get()
- 
+
 if [[ -d "${XBT_LINUX}" && ! -d "linux" ]]; then
 	ln -s "${XBT_LINUX}" "linux"
 fi
 cd linux
 
-for p in ${XBT_PATCH_DIR}/${XBT_LINUX}-*.patch; do
+for p in ${XBT_SCRIPT_DIR}/linux/${XBT_LINUX}-*.patch; do
 	if [[ -f "${p}" ]]; then
 		patch -Np1 -i "${p}"
 		cp "${p}" "${XBT_XSRC_DIR}"
@@ -157,13 +166,13 @@ for p in ${XBT_PATCH_DIR}/${XBT_LINUX}-*.patch; do
 	fi
 done; unset p
 
-echo "Exporting ${XBT_LINUX_ARCH} kernel header files (${XBT_TARGET})."
+echo "#: Exporting ${XBT_LINUX_ARCH} kernel header files (${XBT_TARGET})."
 make \
 	ARCH=${XBT_LINUX_ARCH} \
 	INSTALL_HDR_PATH="${XBT_XTARG_DIR}/usr" \
 	headers_install
 
-xbt_debug_break "installed headers for ${XBT_LINUX}"
+xbt_debug_break "installed headers for ${XBT_LINUX}" >&${CONSOLE_FD}
 
 # Clean up.
 #
@@ -172,6 +181,8 @@ rm -rf "linux"
 rm -rf "${XBT_LINUX}"
 
 echo "done" >&${CONSOLE_FD}
+
+touch "${XBT_TARGET_DIR}/.done.kernel_headers"
 
 return 0
 

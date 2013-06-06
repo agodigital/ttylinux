@@ -1,4 +1,9 @@
-# vim: syntax=sh
+#!/bin/bash
+
+declare -a _BINUTILS
+declare -a _BINUTILS_EXT
+declare -a _BINUTILS_MD5SUM
+declare -a _BINUTILS_URL
 
 _BINUTILS[0]="binutils-2.19" ; _BINUTILS_EXT[0]=".tar.bz2"
 _BINUTILS[1]="binutils-2.20" ; _BINUTILS_EXT[1]=".tar.bz2"

@@ -1,10 +1,20 @@
-# vim: syntax=sh
+#!/bin/bash
 
 # For each index i, _GLIBC[i] _GLIBC_P[i] are a matched set; which means as
-# shown in the rows immediately below, these are a matched set:
+# shown in the rows immediately below, these rows are a matched set:
 #      _GLIBC[0] _GLIBC_P[0]
 #      _GLIBC[1] _GLIBC_P[1]
 # and so on.
+
+declare -a _GLIBC
+declare -a _GLIBC_EXT
+declare -a _GLIBC_MD5SUM
+declare -a _GLIBC_URL
+
+declare -a _GLIBC_P
+declare -a _GLIBC_P_EXT
+declare -a _GLIBC_P_MD5SUM
+declare -a _GLIBC_P_URL
 
 # *****************************************************************************
 # Glibc

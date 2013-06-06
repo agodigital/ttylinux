@@ -6,7 +6,7 @@
 # This file IS part of the ttylinux xbuildtool software.
 # The license which this software falls under is GPLv2 as follows:
 #
-# Copyright (C) 2007-2012 Douglas Jerome <douglas@ttylinux.org>
+# Copyright (C) 2011-2013 Douglas Jerome <douglas@ttylinux.org>
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -53,6 +53,7 @@
 #
 # CHANGE LOG
 #
+#	03jun13	drj	Reorganize xbuildtool files.  Scrub architecture.
 #	07dec12	drj	Added cloog and ppl support.
 #	05dec12	drj	Tarball file name extension (e.g. ".gz") is explicit.
 #	31mar12	drj	xbt_src_get gives the actual file name.
@@ -81,69 +82,25 @@
 #                                                                             #
 # *************************************************************************** #
 
-G_MISSED_PKG[0]=""
-G_MISSED_URL[0]=""
-G_NMISSING=0
+declare -a G_MISSED_PKG # declare indexed array
+declare -a G_MISSED_URL # declare indexed array
+declare -i G_NMISSING=0 # declare integer
 
 
 # *************************************************************************** #
-# S U B R O U T I N E S                                                       #
+#                                                                             #
+# P R O C E D U R E S                                                         #
 #                                                                             #
 # *************************************************************************** #
 
 
 # *****************************************************************************
-# xbt_debug_break
+# build_get_file
 # *****************************************************************************
 
-# This wacky function does the pause between build steps; it may read input and
-# change the stepping behavior based upon the user input.
-#
-# This function must be given an argument; this argument is displayed to the
-# terminal standard output.  An empty argument, "", can be used.
-#
-# The value of XBT_STEP is the stepping state.
-# XBT_STEP is unset or empty ... there is no stepping and the state of stepping
-#                                is not changed while the script is executing
-# XBT_STEP is "yes" ............ there is a pause with any non-empty argument
-# XBT_STEP is "skp" ............ there is no pause until after an empty argument
-#
-# The stepping behavior is changed based upon the argument and the user input:
-# empty argument, "" ........... stepping in all cases is resumed
-# user gives "g" ............... stepping is turned off; no more stepping (go)
-# user gives "s" ............... stepping is turned off until empty argument
+# Usage: build_get_file <file_root_name> <file_name_extension> <url> [url ...]
 
-xbt_debug_break() {
-
-if [[ x"${XBT_STEP:-no}" == x"yes" ||
-      x"${XBT_STEP:-no}" == x"skp" ]]; then
-	local prompt="${1:0:40}" # No more than 40 characters.
-	if [[ -z "${prompt}" ]]; then
-		echo "" >&${CONSOLE_FD}
-		XBT_STEP=yes
-	else
-		printf "** %40s" "${prompt}" >&${CONSOLE_FD}
-		if [[ ${XBT_STEP} == "yes" ]]; then
-			echo -n " ->" >&${CONSOLE_FD}
-			read
-			[[ "${REPLY}" == "g" ]] && XBT_STEP=no  || true
-			[[ "${REPLY}" == "s" ]] && XBT_STEP=skp || true
-		else
-			echo "" >&${CONSOLE_FD}
-		fi
-	fi
-fi
-
-}
-
-
-# *****************************************************************************
-# xbt_get_file
-# *****************************************************************************
-
-# Usage: xbt_get_file <file_root_name> <file_name_extension> <url> [url ...]
-
-xbt_get_file() {
+build_get_file() {
 
 local fileName=""
 local fileExtn=""
@@ -193,6 +150,15 @@ if [[ "${loadedDn}" == "yes" ]]; then
 	return 0
 fi
 
+# Check if download should be skipped.  This is because it is expected to be
+# in the local cache.
+#
+if [[ x"${1}" == x"(skip)" ]]; then
+	echo "(custom: not downloadable)"
+	popd >/dev/null 2>&1
+	return 0
+fi
+
 # See if there is a program to use to download the file.
 #
 _wget=$(which wget 2>/dev/null || true)
@@ -225,7 +191,7 @@ if [[ "${loadedDn}" == "yes" ]]; then
 	echo "done."
 	rm -f "${fileName}.download.log"
 else
-	echo "FAILED."
+echo "FAILED."
 	G_MISSED_PKG[${G_NMISSING}]="${fileName}${fileExtn}"
 	G_MISSED_URL[${G_NMISSING}]="${url}"
 	G_NMISSING=$((${G_NMISSING} + 1))
@@ -238,12 +204,12 @@ return 0
 
 
 # *****************************************************************************
-# xbt_chk_file
+# build_check_file
 # *****************************************************************************
 
-# Usage: xbt_chk_file <file_root_name> <file_name_extension> <md5sum>
+# Usage: build_check_file <file_root_name> <file_name_extension> <md5sum>
 
-xbt_chk_file() {
+build_check_file() {
 
 local fileName=""
 local fileExtn=""
@@ -268,10 +234,10 @@ pushd "${XBT_SOURCE_DIR}" >/dev/null 2>&1
 if [[ "${loadedDn}" == "no" ]]; then
 	echo "E> Missing ${fileName} file."
 	popd >/dev/null 2>&1
-	return 0
+	return 1 # error stops the script
 fi
 
-# See if there ia an expected md5sum to check against.
+# See if there is an expected md5sum to check against.
 #
 if [[ -z "${fileCsum}" ]]; then
 	echo "w> No expected md5sum for ${fileName} file."
@@ -284,7 +250,7 @@ fi
 echo -n "=> md5sum ${loadedDn} "
 for ((i=(28-${#loadedDn}) ; i > 0 ; i--)); do echo -n "."; done
 if [[ "${fileCsum}" == "(skip)" ]]; then
-		echo " not checked"
+	echo " not checked"
 else
 	chksum=$(md5sum ${loadedDn} | awk '{print $1;}')
 	if [[ "${chksum}" == "${fileCsum}" ]]; then
@@ -294,7 +260,7 @@ else
 		echo "=> expected ..... ${fileCsum}"
 		echo "=> calculated ... ${chksum}"
 		K_ERR=1
-		fi
+	fi
 fi
 
 popd >/dev/null 2>&1
@@ -307,27 +273,15 @@ return 0
 # Copy GCC target components into the target directory.
 # *****************************************************************************
 
-xbt_target_adjust() {
+build_target_adjust() {
 
+return 0
 echo "=> Adjusting cross-tool chain." >&${CONSOLE_FD}
 
 # Setup source and destination directory paths variables.
 #
 src="${XBT_XHOST_DIR}/usr/${XBT_TARGET}"
 dst="${XBT_XTARG_DIR}"
-
-# Create an empty header file that some packages my want to exist in order to
-# compile.  There is a version of iptables that wants this.
-#
-if [[ -d "${XBT_XTARG_DIR}/usr/include/linux" ]]; then
-	rm -f "${XBT_XTARG_DIR}/usr/include/linux/compiler.h"
-	echo "/* empty */" >"${XBT_XTARG_DIR}/usr/include/linux/compiler.h"
-else
-	_msg="Missing ${XBT_TARGET} cross-tool host directory."
-	echo "***** ${_msg}"
-	echo "E> ${_msg}" >&${CONSOLE_FD}
-	unset _msg
-fi
 
 # Copy the GCC target libraries.
 #
@@ -367,7 +321,7 @@ echo "=> Completed cross-tools adjustments." >&${CONSOLE_FD}
 # Cross-tool User Environment Setup
 # *****************************************************************************
 
-xbt_usr_env_set() {
+build_usr_env_set() {
 
 echo "#!/bin/sh"
 echo ""
@@ -420,7 +374,7 @@ echo "XBT_THREAD_MODEL=\"${XBT_THREAD_MODEL}\""
 # Cross-tool User Environment Clear
 # *****************************************************************************
 
-xbt_usr_env_clr() {
+build_usr_env_clr() {
 
 echo "#!/bin/sh"
 echo ""
@@ -448,26 +402,28 @@ echo "export MAKEFLAGS=\"\""
 }
 
 
-# *****************************************************************************
-# Echo any arguments to a mapped stdout and exit with error.
-# *****************************************************************************
+# *************************************************************************** #
+#                                                                             #
+# C A L L B A C K   P R O C E D U R E S                                       #
+#                                                                             #
+# *************************************************************************** #
 
-xbt_bail() {
 
-echo "${@}" >&${CONSOLE_FD}
-exit 1
-
-}
+# These procedures are expected to be called from a package-specific building
+# procedure in another file, sort of like a call-back function.  Some of these
+# procedures have standard output redirected to a log file.
 
 
 # *****************************************************************************
 # Print No More Than 35 Dots
 # *****************************************************************************
 
+# Standard output is expected NOT to be redirected to a log file.
+
 xbt_print_dots_35() {
 
 set +e ; # Let the while loop fail without exiting this script.
-i=$((35 - $1))
+local -i i=$((35 - ${1})) # declare integer
 while [[ ${i} -gt 0 ]]; do
 	echo -n "."
 	i=$((${i} - 1))
@@ -478,26 +434,87 @@ set -e ; # All done with while loop; fail enabled.
 
 
 # *****************************************************************************
+# xbt_debug_break
+# *****************************************************************************
+
+# This wacky procedure pauses between build steps; it may read input and change
+# the stepping behavior based upon the user input.
+#
+# This procedure must be given an argument; this argument is displayed to the
+# standard output.  An empty argument, "", can be used.
+#
+# For an empty argument, "", this procedure puts a newline to standard output
+# and sets XBT_STEP=yes which starts the stepping behavior, which is weird
+# because if stepping is "no" (or unset) then NOTHING HAPPENS.
+#
+# The value of XBT_STEP is the stepping state.
+# XBT_STEP is unset or empty ... there is no stepping and the state of stepping
+#                                is not changed while the script is executing
+# XBT_STEP is "yes" ............ there is a pause with any non-empty argument
+# XBT_STEP is "skp" ............ there is no pause until after an empty argument
+#
+# The stepping behavior is changed based upon the argument and the user input:
+# empty argument, "" ........... stepping in all cases is resumed
+# user gives "g" ............... stepping is turned off; no more stepping (go)
+# user gives "s" ............... stepping is turned off until empty argument
+#
+# Standard output is expected NOT to be redirected to a log file.
+
+xbt_debug_break() {
+
+if [[ x"${XBT_STEP:-no}" == x"yes" || x"${XBT_STEP:-no}" == x"skp" ]]; then
+	local prompt="${1:0:40}" # No more than 40 characters.
+	if [[ -z "${prompt}" ]]; then
+		echo ""
+		XBT_STEP=yes
+	else
+		printf "** %40s" "${prompt}"
+		if [[ ${XBT_STEP} == "yes" ]]; then
+			echo -n " ->"
+			read
+			[[ "${REPLY}" == "g" ]] && XBT_STEP=no  || true
+			[[ "${REPLY}" == "s" ]] && XBT_STEP=skp || true
+		else
+			echo ""
+		fi
+	fi
+fi
+
+}
+
+
+# *****************************************************************************
 # Get a source package; uncompress and untar it.
 # *****************************************************************************
 
 # Usage: xbt_src_get <base_filename> [<secondary_copy_location>]
 
+# This procedure can only get files whose name end in ".tar.gz" or ".tar.bz2".
+#
+# This procedure is expected to be called from a package-specific building
+# procedure in another file whose standard output is being redirected to a log
+# file.  Screen output must be directory to ${CONSOLE_FD} and standard output,
+# which is going into a log file, should be prefixed with "#: ".
+#
+# An odd side-affect of this procedure is setting the _name variable; it is
+# then name of the retrieved file with no path component in the name.
+
 xbt_src_get() {
 
-echo "Finding, uncompressing, untarring ${1}"
+echo "#: Finding, uncompressing, untarring ${1}"
 
 local pname="${XBT_SOURCE_DIR}/${1}.tar"
 local tname="${1}.tar"
 local zname=""
 
 if [[ ! -f "${pname}.gz" && ! -f "${pname}.bz2" ]]; then
-	echo "Cannot find ${pname}.gz or ${pname}.bz2"
-	xbt_bail "Cannot find ${pname}.gz or ${pname}.bz2"
+	echo "#: Cannot find ${pname}.gz or ${pname}.bz2"
+	echo "Cannot find ${pname}.gz or ${pname}.bz2" >&${CONSOLE_FD}
+	exit 1
 fi
 [[ -f "${pname}.gz"  ]] && zname="${tname}.gz"  || true
 [[ -f "${pname}.bz2" ]] && zname="${tname}.bz2" || true
-echo "Using ${XBT_SOURCE_DIR}/${zname}"
+echo "#: Using ${XBT_SOURCE_DIR}/${zname}"
 cp "${XBT_SOURCE_DIR}/${zname}" .
 
 rm -rf "${1}"
@@ -517,39 +534,15 @@ fi
 set -e ; # All done with tar.
 
 if [[ ! -d ${1} ]]; then
-	echo "Cannot unzip ${zname}"
-	xbt_bail "Cannot unzip ${zname}"
+	echo "#: Cannot unzip ${zname}"
+	echo "Cannot unzip ${zname}" >&${CONSOLE_FD}
+	exit 1
 fi
 
 _name="${zname}"
 
 rm -f "${zname}"
 rm -f "${tname}"
-
-}
-
-
-# *****************************************************************************
-# Make a Timestamp File
-# *****************************************************************************
-
-xbt_files_timestamp() {
-
-rm -rf "INSTALL_STAMP"
-touch  "INSTALL_STAMP"
-sleep 1 # lame
-
-}
-
-
-# *****************************************************************************
-# Find Files Newer Than Timestamp File
-# *****************************************************************************
-
-xbt_files_find() {
-
-find ${XBT_TARGET_DIR} -newer INSTALL_STAMP ! -type d
-rm -rf "INSTALL_STAMP"
 
 }
 
@@ -567,26 +560,26 @@ rm -rf "INSTALL_STAMP"
 
 if [[ $# -gt 0 ]]; then A_ARG1="$1"; else A_ARG1=""; fi
 
-K_BLD_CFG_FILE="./xbt-build-config.sh"
-K_BLD_ENV_FILE="./xbt-build-env.sh"
-K_CACHEDIR=~/Download
-K_CONSOLE_FD=1
-K_ERR=0
+declare -r K_BLD_CFG_FILE=xbt-build-config.sh # declare read-only
+declare -r K_BLD_ENV_FILE=xbt-build-env.sh    # declare read-only
+declare -r K_CACHEDIR=~/Download              # declare read-only
+declare -i K_CONSOLE_FD=1                     # declare integer
+declare -i K_ERR=0                            # declare integer
 
-TEXT_BRED="\E[1;31m"    # bold+red
-TEXT_BGREEN="\E[1;32m"  # bold+green
-TEXT_BYELLOW="\E[1;33m" # bold+yellow
-TEXT_BBLUE="\E[1;34m"   # bold+blue
-TEXT_BPURPLE="\E[1;35m" # bold+purple
-TEXT_BCYAN="\E[1;36m"   # bold+cyan
-TEXT_BOLD="\E[1;37m"    # bold+white
-TEXT_RED="\E[0;31m"     # red
-TEXT_GREEN="\E[0;32m"   # green
-TEXT_YELLOW="\E[0;33m"  # yellow
-TEXT_BLUE="\E[0;34m"    # blue
-TEXT_PURPLE="\E[0;35m"  # purple
-TEXT_CYAN="\E[0;36m"    # cyan
-TEXT_NORM="\E[0;39m"    # normal
+K_TEXT_BRED="\E[1;31m"    # bold+red
+K_TEXT_BGREEN="\E[1;32m"  # bold+green
+K_TEXT_BYELLOW="\E[1;33m" # bold+yellow
+K_TEXT_BBLUE="\E[1;34m"   # bold+blue
+K_TEXT_BPURPLE="\E[1;35m" # bold+purple
+K_TEXT_BCYAN="\E[1;36m"   # bold+cyan
+K_TEXT_BOLD="\E[1;37m"    # bold+white
+K_TEXT_RED="\E[0;31m"     # red
+K_TEXT_GREEN="\E[0;32m"   # green
+K_TEXT_YELLOW="\E[0;33m"  # yellow
+K_TEXT_BLUE="\E[0;34m"    # blue
+K_TEXT_PURPLE="\E[0;35m"  # purple
+K_TEXT_CYAN="\E[0;36m"    # cyan
+K_TEXT_NORM="\E[0;39m"    # normal
 
 _TB=$'\t'
 _NL=$'\n'
@@ -600,6 +593,7 @@ unset _TB
 unset _NL
 unset _SP
 
+set -o allexport
 set -o errexit ; # Exit immediately if a command exits with a non-zero status.
 set -o nounset ; # Treat unset variables as an error when substituting.
 
@@ -645,19 +639,17 @@ source ${K_BLD_CFG_FILE}
 # Getting: XBT_BINUTILS  XBT_BINUTILS_EXT  XBT_BINUTILS_MD5SUM  XBT_BINUTILS_URL
 #
 source ${XBT_SCRIPT_DIR}/binutils/binutils-methods.sh
-xbt_resolve_binutils_name ${BINUTILS}
+binutils_resolve_name ${BINUTILS}
 unset BINUTILS
 
 # Resolve: GCC
-# Getting: XBT_CLOOG   XBT_CLOOG_EXT   XBT_CLOOG_MD5SUM   XBT_CLOOG_URL
-# Getting: XBT_GMP     XBT_GMP_EXT     XBT_GMP_MD5SUM     XBT_GMP_URL
-# Getting: XBT_MPC     XBT_MPC_EXT     XBT_MPC_MD5SUM     XBT_MPC_URL
-# Getting: XBT_MPFR    XBT_MPFR_EXT    XBT_MPFR_MD5SUM    XBT_MPFR_URL
-# Getting: XBT_GCC     XBT_GCC_EXT     XBT_GCC_MD5SUM     XBT_GCC_URL
-# Getting: XBT_PPL     XBT_PPL_EXT     XBT_PPL_MD5SUM     XBT_PPL_URL
+# Getting: XBT_GCC_LIBS  XBT_GCC_LIBS_EXT  XBT_GCC_LIBS_MD5SUM  XBT_GCC_LIBS_URL
+# Getting: XBT_GCC       XBT_GCC_EXT       XBT_GCC_MD5SUM       XBT_GCC_URL
+#
+# The XBT_GCC_LIBS* are indexed arrays.
 #
 source ${XBT_SCRIPT_DIR}/gcc/gcc-methods.sh
-xbt_resolve_gcc_name ${GCC}
+gcc_resolve_name ${GCC}
 unset GCC
 
 # Resolve: LIBC
@@ -665,23 +657,37 @@ unset GCC
 # Getting: XBT_LIBC    XBT_LIBC_EXT    XBT_LIBC_MD5SUM    XBT_LIBC_URL
 # Getting: XBT_LIBC_P  XBT_LIBC_P_EXT  XBT_LIBC_P_MD5SUM  XBT_LIBC_P_URL
 #
-[[ "${LIBC:0:5}" == "glibc"  ]] && XBT_LIB="glibc"  || true
-[[ "${LIBC:0:6}" == "uClibc" ]] && XBT_LIB="uClibc" || true
-source ${XBT_SCRIPT_DIR}/${XBT_LIB}/${XBT_LIB}-methods.sh
-xbt_resolve_libc_name ${LIBC}
+[[ "${LIBC:0:5}" == "glibc"  ]] && _LIBC="glibc"  || true
+[[ "${LIBC:0:6}" == "uClibc" ]] && _LIBC="uClibc" || true
+source ${XBT_SCRIPT_DIR}/${_LIBC}/${_LIBC}-methods.sh
+libc_resolve_name ${LIBC}
 unset LIBC
+unset _LIBC
 
 # Resolve: LINUX
 # Getting: XBT_LINUX  XBT_LINUX_EXT  XBT_LINUX_MD5SUM  XBT_LINUX_URL
 #
 source ${XBT_SCRIPT_DIR}/linux/linux-methods.sh
-xbt_resolve_linux_name ${LINUX}
+linux_resolve_name ${LINUX}
 unset LINUX
 
 # The K_BLD_CFG_FILE file sets these three user-specified target parameters:
 #      1) TARGET ... Target Cross-tool Chain Name
 #      2) ARCH ..... Linux Kernel Architecture
 #      3) CFLAGS ... Used to Cross-compile Libc
+#
+# GNU uses a triplet name to specify a host or target.  The GNU triplet is the
+# basis of the name a compiler tool chain.  The GNU triplet is one of these
+# forms (notice the third form is a quadruplet!):
+#      cpu-vendor-os
+#      cpu-vendor-system
+#      cpu-vendor-kernel-system
+#
+# xbuildtool uses the "cpu-vendor-kernel-system" form, with "-vendor-kernel-"
+# always set to "-generic-linux-".  The TARGET variable below specifies the cpu
+# and system part of the cpu-vendor-kernel-system e.g., TARGET=i486-gnu
+# specifies the tool-chain triplet name of i486-generic-linux-gnu.
+#
 # These TARGET is expanded to a proper tool chain name, and new variables names
 # are created; the original three variables are unset: TARGET, ARCH and CFLAGS,
 # as they are not needed after resolving to new variables.
@@ -706,7 +712,7 @@ XBT_THREAD_MODEL="none"
 [[ "${THREAD_MODEL}" == "nptl" ]] && XBT_THREAD_MODEL="nptl" || true
 unset THREAD_MODEL
 
-# XBT_LIBC_P may be set because GLIBC Ports is available, but it is not needed
+# XBT_LIBC_P may be set because GLIBC Ports is available, but it is not used
 # for all architectures.
 #
 [[ "${XBT_LINUX_ARCH}" == "powerpc" ]] && XBT_LIBC_P="" || true
@@ -715,30 +721,26 @@ unset THREAD_MODEL
 
 # Report on what we think we are doing.
 #
-[[ -n "${XBT_CLOOG}"  ]] && _cloog=${XBT_CLOOG}       || _cloog="no CLOOG"
-[[ -n "${XBT_GMP}"    ]] && _gmp=${XBT_GMP}           || _gmp="no GMP"
-[[ -n "${XBT_MPC}"    ]] && _mpc=${XBT_MPC}           || _mpc="no MPC"
-[[ -n "${XBT_MPFR}"   ]] && _mpfr=${XBT_MPFR}         || _mpfr="no MPFR"
-[[ -n "${XBT_PPL}"    ]] && _ppl=${XBT_PPL}           || _ppl="no PPL"
 [[ -n "${XBT_LIBC_P}" ]] && _libc_p="[${XBT_LIBC_P}]" || _libc_p=""
+_gccLibs=""
+for ((_i=0 ; _i < ${#XBT_GCC_LIBS[@]} ; _i++)); do
+	[[ -n "${_gccLibs}" ]] && _gccLibs+=", ${XBT_GCC_LIBS[$_i]}"
+	[[ -z "${_gccLibs}" ]] && _gccLibs+="${XBT_GCC_LIBS[$_i]}"
+done; unset _i
 echo ""
 echo "xbuildtool configured for cross-development tool chain:"
 echo ""
 echo "  Host: ${XBT_HOST}"
 echo "Target: ${XBT_TARGET}"
 echo " Tools: ${XBT_BINUTILS} ${XBT_GCC}"
-echo " Tools:      [${_cloog}, ${_gmp}, ${_mpc}, ${_mpfr}, ${_ppl}]"
+echo " Tools: [${_gccLibs}]"
 echo "  Libc: ${XBT_LIBC} ${_libc_p}"
 echo " Linux: ${XBT_LINUX_ARCH} ${XBT_LINUX}"
 echo ""
 echo "build gcc with c++: ${XBT_C_PLUS_PLUS}"
 echo "  use thread model: ${XBT_THREAD_MODEL}"
 echo ""
-unset _cloog
-unset _gmp
-unset _mpc
-unset _mpfr
-unset _ppl
+unset _gccLibs
 unset _libc_p
 
 
@@ -773,21 +775,22 @@ fi
 echo "i> Getting source code packages [be patient, this will not lock up]."
 echo "i> Local cache directory: ${K_CACHEDIR}"
 
-xbt_get_file "${XBT_BINUTILS}" ${XBT_BINUTILS_EXT} ${XBT_BINUTILS_URL}
-xbt_get_file "${XBT_CLOOG}"    ${XBT_CLOOG_EXT}    ${XBT_CLOOG_URL}
-xbt_get_file "${XBT_GMP}"      ${XBT_GMP_EXT}      ${XBT_GMP_URL}
-xbt_get_file "${XBT_MPC}"      ${XBT_MPC_EXT}      ${XBT_MPC_URL}
-xbt_get_file "${XBT_MPFR}"     ${XBT_MPFR_EXT}     ${XBT_MPFR_URL}
-xbt_get_file "${XBT_PPL}"      ${XBT_PPL_EXT}      ${XBT_PPL_URL}
-xbt_get_file "${XBT_GCC}"      ${XBT_GCC_EXT}      ${XBT_GCC_URL}
-xbt_get_file "${XBT_LIBC}"     ${XBT_LIBC_EXT}     ${XBT_LIBC_URL}
-xbt_get_file "${XBT_LIBC_P}"   ${XBT_LIBC_P_EXT}   ${XBT_LIBC_P_URL}
-xbt_get_file "${XBT_LINUX}"    ${XBT_LINUX_EXT}    ${XBT_LINUX_URL}
+build_get_file "${XBT_BINUTILS}" "${XBT_BINUTILS_EXT}" ${XBT_BINUTILS_URL}
+for ((_i=0 ; _i < ${#XBT_GCC_LIBS[@]} ; _i++)); do
+	build_get_file				\
+		"${XBT_GCC_LIBS[$_i]}"		\
+		"${XBT_GCC_LIBS_EXT[$_i]}"	\
+		${XBT_GCC_LIBS_URL[$_i]}
+done; unset _i
+build_get_file "${XBT_GCC}"    "${XBT_GCC_EXT}"    ${XBT_GCC_URL}
+build_get_file "${XBT_LIBC}"   "${XBT_LIBC_EXT}"   ${XBT_LIBC_URL}
+build_get_file "${XBT_LIBC_P}" "${XBT_LIBC_P_EXT}" ${XBT_LIBC_P_URL}
+build_get_file "${XBT_LINUX}"  "${XBT_LINUX_EXT}"  ${XBT_LINUX_URL}
 
 if [[ ${G_NMISSING} != 0 ]]; then
 	echo "Oops -- missing ${G_NMISSING} packages."
 	echo ""
-	echo -e "${TEXT_BRED}Error${TEXT_NORM}:"
+	echo -e "${K_TEXT_BRED}Error${K_TEXT_NORM}:"
 	echo "At least one source package failed to download.  If all source   "
 	echo "packages failed to download then check your Internet access.     "
 	echo "Listed below are the missing source package name(s) and the last "
@@ -811,25 +814,26 @@ if [[ ${G_NMISSING} != 0 ]]; then
 		unset G_MISSED_PKG[${G_NMISSING}]
 		unset G_MISSED_URL[${G_NMISSING}]
 		if [[ ${G_NMISSING} != 0 ]]; then
-			echo -e "${TEXT_BBLUE}-----${TEXT_NORM}"
+			echo -e "${K_TEXT_BBLUE}-----${K_TEXT_NORM}"
 		fi
 	done
 	unset G_NMISSING
 	echo ""
 fi
 
-K_ERR=0 # Expect xbt_chk_file() to set K_ERR=1 on error.
+K_ERR=0 # Expect build_check_file() to set K_ERR=1 on error.
 
-xbt_chk_file "${XBT_BINUTILS}" ${XBT_BINUTILS_EXT} ${XBT_BINUTILS_MD5SUM}
-xbt_chk_file "${XBT_CLOOG}"    ${XBT_CLOOG_EXT}    ${XBT_CLOOG_MD5SUM}
-xbt_chk_file "${XBT_GMP}"      ${XBT_GMP_EXT}      ${XBT_GMP_MD5SUM}
-xbt_chk_file "${XBT_MPC}"      ${XBT_MPC_EXT}      ${XBT_MPC_MD5SUM}
-xbt_chk_file "${XBT_MPFR}"     ${XBT_MPFR_EXT}     ${XBT_MPFR_MD5SUM}
-xbt_chk_file "${XBT_PPL}"      ${XBT_PPL_EXT}      ${XBT_PPL_MD5SUM}
-xbt_chk_file "${XBT_GCC}"      ${XBT_GCC_EXT}      ${XBT_GCC_MD5SUM}
-xbt_chk_file "${XBT_LIBC}"     ${XBT_LIBC_EXT}     ${XBT_LIBC_MD5SUM}
-xbt_chk_file "${XBT_LIBC_P}"   ${XBT_LIBC_P_EXT}   ${XBT_LIBC_P_MD5SUM}
-xbt_chk_file "${XBT_LINUX}"    ${XBT_LINUX_EXT}    ${XBT_LINUX_MD5SUM}
+build_check_file "${XBT_BINUTILS}" ${XBT_BINUTILS_EXT} ${XBT_BINUTILS_MD5SUM}
+for ((_i=0 ; _i < ${#XBT_GCC_LIBS[@]} ; _i++)); do
+	build_check_file				\
+		${XBT_GCC_LIBS[$_i]}		\
+		${XBT_GCC_LIBS_EXT[$_i]}	\
+		${XBT_GCC_LIBS_MD5SUM[$_i]}
+done; unset _i
+build_check_file "${XBT_GCC}"    "${XBT_GCC_EXT}"    ${XBT_GCC_MD5SUM}
+build_check_file "${XBT_LIBC}"   "${XBT_LIBC_EXT}"   ${XBT_LIBC_MD5SUM}
+build_check_file "${XBT_LIBC_P}" "${XBT_LIBC_P_EXT}" ${XBT_LIBC_P_MD5SUM}
+build_check_file "${XBT_LINUX}"  "${XBT_LINUX_EXT}"  ${XBT_LINUX_MD5SUM}
 
 if [[ ${K_ERR} -eq 1 ]]; then
 	_dir=$(basename ${XBT_SOURCE_DIR})
@@ -852,8 +856,8 @@ fi
 # Cross-toolset Directory
 # This directory will be created under the cross-tools top-level directory.
 #
-XBT_TOOL_DIR="${XBT_TARGET}"	# Make this directory be the name of the target
-				# type e.g., "i486-generic-linux-gnu".
+XBT_TOOL_DIR="${XBT_TARGET}" # Make this directory be the name of the target
+                             # type e.g., "i486-generic-linux-gnu".
 
 # Avoid inheriting build tool baggage.  Allow no inadvertent host-oriented
 # commands or flags.
@@ -928,11 +932,11 @@ XBT_XHOST_DIR="${XBT_TARGET_DIR}/host"
 XBT_XTARG_DIR="${XBT_TARGET_DIR}/target"
 
 if [[ -d "${XBT_TARGET_DIR}" && x"${A_ARG1}" != x"continue" ]]; then
-        echo ""
-        echo "E> The ${XBT_TOOL_DIR} cross-tool directory already exists."
-        echo "=> \${XBT_DIR}/\${CROSS_TOOL_DIR}/${XBT_TOOL_DIR}"
-        echo "E> Cowardly quiting."
-        exit 1
+	echo ""
+	echo "E> The ${XBT_TOOL_DIR} cross-tool directory already exists."
+	echo "=> \${XBT_DIR}/\${CROSS_TOOL_DIR}/${XBT_TOOL_DIR}"
+	echo "E> Cowardly quiting."
+	exit 1
 fi
 
 # That was the last chance to stop before actually making anything.
@@ -940,6 +944,8 @@ fi
 # All OK, so begin assaulting the file system with a new cross-development tool
 # chain directory and begin building it.
 
+# Setup the cross-tool chain directory structure.
+#
 if [[ ! -d "${XBT_TARGET_DIR}" || x"${A_ARG1}" != x"continue" ]]; then
 	#
 	mkdir -p "${XBT_TARGET_DIR}"
@@ -961,6 +967,9 @@ fi
 
 echo ""
 
+# -----------------------------------------------------------------------------
+# Start Making Cross-tool Chain
+
 t1=${SECONDS}
 
 exec 4>&1    # Save stdout at fd 4.
@@ -973,70 +982,71 @@ set +e ; # Let a build step fail without exiting this script.
 (
 cd ${XBT_BUILD_DIR}
 rm --force --recursive *
-if [[ ! -f "${XBT_TARGET_DIR}/.done.kernel_headers" ]]; then
-	xbt_build_kernel_headers >${XBT_TARGET_DIR}/_log.0.kernel_headers 2>&1
-	touch "${XBT_TARGET_DIR}/.done.kernel_headers"
-else
-	echo "get kernel headers ................ already done"
-fi
-if [[ ! -f "${XBT_TARGET_DIR}/.done.binutils" ]]; then
-	xbt_build_binutils       >${XBT_TARGET_DIR}/_log.1.binutils       2>&1
-	touch "${XBT_TARGET_DIR}/.done.binutils"
-else
-	echo "binutils .......................... already done"
-fi
-if [[ ! -f "${XBT_TARGET_DIR}/.done.gcc_libs" ]]; then
-	xbt_build_gcc_libs       >${XBT_TARGET_DIR}/_log.2.gcc_libs       2>&1
-	touch "${XBT_TARGET_DIR}/.done.gcc_libs"
-else
-	echo "gcc libs .......................... already done"
-fi
-if [[ ! -f "${XBT_TARGET_DIR}/.done.gcc_stage1" ]]; then
-	xbt_build_gcc_stage1     >${XBT_TARGET_DIR}/_log.3.gcc_stage1     2>&1
-	touch "${XBT_TARGET_DIR}/.done.gcc_stage1"
-else
-	echo "gcc stage 1 ....................... already done"
-fi
-if [[ ! -f "${XBT_TARGET_DIR}/.done.libc_stage1" ]]; then
-	xbt_build_libc_stage1    >${XBT_TARGET_DIR}/_log.4.libc_stage1    2>&1
-	touch "${XBT_TARGET_DIR}/.done.libc_stage1"
-else
-	echo "libc stage 1 ...................... already done"
-fi
-if [[ ! -f "${XBT_TARGET_DIR}/.done.gcc_stage2" ]]; then
-	xbt_build_gcc_stage2     >${XBT_TARGET_DIR}/_log.5.gcc_stage2     2>&1
-	touch "${XBT_TARGET_DIR}/.done.gcc_stage2"
-else
-	echo "gcc stage 2 ....................... already done"
-fi
-if [[ ! -f "${XBT_TARGET_DIR}/.done.libc_stage2" ]]; then
-	xbt_build_libc_stage2    >${XBT_TARGET_DIR}/_log.6.libc_stage2    2>&1
-	touch "${XBT_TARGET_DIR}/.done.libc_stage2"
-else
-	echo "libc stage 2 ...................... already done"
-fi
-if [[ ! -f "${XBT_TARGET_DIR}/.done.gcc_stage3" ]]; then
-	xbt_build_gcc_stage3     >${XBT_TARGET_DIR}/_log.7.gcc_stage3     2>&1
-	touch "${XBT_TARGET_DIR}/.done.gcc_stage3"
-else
-	echo "gcc stage 3 ....................... already done"
-fi
-if [[ ! -f "${XBT_TARGET_DIR}/.done.libc_stage3" ]]; then
-	xbt_build_libc_stage3    >${XBT_TARGET_DIR}/_log.8.libc_stage3    2>&1
-	touch "${XBT_TARGET_DIR}/.done.libc_stage3"
-else
-	echo "libc stage 3 ...................... already done"
-fi
-if [[ ! -f "${XBT_TARGET_DIR}/.done.target_adjust" ]]; then
-	xbt_target_adjust        >${XBT_TARGET_DIR}/_log.9.target_adjust  2>&1
-	touch "${XBT_TARGET_DIR}/.done.target_adjust"
-else
-	echo "target adjust ..................... already done"
-fi
+linux_headers_export     >${XBT_TARGET_DIR}/_log.0.kernel_headers 2>&1
+#if [[ ! -f "${XBT_TARGET_DIR}/.done.binutils" ]]; then
+#        binutils_libs_build      >${XBT_TARGET_DIR}/_log.1.binutils       2>&1
+#        touch "${XBT_TARGET_DIR}/.done.binutils"
+#else
+#        echo "binutils .......................... already done"
+#fi
+#if [[ ! -f "${XBT_TARGET_DIR}/.done.binutils" ]]; then
+#        binutils_build           >${XBT_TARGET_DIR}/_log.2.binutils       2>&1
+#        touch "${XBT_TARGET_DIR}/.done.binutils"
+#else
+#        echo "binutils .......................... already done"
+#fi
+#if [[ ! -f "${XBT_TARGET_DIR}/.done.gcc_libs" ]]; then
+#        gcc_libs_build           >${XBT_TARGET_DIR}/_log.3.gcc_libs       2>&1
+#        touch "${XBT_TARGET_DIR}/.done.gcc_libs"
+#else
+#        echo "gcc libs .......................... already done"
+#fi
+#if [[ ! -f "${XBT_TARGET_DIR}/.done.gcc_stage1" ]]; then
+#        gcc_stage1_build         >${XBT_TARGET_DIR}/_log.4.gcc_stage1     2>&1
+#        touch "${XBT_TARGET_DIR}/.done.gcc_stage1"
+#else
+#        echo "gcc stage 1 ....................... already done"
+#fi
+#if [[ ! -f "${XBT_TARGET_DIR}/.done.libc_stage1" ]]; then
+#        libc_stage1_build        >${XBT_TARGET_DIR}/_log.5.libc_stage1    2>&1
+#        touch "${XBT_TARGET_DIR}/.done.libc_stage1"
+#else
+#        echo "libc stage 1 ...................... already done"
+#fi
+#if [[ ! -f "${XBT_TARGET_DIR}/.done.gcc_stage2" ]]; then
+#        gcc_stage2_build         >${XBT_TARGET_DIR}/_log.6.gcc_stage2     2>&1
+#        touch "${XBT_TARGET_DIR}/.done.gcc_stage2"
+#else
+#        echo "gcc stage 2 ....................... already done"
+#fi
+#if [[ ! -f "${XBT_TARGET_DIR}/.done.libc_stage2" ]]; then
+#        libc_stage2_build        >${XBT_TARGET_DIR}/_log.7.libc_stage2    2>&1
+#        touch "${XBT_TARGET_DIR}/.done.libc_stage2"
+#else
+#        echo "libc stage 2 ...................... already done"
+#fi
+#if [[ ! -f "${XBT_TARGET_DIR}/.done.gcc_stage3" ]]; then
+#        gcc_stage2_build         >${XBT_TARGET_DIR}/_log.8.gcc_stage3     2>&1
+#        touch "${XBT_TARGET_DIR}/.done.gcc_stage3"
+#else
+#        echo "gcc stage 3 ....................... already done"
+#fi
+#if [[ ! -f "${XBT_TARGET_DIR}/.done.libc_stage3" ]]; then
+#        libc_stage3_build        >${XBT_TARGET_DIR}/_log.9.libc_stage3    2>&1
+#        touch "${XBT_TARGET_DIR}/.done.libc_stage3"
+#else
+#        echo "libc stage 3 ...................... already done"
+#fi
+#if [[ ! -f "${XBT_TARGET_DIR}/.done.target_adjust" ]]; then
+#        build_target_adjust      >${XBT_TARGET_DIR}/_log.A.target_adjust  2>&1
+#        touch "${XBT_TARGET_DIR}/.done.target_adjust"
+#else
+#        echo "target adjust ..................... already done"
+#fi
 )
 
 if [[ $? -ne 0 ]]; then
-	echo -e "${TEXT_BRED}ERROR${TEXT_NORM}"
+	echo -e "${K_TEXT_BRED}ERROR${K_TEXT_NORM}"
 	echo "Check the build log files.  Probably check:"
 	if [[ -f "${XBT_TARGET_DIR}/_log.9.target_adjust" ]]; then
 		echo "=> ${XBT_TARGET_DIR}/_log.9.target_adjust"
@@ -1069,6 +1079,9 @@ CONSOLE_FD=1 #
 
 t2=${SECONDS}
 
+# Done Making Cross-tool Chain
+# -----------------------------------------------------------------------------
+
 rm -f "${XBT_TARGET_DIR}/_versions"
 echo "#!/bin/sh"                             >>${XBT_TARGET_DIR}/_versions
 echo "XBT_LINUX_ARCH=\"${XBT_LINUX_ARCH}\""  >>${XBT_TARGET_DIR}/_versions
@@ -1079,14 +1092,14 @@ echo "XBT_XGCC_VER=\"${XBT_GCC}\""           >>${XBT_TARGET_DIR}/_versions
 chmod 755 "${XBT_TARGET_DIR}/_versions"
 
 rm -f "${XBT_TARGET_DIR}/_xbt_env_set"
-xbt_usr_env_set >>${XBT_TARGET_DIR}/_xbt_env_set
+build_usr_env_set >>${XBT_TARGET_DIR}/_xbt_env_set
 chmod 755 "${XBT_TARGET_DIR}/_xbt_env_set"
 
 rm -f "${XBT_TARGET_DIR}/_xbt_env_clr"
-xbt_usr_env_clr >>${XBT_TARGET_DIR}/_xbt_env_clr
+build_usr_env_clr >>${XBT_TARGET_DIR}/_xbt_env_clr
 chmod 755 "${XBT_TARGET_DIR}/_xbt_env_clr"
 
-echo -e "${XBT_TARGET} cross-tool is ${TEXT_GREEN}complete${TEXT_NORM}."
+echo -e "${XBT_TARGET} cross-tool is ${K_TEXT_GREEN}complete${K_TEXT_NORM}."
 echo "=> $(((${t2}-${t1})/60)) minutes $(((${t2}-${t1})%60)) seconds"
 
 
