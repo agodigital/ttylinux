@@ -114,93 +114,112 @@ return 0
 
 binutils_build() {
 
-#msg="Building ${XBT_BINUTILS} "
-#echo -n "${msg}"          >&${CONSOLE_FD}
-#xbt_print_dots_35 ${#msg} >&${CONSOLE_FD}
-#echo -n " "               >&${CONSOLE_FD}
+local msg="Building ${XBT_BINUTILS} "
+echo -n "${msg}"          >&${CONSOLE_FD}
+xbt_print_dots_40 ${#msg} >&${CONSOLE_FD}
+echo -n " "               >&${CONSOLE_FD}
+
+xbt_debug_break "" >&${CONSOLE_FD}
+
+# Find, uncompress and untar ${XBT_BINUTILS}.  The second argument is a
+# secondary location to copy the source code tarball; this is so that users of
+# the cross tool chain have access to the Linux source code as any users likely
+# will cross-build the Linux kernel.
 #
-#xbt_debug_break ""
+xbt_src_get ${XBT_BINUTILS}
+unset _name # from xbt_src_get()
+
+# Make an entry in the manifest.
 #
-## Find, uncompress and untarr ${XBT_BINUTILS}.
-##
-#xbt_src_get ${XBT_BINUTILS}
-#unset _name
+echo -n "${XBT_BINUTILS} " >>"${XBT_TOOLCHAIN_MANIFEST}"
+for ((i=(40-${#XBT_BINUTILS}) ; i > 0 ; i--)) do
+	echo -n "." >>"${XBT_TOOLCHAIN_MANIFEST}"
+done; unset i
+echo " ${XBT_BINUTILS_URL}" >>"${XBT_TOOLCHAIN_MANIFEST}"
+
+# Use any patches.
 #
-## Make an entry in the manifest.
-##
-#echo -n "${XBT_BINUTILS} " >>"${XBT_TOOLCHAIN_MANIFEST}"
-#for ((i=(40-${#XBT_BINUTILS}) ; i > 0 ; i--)) do
-#	echo -n "." >>"${XBT_TOOLCHAIN_MANIFEST}"
-#done
-#echo " ${XBT_BINUTILS_URL}" >>"${XBT_TOOLCHAIN_MANIFEST}"
+cd ${XBT_BINUTILS}
+for p in ${XBT_SCRIPT_DIR}/binutils/${XBT_BINUTILS}-*.patch; do
+	if [[ -f "${p}" ]]; then
+		patch -Np1 -i "${p}"
+		_p="/$(basename ${p})"
+		chmod 644 "${_p}"
+		echo "=> patch: ${_p}" >>"${XBT_TOOLCHAIN_MANIFEST}"
+		unset _p
+	fi
+done; unset p
+cd ..
+
+# The Binutils documentation recommends building Binutils outside of the source
+# directory in a dedicated build directory.
 #
-## Use any patches.
-##
-#cd ${XBT_BINUTILS}
-#for p in ${XBT_PATCH_DIR}/${XBT_BINUTILS}-*.patch; do
-#	if [[ -f "${p}" ]]; then patch -Np1 -i "${p}"; fi
-#done; unset p
-#cd ..
-#
-## The Binutils documentation recommends building Binutils outside of the source
-## directory in a dedicated build directory.
-##
-#rm -rf	"build-binutils"
-#mkdir	"build-binutils"
-#cd	"build-binutils"
-#
+rm -rf	"build-binutils"
+mkdir	"build-binutils"
+cd	"build-binutils"
+
 ## Weird problem when building under ArchLinux i686 host: "makeinfo" is missing;
 ## it appears to be looking for bfd/docs/*.texi files in the build directory,
 ## even though they are actually in the source directory.
 ##
 #mkdir -p bfd/doc
 #cp -a ../${XBT_BINUTILS}/bfd/doc/* bfd/doc
+
+local ENABLE_BFD64=""
+[[ "${XBT_LINUX_ARCH}" == "x86_64" ]] && ENABLE_BFD64="--enable-64-bit-bfd"
+
+# Configure Binutils for building.
 #
-#ENABLE_BFD64=""
-#[[ "${XBT_LINUX_ARCH}" == "x86_64" ]] && ENABLE_BFD64="--enable-64-bit-bfd"
+echo "#: *********************************************************************"
+echo "#: XBT_CONFIG"
+echo "#: *********************************************************************"
+../${XBT_BINUTILS}/configure \
+	--build=${XBT_HOST} \
+	--host=${XBT_HOST} \
+	--target=${XBT_TARGET} \
+	--prefix=${XBT_XHOST_DIR}/usr \
+	${ENABLE_BFD64} \
+	--enable-shared \
+	--disable-build-warnings \
+	--disable-multilib \
+	--with-sysroot=${XBT_XTARG_DIR} || exit 1
+
+xbt_debug_break "configured ${XBT_BINUTILS}" >&${CONSOLE_FD}
+
+# Build Binutils.
 #
-## Configure Binutils for building.
-##
-#echo "# XBT_CONFIG **********"
-#../${XBT_BINUTILS}/configure \
-#	--build=${XBT_HOST} \
-#	--host=${XBT_HOST} \
-#	--target=${XBT_TARGET} \
-#	--prefix=${XBT_XHOST_DIR}/usr \
-#	${ENABLE_BFD64} \
-#	--enable-shared \
-#	--disable-build-warnings \
-#	--disable-multilib \
-#	--with-sysroot=${XBT_XTARG_DIR} || exit 1
+echo "#: *********************************************************************"
+echo "#: XBT_MAKE"
+echo "#: *********************************************************************"
+njobs=$((${ncpus} + 1))
+make -j ${njobs} \
+	LIB_PATH="${XBT_XTARG_DIR}/lib:${XBT_XTARG_DIR}/usr/lib" || exit 1
+unset njobs
+
+xbt_debug_break "maked ${XBT_BINUTILS}" >&${CONSOLE_FD}
+
+# Install Binutils.
 #
-#xbt_debug_break "configured ${XBT_BINUTILS}"
-#
-## Build Binutils.
-##
-#echo "# XBT_MAKE **********"
-#make LIB_PATH="${XBT_XTARG_DIR}/lib:${XBT_XTARG_DIR}/usr/lib" || exit 1
-#
-#xbt_debug_break "maked ${XBT_BINUTILS}"
-#
-## Install Binutils.
-##
-#echo "# XBT_INSTALL **********"
-#xbt_files_timestamp
-##
-#make install || exit 1
-##
-#echo "# XBT_FILES **********"
-#xbt_files_find
-#
-#xbt_debug_break "installed ${XBT_BINUTILS}"
-#
-## Move out and clean up.
-##
-#cd ..
-#rm -rf "build-binutils"
-#rm -rf "${XBT_BINUTILS}"
-#
-#echo "done [${XBT_BINUTILS} is complete]" >&${CONSOLE_FD}
+echo "#: *********************************************************************"
+echo "#: XBT_INSTALL"
+echo "#: *********************************************************************"
+xbt_files_timestamp
+make install || exit 1
+
+echo "#: *********************************************************************"
+echo "#: XBT_FILES"
+echo "#: *********************************************************************"
+xbt_files_find # Put the list of installed files in the log file.
+
+xbt_debug_break "installed ${XBT_BINUTILS}" >&${CONSOLE_FD}
+
+# Clean up.
+
+cd ..
+rm -rf "build-binutils"
+rm -rf "${XBT_BINUTILS}"
+
+echo "done [${XBT_BINUTILS} is complete]" >&${CONSOLE_FD}
 
 return 0
 

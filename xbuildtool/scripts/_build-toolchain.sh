@@ -415,15 +415,15 @@ echo "export MAKEFLAGS=\"\""
 
 
 # *****************************************************************************
-# Print No More Than 35 Dots
+# Print No More Than 40 Dots
 # *****************************************************************************
 
 # Standard output is expected NOT to be redirected to a log file.
 
-xbt_print_dots_35() {
+xbt_print_dots_40() {
 
 set +e ; # Let the while loop fail without exiting this script.
-local -i i=$((35 - ${1})) # declare integer
+local -i i=$((40 - ${1})) # declare integer
 while [[ ${i} -gt 0 ]]; do
 	echo -n "."
 	i=$((${i} - 1))
@@ -543,6 +543,31 @@ _name="${zname}"
 
 rm -f "${zname}"
 rm -f "${tname}"
+
+}
+
+
+# *****************************************************************************
+# Make a Timestamp File
+# *****************************************************************************
+
+xbt_files_timestamp() {
+
+rm -rf "INSTALL_STAMP"
+touch  "INSTALL_STAMP"
+sleep 1 # lame
+
+}
+
+
+# *****************************************************************************
+# Find Files Newer Than Timestamp File; Print Their Names
+# *****************************************************************************
+
+xbt_files_find() {
+
+find ${XBT_TARGET_DIR} -newer INSTALL_STAMP ! -type d
+rm -rf "INSTALL_STAMP"
 
 }
 
@@ -979,28 +1004,142 @@ set +e ; # Let a build step fail without exiting this script.
 
 # Use a subshell so the current working directory can be changed and shell
 # variables can be assaulted without affecting this script.
+
 (
 cd ${XBT_BUILD_DIR}
 rm --force --recursive *
-linux_headers_export     >${XBT_TARGET_DIR}/_log.0.kernel_headers 2>&1
-#if [[ ! -f "${XBT_TARGET_DIR}/.done.binutils" ]]; then
-#        binutils_libs_build      >${XBT_TARGET_DIR}/_log.1.binutils       2>&1
-#        touch "${XBT_TARGET_DIR}/.done.binutils"
-#else
-#        echo "binutils .......................... already done"
-#fi
-#if [[ ! -f "${XBT_TARGET_DIR}/.done.binutils" ]]; then
-#        binutils_build           >${XBT_TARGET_DIR}/_log.2.binutils       2>&1
-#        touch "${XBT_TARGET_DIR}/.done.binutils"
-#else
-#        echo "binutils .......................... already done"
-#fi
-#if [[ ! -f "${XBT_TARGET_DIR}/.done.gcc_libs" ]]; then
-#        gcc_libs_build           >${XBT_TARGET_DIR}/_log.3.gcc_libs       2>&1
-#        touch "${XBT_TARGET_DIR}/.done.gcc_libs"
-#else
-#        echo "gcc libs .......................... already done"
-#fi
+
+# Build continuation is made by using the ${XBT_TARGET_DIR}/.done.* files; this
+# needs to be done here and not in the build procedures in order to avoid
+# whacking the log files.
+
+# Get the Linux kernel headers.
+#
+if [[ ! -f "${XBT_TARGET_DIR}/.done.kernel_headers" ]]; then
+	linux_headers_export >${XBT_TARGET_DIR}/_log.0.kernel_headers 2>&1
+	touch "${XBT_TARGET_DIR}/.done.kernel_headers"
+else
+	_msg="Getting ${XBT_LINUX} Headers "
+	echo -n "${_msg}"          >&${CONSOLE_FD}
+	xbt_print_dots_40 ${#_msg} >&${CONSOLE_FD}
+	echo    " already done"    >&${CONSOLE_FD}
+	unset _msg
+fi
+
+# Build binutils.
+#
+if [[ ! -f "${XBT_TARGET_DIR}/.done.binutils" ]]; then
+	binutils_build >${XBT_TARGET_DIR}/_log.2.binutils 2>&1
+	touch "${XBT_TARGET_DIR}/.done.binutils"
+else
+	_msg="Building ${XBT_BINUTILS} "
+	echo -n "${_msg}"          >&${CONSOLE_FD}
+	xbt_print_dots_40 ${#_msg} >&${CONSOLE_FD}
+	echo    " already done"    >&${CONSOLE_FD}
+	unset _msg
+fi
+
+# Build the host libraries that gcc needs.
+#
+# Some of these libraries have dependencies upon each other.  Accordingly, they
+# are built in a particular order.
+
+declare -i _cloog=-1
+declare -i _gmp=-1
+declare -i _mpc=-1
+declare -i _mpfr=-1
+declare -i _ppl=-1
+
+# Find which libraries are to be built; they might be in any order in the
+# XBT_GCC_LIBS[] array, but probably are alphabetical.
+#
+for ((_i=0 ; _i < ${#XBT_GCC_LIBS[@]} ; _i++)); do
+	_lib=${XBT_GCC_LIBS[$_i]%-*}
+	[[ "${_lib}" == "cloog" ]] && _cloog=${_i} || true
+	[[ "${_lib}" == "gmp"   ]] && _gmp=${_i}   || true
+	[[ "${_lib}" == "mpc"   ]] && _mpc=${_i}   || true
+	[[ "${_lib}" == "mpfr"  ]] && _mpfr=${_i}  || true
+	[[ "${_lib}" == "ppl"   ]] && _ppl=${_i}   || true
+done; unset _i; unset _lib
+
+# Build the libraries in the correct order.
+#
+if [[ ${_gmp} -ne -1 ]]; then
+	if [[ ! -f "${XBT_TARGET_DIR}/.done.gcc_lib_gmp" ]]; then
+		gcc_lib_gmp_build ${_gmp} \
+				>${XBT_TARGET_DIR}/_log.3.gcc_lib_gmp 2>&1
+		touch "${XBT_TARGET_DIR}/.done.gcc_lib_gmp"
+	else
+		_msg="Building ${XBT_GCC_LIBS[$_gmp]} "
+		echo -n "${_msg}"          >&${CONSOLE_FD}
+		xbt_print_dots_40 ${#_msg} >&${CONSOLE_FD}
+		echo    " already done"    >&${CONSOLE_FD}
+		unset _msg
+	fi
+fi
+if [[ ${_mpfr} -ne -1 ]]; then 
+	# uses gmp
+	if [[ ! -f "${XBT_TARGET_DIR}/.done.gcc_lib_mpfr" ]]; then
+		gcc_lib_mpfr_build ${_mpfr} \
+				>${XBT_TARGET_DIR}/_log.3.gcc_lib_mpfr 2>&1
+		touch "${XBT_TARGET_DIR}/.done.gcc_lib_mpfr"
+	else
+		_msg="Building ${XBT_GCC_LIBS[$_mpfr]} "
+		echo -n "${_msg}"          >&${CONSOLE_FD}
+		xbt_print_dots_40 ${#_msg} >&${CONSOLE_FD}
+		echo    " already done"    >&${CONSOLE_FD}
+		unset _msg
+	fi
+fi
+if [[ ${_mpc} -ne -1 ]]; then
+	# uses gmp and mpfr
+	if [[ ! -f "${XBT_TARGET_DIR}/.done.gcc_lib_mpc" ]]; then
+		gcc_lib_mpc_build ${_mpc} \
+				>${XBT_TARGET_DIR}/_log.3.gcc_lib_mpc 2>&1
+		touch "${XBT_TARGET_DIR}/.done.gcc_lib_mpc"
+	else
+		_msg="Building ${XBT_GCC_LIBS[$_mpc]} "
+		echo -n "${_msg}"          >&${CONSOLE_FD}
+		xbt_print_dots_40 ${#_msg} >&${CONSOLE_FD}
+		echo    " already done"    >&${CONSOLE_FD}
+		unset _msg
+	fi
+fi
+if [[ ${_ppl} -ne -1 ]]; then
+	# uses gmp
+	if [[ ! -f "${XBT_TARGET_DIR}/.done.gcc_lib_ppl" ]]; then
+		gcc_lib_ppl_build ${_ppl} \
+				>${XBT_TARGET_DIR}/_log.3.gcc_lib_ppl 2>&1
+		touch "${XBT_TARGET_DIR}/.done.gcc_lib_ppl"
+	else
+		_msg="Building ${XBT_GCC_LIBS[$_ppl]} "
+		echo -n "${_msg}"          >&${CONSOLE_FD}
+		xbt_print_dots_40 ${#_msg} >&${CONSOLE_FD}
+		echo    " already done"    >&${CONSOLE_FD}
+		unset _msg
+	fi
+fi
+if [[ ${_cloog} -ne -1 ]]; then
+	# uses gmp, maybe ppl
+	if [[ ! -f "${XBT_TARGET_DIR}/.done.gcc_lib_cloog" ]]; then
+		gcc_lib_cloog_build ${_cloog} \
+				>${XBT_TARGET_DIR}/_log.3.gcc_lib_cloog 2>&1
+		touch "${XBT_TARGET_DIR}/.done.gcc_lib_cloog"
+	else
+		_msg="Building ${XBT_GCC_LIBS[$_cloog]} "
+		echo -n "${_msg}"          >&${CONSOLE_FD}
+		xbt_print_dots_40 ${#_msg} >&${CONSOLE_FD}
+		echo    " already done"    >&${CONSOLE_FD}
+		unset _msg
+	fi
+fi
+
+unset _cloog
+unset _gmp
+unset _mpc
+unset _mpfr
+unset _ppl
+
 #if [[ ! -f "${XBT_TARGET_DIR}/.done.gcc_stage1" ]]; then
 #        gcc_stage1_build         >${XBT_TARGET_DIR}/_log.4.gcc_stage1     2>&1
 #        touch "${XBT_TARGET_DIR}/.done.gcc_stage1"
@@ -1043,6 +1182,7 @@ linux_headers_export     >${XBT_TARGET_DIR}/_log.0.kernel_headers 2>&1
 #else
 #        echo "target adjust ..................... already done"
 #fi
+
 )
 
 if [[ $? -ne 0 ]]; then

@@ -51,6 +51,134 @@
 
 
 # *****************************************************************************
+# gcc_lib_cloog_build
+# *****************************************************************************
+
+gcc_lib_cloog_build() {
+:
+}
+
+
+# *****************************************************************************
+# gcc_lib_gmp_build
+# *****************************************************************************
+
+gcc_lib_gmp_build() {
+
+local XBT_GMP=${XBT_GCC_LIBS[$1]}
+local XBT_GMP_URL=${XBT_GCC_LIBS_URL[$1]}
+
+local msg="Building ${XBT_GMP} "
+echo -n "${msg}"          >&${CONSOLE_FD}
+xbt_print_dots_40 ${#msg} >&${CONSOLE_FD}
+echo -n " "               >&${CONSOLE_FD}
+
+xbt_debug_break "" >&${CONSOLE_FD}
+
+# Find, uncompress and untar ${XBT_GMP}.  The second argument is a
+# secondary location to copy the source code tarball; this is so that users of
+# the cross tool chain have access to the Linux source code as any users likely
+# will cross-build the Linux kernel.
+#
+xbt_src_get ${XBT_GMP}
+unset _name # from xbt_src_get()
+
+# Make an entry in the manifest.
+#
+echo -n "${XBT_GMP} " >>"${XBT_TOOLCHAIN_MANIFEST}"
+for ((i=(40-${#XBT_GMP}) ; i > 0 ; i--)) do
+	echo -n "." >>"${XBT_TOOLCHAIN_MANIFEST}"
+done; unset i
+echo " ${XBT_BINUTILS_URL}" >>"${XBT_TOOLCHAIN_MANIFEST}"
+
+# Get in there.
+#
+cd ${XBT_GMP}
+
+# Configure GMP for building.
+#
+echo "#: *********************************************************************"
+echo "#: XBT_CONFIG"
+echo "#: *********************************************************************"
+CFLAGS="-fexceptions" ./configure \
+	--build=${XBT_HOST} \
+	--host=${XBT_HOST} \
+	--prefix=${XBT_XHOST_DIR}/usr \
+	--enable-cxx \
+	--enable-fft \
+	--enable-mpbsd \
+	--enable-static \
+	--disable-shared || exit 1
+
+xbt_debug_break "configured ${XBT_GMP}" >&${CONSOLE_FD}
+
+# Build GMP.
+#
+echo "#: *********************************************************************"
+echo "#: XBT_MAKE"
+echo "#: *********************************************************************"
+njobs=$((${ncpus} + 1))
+make -j ${njobs} || exit 1
+unset njobs
+
+xbt_debug_break "maked ${XBT_GMP}" >&${CONSOLE_FD}
+
+# Install GMP.
+#
+echo "#: *********************************************************************"
+echo "#: XBT_INSTALL"
+echo "#: *********************************************************************"
+xbt_files_timestamp
+make install || exit 1
+
+echo "#: *********************************************************************"
+echo "#: XBT_FILES"
+echo "#: *********************************************************************"
+xbt_files_find
+
+xbt_debug_break "installed ${XBT_GMP}" >&${CONSOLE_FD}
+
+# Move out and clean up.
+#
+cd ..
+rm -rf "${XBT_GMP}"
+
+echo "done [${XBT_GMP} is complete]" >&${CONSOLE_FD}
+
+return 0
+
+}
+
+
+# *****************************************************************************
+# gcc_lib_mpc_build
+# *****************************************************************************
+
+gcc_lib_mpc_build() {
+:
+}
+
+
+# *****************************************************************************
+# gcc_lib_mpfr_build
+# *****************************************************************************
+
+gcc_lib_mpfr_build() {
+:
+}
+
+
+# *****************************************************************************
+# gcc_lib_ppl_build
+# *****************************************************************************
+
+gcc_lib_ppl_build() {
+:
+}
+
+
+
+# *****************************************************************************
 # gcc_resolve_name
 # *****************************************************************************
 

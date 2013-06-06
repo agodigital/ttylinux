@@ -117,14 +117,9 @@ return 0
 
 linux_headers_export() {
 
-if [[ -f "${XBT_TARGET_DIR}/.done.kernel_headers" ]]; then
-        echo "get kernel headers ................ already done" >&${CONSOLE_FD}
-	return 0
-fi
-
 local msg="Getting ${XBT_LINUX} Headers "
 echo -n "${msg}"          >&${CONSOLE_FD}
-xbt_print_dots_35 ${#msg} >&${CONSOLE_FD}
+xbt_print_dots_40 ${#msg} >&${CONSOLE_FD}
 echo -n " "               >&${CONSOLE_FD}
 
 xbt_debug_break "" >&${CONSOLE_FD}
@@ -135,25 +130,26 @@ xbt_debug_break "" >&${CONSOLE_FD}
 # cross-build the Linux kernel.
 #
 xbt_src_get ${XBT_LINUX} "${XBT_XSRC_DIR}"
+unset _name # from xbt_src_get()
 
 # Make manifest entry.
 #
-echo -n "${_name} " >>"${XBT_TOOLCHAIN_MANIFEST}"
-echo -n "${_name} " >>"${XBT_TARGET_MANIFEST}"
-for ((i=(40-${#_name}) ; i > 0 ; i--)) do
+echo -n "${XBT_LINUX} " >>"${XBT_TOOLCHAIN_MANIFEST}"
+echo -n "${XBT_LINUX} " >>"${XBT_TARGET_MANIFEST}"
+for ((i=(40-${#XBT_LINUX}) ; i > 0 ; i--)) do
 	echo -n "." >>"${XBT_TOOLCHAIN_MANIFEST}"
 	echo -n "." >>"${XBT_TARGET_MANIFEST}"
 done; unset i
 echo " ${XBT_LINUX_URL}" >>"${XBT_TOOLCHAIN_MANIFEST}"
 echo " ${XBT_LINUX_URL}" >>"${XBT_TARGET_MANIFEST}"
 
-unset _name # from xbt_src_get()
-
 if [[ -d "${XBT_LINUX}" && ! -d "linux" ]]; then
 	ln -s "${XBT_LINUX}" "linux"
 fi
 cd linux
 
+# Use any patches.
+#
 for p in ${XBT_SCRIPT_DIR}/linux/${XBT_LINUX}-*.patch; do
 	if [[ -f "${p}" ]]; then
 		patch -Np1 -i "${p}"
@@ -166,7 +162,9 @@ for p in ${XBT_SCRIPT_DIR}/linux/${XBT_LINUX}-*.patch; do
 	fi
 done; unset p
 
+echo "#: *********************************************************************"
 echo "#: Exporting ${XBT_LINUX_ARCH} kernel header files (${XBT_TARGET})."
+echo "#: *********************************************************************"
 make \
 	ARCH=${XBT_LINUX_ARCH} \
 	INSTALL_HDR_PATH="${XBT_XTARG_DIR}/usr" \
@@ -181,8 +179,6 @@ rm -rf "linux"
 rm -rf "${XBT_LINUX}"
 
 echo "done" >&${CONSOLE_FD}
-
-touch "${XBT_TARGET_DIR}/.done.kernel_headers"
 
 return 0
 
