@@ -53,7 +53,7 @@
 #
 # CHANGE LOG
 #
-#	03jun13	drj	Reorganize xbuildtool files.  Scrub architecture.
+#	08jun13	drj	Reorganize xbuildtool files.  Scrub architecture.
 #	07dec12	drj	Added cloog and ppl support.
 #	05dec12	drj	Tarball file name extension (e.g. ".gz") is explicit.
 #	31mar12	drj	xbt_src_get gives the actual file name.
@@ -88,11 +88,11 @@ declare -a G_MISSED_PKG # declare indexed array
 declare -a G_MISSED_URL # declare indexed array
 declare -i G_NMISSING=0 # declare integer
 
-declare -r K_BLD_CFG_FILE=xbt-build-config.sh # declare read-only
-declare -r K_BLD_ENV_FILE=xbt-build-env.sh    # declare read-only
-declare -r K_CACHEDIR=~/Download              # declare read-only
-declare -i K_CONSOLE_FD=1                     # declare integer
-declare -i K_ERR=0                            # declare integer
+declare -r K_BLD_CFG_FILE=xbt-target-cfg.sh # declare read-only
+declare -r K_BLD_ENV_FILE=xbt-xbuild-env.sh # declare read-only
+declare -r K_CACHEDIR=~/Download            # declare read-only
+declare -i K_CONSOLE_FD=1                   # declare integer
+declare -i K_ERR=0                          # declare integer
 
 declare -r K_TEXT_BRED="\E[1;31m"    # bold+red    ; declare read-only
 declare -r K_TEXT_BGREEN="\E[1;32m"  # bold+green  ; declare read-only
@@ -866,7 +866,7 @@ if [[ ! -d "${XBT_TARGET_DIR}" || x"${A_ARG1}" != x"continue" ]]; then
 	chmod 755 "${XBT_TARGET_DIR}/_xbt_env_clr"
 
 	echo "done."
-	echo "=> ${XBT_TARGET_DIR}"
+	echo "=> ${XBT_TARGET_DIR}" | sed -e "s|${HOME}|~|"
 	echo ""
 	if $(tree pkg-src >/dev/null) ; then
 		_treeCmd="tree -ACF ${XBT_TARGET_DIR}"

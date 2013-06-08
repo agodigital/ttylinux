@@ -36,6 +36,7 @@
 #
 # CHANGE LOG
 #
+#	08jun13	drj	Took out gcc 4.4.6 and 4.6.3; added 4.4.7 and 4.6.4.
 #	03jun13	drj	Reorganize xbuildtool files.  Scrub architecture.
 #	05jan13	drj	Added gcc 4.6.3.
 #	07dec12	drj	Added cloog and ppl support.
@@ -727,7 +728,6 @@ for p in ${XBT_SCRIPT_DIR}/gcc/${XBT_GCC}-*.patch; do
 	if [[ -f "${p}" ]]; then
 		patch -Np1 -i "${p}"
 		_p="/$(basename ${p})"
-		chmod 644 "${_p}"
 		echo "=> patch: ${_p}" >>"${XBT_TOOLCHAIN_MANIFEST}"
 		unset _p
 	fi
@@ -741,12 +741,12 @@ rm -rf	"build-gcc"
 mkdir	"build-gcc"
 cd	"build-gcc"
 
-# GCC-4.4.6:
+# GCC-4.4.7:
 #
 # Use sed to suppress the installation of libiberty.a; it is provided by
 # binutils.
 #
-if [[ "${XBT_GCC}" == "gcc-4.4.6" ]]; then
+if [[ "${XBT_GCC}" == "gcc-4.4.7" ]]; then
 	(
 	# Use a subshell-- I dun know why...
 	cd ../${XBT_GCC}
@@ -761,12 +761,12 @@ if [[ "${XBT_GCC}" == "gcc-4.4.6" ]]; then
 	CONFIGURE_WITHOUTS=""
 fi
 
-# GCC-4.6.3, GCC-4.6.4:
+# GCC-4.6.4:
 #
 # Use sed to suppress the installation of libiberty.a; it is provided by
 # binutils.
 #
-if [[ "${XBT_GCC}" == "gcc-4.6.3" || "${XBT_GCC}" == "gcc-4.6.4" ]]; then
+if [[ "${XBT_GCC}" == "gcc-4.6.4" ]]; then
 	(
 	# Use a subshell-- I dun know why...
 	cd ../${XBT_GCC}
@@ -918,12 +918,12 @@ if [[ -f t-slibgcc-elf-ver ]]; then
 fi
 )
 
-# GCC-4.4.6:
+# GCC-4.4.7:
 #
 # Use sed to suppress the installation of libiberty.a; it is provided by
 # binutils.
 #
-if [[ "${XBT_GCC}" == "gcc-4.4.6" ]]; then
+if [[ "${XBT_GCC}" == "gcc-4.4.7" ]]; then
 	(
 	# Use a subshell-- I dun know why...
 	cd ../${XBT_GCC}
@@ -938,12 +938,12 @@ if [[ "${XBT_GCC}" == "gcc-4.4.6" ]]; then
 	CONFIGURE_WITHOUTS=""
 fi
 
-# GCC-4.6.3, GCC-4.6.4:
+# GCC-4.6.4:
 #
 # Use sed to suppress the installation of libiberty.a; it is provided by
 # binutils.
 #
-if [[ "${XBT_GCC}" == "gcc-4.6.3" || "${XBT_GCC}" == "gcc-4.6.4" ]]; then
+if [[ "${XBT_GCC}" == "gcc-4.6.4" ]]; then
 	(
 	# Use a subshell-- I dun know why...
 	cd ../${XBT_GCC}
@@ -1098,12 +1098,12 @@ if [[ -f t-slibgcc-elf-ver ]]; then
 fi
 )
 
-# GCC-4.4.6:
+# GCC-4.4.7:
 #
 # Use sed to suppress the installation of libiberty.a; it is provided by
 # binutils.
 #
-if [[ "${XBT_GCC}" == "gcc-4.4.6" ]]; then
+if [[ "${XBT_GCC}" == "gcc-4.4.7" ]]; then
 	(
 	# Use a subshell-- I dun know why...
 	cd ../${XBT_GCC}
@@ -1118,12 +1118,12 @@ if [[ "${XBT_GCC}" == "gcc-4.4.6" ]]; then
 	CONFIGURE_WITHOUTS=""
 fi
 
-# GCC-4.6.3, GCC-4.6.4:
+# GCC-4.6.4:
 #
 # Use sed to suppress the installation of libiberty.a; it is provided by
 # binutils.
 #
-if [[ "${XBT_GCC}" == "gcc-4.6.3" || "${XBT_GCC}" == "gcc-4.6.4" ]]; then
+if [[ "${XBT_GCC}" == "gcc-4.6.4" ]]; then
 	(
 	# Use a subshell-- I dun know why...
 	cd ../${XBT_GCC}

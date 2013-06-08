@@ -113,7 +113,7 @@ xbt_prog_link() {
 # Setup Constants and Environment
 # *****************************************************************************
 
-K_BLD_ENV_FILE="./xbt-build-env.sh"
+K_BLD_ENV_FILE="./xbt-xbuild-env.sh"
 
 _TB=$'\t'
 _NL=$'\n'
@@ -236,7 +236,6 @@ echo "export XBT_DIR=\"$(pwd)\""                       >>"${K_BLD_ENV_FILE}"
 echo "export XBT_BINLINK_DIR=\"\${XBT_DIR}/bin-link\"" >>"${K_BLD_ENV_FILE}"
 echo "export XBT_BUILD_DIR=\"\${XBT_DIR}/build\""      >>"${K_BLD_ENV_FILE}"
 echo "export XBT_CONFIG_DIR=\"\${XBT_DIR}/config\""    >>"${K_BLD_ENV_FILE}"
-echo "export XBT_PATCH_DIR=\"\${XBT_DIR}/patches\""    >>"${K_BLD_ENV_FILE}"
 echo "export XBT_SOURCE_DIR=\"\${XBT_DIR}/pkg-src\""   >>"${K_BLD_ENV_FILE}"
 echo "export XBT_SCRIPT_DIR=\"\${XBT_DIR}/scripts\""   >>"${K_BLD_ENV_FILE}"
 echo "export XBT_BUILD=\"${MACHTYPE}\""                >>"${K_BLD_ENV_FILE}"
@@ -247,7 +246,6 @@ echo "=> XBT_DIR=\"$(pwd)\""
 echo "=> XBT_BINLINK_DIR=\"\${XBT_DIR}/bin-link\""
 echo "=> XBT_BUILD_DIR=\"\${XBT_DIR}/build\""
 echo "=> XBT_CONFIG_DIR=\"\${XBT_DIR}/config\""
-echo "=> XBT_PATCH_DIR=\"\${XBT_DIR}/paches\""
 echo "=> XBT_SOURCE_DIR=\"\${XBT_DIR}/pkg-src\""
 echo "=> XBT_SCRIPT_DIR=\"\${XBT_DIR}/scripts\""
 echo "=> XBT_BUILD=\"${MACHTYPE}\""

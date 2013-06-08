@@ -1,0 +1,11 @@
+diff -Naur gcc-4.6.4-old/gcc/config/mips/mips.c gcc-4.6.4-new/gcc/config/mips/mips.c
+--- gcc-4.6.4-old/gcc/config/mips/mips.c	2012-09-02 04:37:49.000000000 -0600
++++ gcc-4.6.4-new/gcc/config/mips/mips.c	2013-06-08 13:59:01.097872984 -0600
+@@ -15084,7 +15084,6 @@
+ 
+   if (optimize > 0 && flag_delayed_branch)
+     {
+-      cleanup_barriers ();
+       dbr_schedule (get_insns ());
+     }
+   mips_reorg_process_insns ();

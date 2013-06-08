@@ -1,8 +1,7 @@
-
 You probably want to do this:
 
 For building ttylinux cross-compiler tool chains, type the command "make help",
-then run the appropriate make commands, e.g.
+then run the appropriate make commands e.g.,
 
      $ make setup
      $ make i486-2.9-gnu
@@ -15,19 +14,19 @@ Alternatively:
 
 Setup the cross-compiler building environment for xbuildtool:
 
-     $ ./configure
+     $ ./xbt-configure.sh
 
 If you want to try to build an arbitrary custom cross-development tool chain,
-then cp config/xbt-build-config.sh to the top-level xbuildtool directory:
+then cp config/xbt-target-cfg.sh to the top-level xbuildtool directory:
 
-     $ cp config/xbt-build-config.sh .
+     $ cp config/xbt-target-cfg.sh .
 
-Then edit xbt-build-config.sh and make the desired settings.  There are
-comments in the file that describe each setting.
+Then edit xbt-target-cfg.sh and make the desired settings.  There are comments
+in the file that describe each setting.
 
-     $ vi xbt-build-config.sh
+     $ vi xbt-target-cfg.sh
 
-After making the setting in xbt-build-config.sh, run this command:
+After making the settings in xbt-target-cfg.sh, run this command:
 
      $ ./scripts/_build-toolchain.sh
 

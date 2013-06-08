@@ -141,7 +141,6 @@ for p in ${XBT_SCRIPT_DIR}/binutils/${XBT_BINUTILS}-*.patch; do
 	if [[ -f "${p}" ]]; then
 		patch -Np1 -i "${p}"
 		_p="/$(basename ${p})"
-		chmod 644 "${_p}"
 		echo "=> patch: ${_p}" >>"${XBT_TOOLCHAIN_MANIFEST}"
 		unset _p
 	fi

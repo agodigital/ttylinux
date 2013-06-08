@@ -3,7 +3,7 @@
 # This file IS part of the ttylinux xbuildtool software.
 # The license which this software falls under is GPLv2 as follows:
 #
-# Copyright (C) 2007-2012 Douglas Jerome <douglas@ttylinux.org>
+# Copyright (C) 2007-2013 Douglas Jerome <douglas@ttylinux.org>
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -79,7 +79,7 @@ SHELL=/bin/bash
 
 .PHONY:	help setup clean dload
 .PHONY:	armv7-2.16.0-gnueabi mipsel-uclibc powerpc-2.16.0-gnu
-.PHONY:	i486-2.9-gnu i686-2.16.0-gnu x86_64-2.16.0-gnu
+.PHONY:	i486-2.9-gnu i486-2.16.0-gnu i686-2.16.0-gnu x86_64-2.16.0-gnu
 
 help:
 	@echo ""
@@ -96,13 +96,13 @@ help:
 	@echo ""
 	@echo "Make Command Examples            ttylinux Cross-tool Chain"
 	@echo "-----------------------          -------------------------"
-	@echo "make armv7-2.16.0-gnueabi ...... beagle_bone   (linux-3.8.4)"
-	@echo "make mipsel-uclibc ............. wrtu54g_tm    (linux-2.6.36.4)"
-	@echo "make powerpc-2.16.0-gnu ........ mac_g4        (linux-2.6.38.1)"
-	@echo "make i486-2.9-gnu .............. pc_i486       (linux-2.6.34.7"
-	@echo "make i486-2.16.0-gnu ........... pc_i486-4.6.3 (linux-3.7.1"
-	@echo "make i686-2.16.0-gnu ........... pc_i686       (linux-3.7.1)"
-	@echo "make x86_64-2.16.0-gnu ......... pc_x86_64     (linux-3.7.1)"
+	@echo "make armv7-2.16.0-gnueabi ...... beagle_bone    (linux-3.8.4)"
+	@echo "make mipsel-uclibc ............. wrtu54g_tm     (linux-2.6.36.4)"
+	@echo "make powerpc-2.16.0-gnu ........ mac_g4         (linux-2.6.38.1)"
+	@echo "make i486-2.9-gnu .............. pc_i486        (linux-2.6.34.7"
+	@echo "make i486-2.16.0-gnu ........... pc_i486-2.16.0 (linux-3.7.10"
+	@echo "make i686-2.16.0-gnu ........... pc_i686        (linux-3.7.10)"
+	@echo "make x86_64-2.16.0-gnu ......... pc_x86_64      (linux-3.7.10)"
 	@echo ""
 	@echo "Variables:"
 	@echo ""
@@ -112,54 +112,47 @@ help:
 	@echo ""
 
 setup:
-	@./configure
+	@./xbt-configure.sh
 
-clean:	xbt-build-config.sh
+clean:	xbt-xbuild-env.sh
 	@scripts/_build-toolchain.sh "clean"
 
-dload:	xbt-build-config.sh
+dload:	xbt-xbuild-env.sh
 	@scripts/_build-toolchain.sh "download"
 
 armv7-2.16.0-gnueabi:
-	# BeagleBone -- gcc-4.6.3, glibc-2.16.0, linux-3.8.4
-	rm -f xbt-build-config.sh
-	cp config/ttyl-beagle_bone.cfg xbt-build-config.sh
+	rm -f xbt-target-cfg.sh
+	cp config/ttyl-beagle_bone.cfg xbt-target-cfg.sh
 	./scripts/_build-toolchain.sh $${CONTINUE/yes/continue}
 
 mipsel-uclibc:
-	# WRTU54G -- gcc-4.4.6, uClibc-0.9.32, linux-2.6.36.4
-	rm -f xbt-build-config.sh
-	cp config/ttyl-wrtu54g_tm.cfg xbt-build-config.sh
+	rm -f xbt-target-cfg.sh
+	cp config/ttyl-wrtu54g_tm.cfg xbt-target-cfg.sh
 	./scripts/_build-toolchain.sh $${CONTINUE/yes/continue}
 
 powerpc-2.16.0-gnu:
-	# Mac G4 -- gcc-4.6.3, glibc-2.16.0, linux-2.6.38.1
-	rm -f xbt-build-config.sh
-	cp config/ttyl-mac_g4.cfg xbt-build-config.sh
+	rm -f xbt-target-cfg.sh
+	cp config/ttyl-mac_g4.cfg xbt-target-cfg.sh
 	./scripts/_build-toolchain.sh $${CONTINUE/yes/continue}
 
 i486-2.9-gnu:
-	# PC-i486 -- gcc-4.4.6, glibc-2.9.0, linux-2.6.34.7
-	rm -f xbt-build-config.sh
-	cp config/ttyl-pc_i486.cfg xbt-build-config.sh
+	rm -f xbt-target-cfg.sh
+	cp config/ttyl-pc_i486.cfg xbt-target-cfg.sh
 	./scripts/_build-toolchain.sh $${CONTINUE/yes/continue}
 
 i486-2.16.0-gnu:
-	# PC-i486 -- gcc-4.6.3, glibc-2.16.0, linux-3.7.1
-	rm -f xbt-build-config.sh
-	cp config/ttyl-pc_i486-4.6.3.cfg xbt-build-config.sh
+	rm -f xbt-target-cfg.sh
+	cp config/ttyl-pc_i486-2.16.0.cfg xbt-target-cfg.sh
 	./scripts/_build-toolchain.sh $${CONTINUE/yes/continue}
 
 i686-2.16.0-gnu:
-	# PC-i686 -- gcc-4.6.3, glibc-2.16.0, linux-3.7.1
-	rm -f xbt-build-config.sh
-	cp config/ttyl-pc_i686.cfg xbt-build-config.sh
+	rm -f xbt-target-cfg.sh
+	cp config/ttyl-pc_i686.cfg xbt-target-cfg.sh
 	./scripts/_build-toolchain.sh $${CONTINUE/yes/continue}
 
 x86_64-2.16.0-gnu:
-	# PC-x86_64 -- gcc-4.6.3, glibc-2.16.0, linux-3.7.1
-	rm -f xbt-build-config.sh
-	cp config/ttyl-pc_x86_64.cfg xbt-build-config.sh
+	rm -f xbt-target-cfg.sh
+	cp config/ttyl-pc_x86_64.cfg xbt-target-cfg.sh
 	./scripts/_build-toolchain.sh $${CONTINUE/yes/continue}
 
 

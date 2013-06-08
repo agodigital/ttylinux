@@ -1,0 +1,36 @@
+diff -Naur gcc-4.6.4-old/libgcc/Makefile.in gcc-4.6.4-new/libgcc/Makefile.in
+--- gcc-4.6.4-old/libgcc/Makefile.in	2012-12-04 12:11:33.000000000 -0700
++++ gcc-4.6.4-new/libgcc/Makefile.in	2013-06-08 14:05:33.841876235 -0600
+@@ -772,8 +772,9 @@
+ libgcc_s$(SHLIB_EXT): libunwind$(SHLIB_EXT)
+ endif
+ 
++all: libgcc_eh.a
+ ifeq ($(enable_shared),yes)
+-all: libgcc_eh.a libgcc_s$(SHLIB_EXT)
++all: libgcc_s$(SHLIB_EXT)
+ ifneq ($(LIBUNWIND),)
+ all: libunwind$(SHLIB_EXT)
+ endif
+@@ -950,10 +951,6 @@
+ install-shared:
+ 	$(mkinstalldirs) $(DESTDIR)$(inst_libdir)
+ 
+-	$(INSTALL_DATA) libgcc_eh.a $(DESTDIR)$(inst_libdir)/
+-	chmod 644 $(DESTDIR)$(inst_libdir)/libgcc_eh.a
+-	$(RANLIB) $(DESTDIR)$(inst_libdir)/libgcc_eh.a
+-
+ 	$(subst @multilib_dir@,$(MULTIDIR),$(subst \
+ 		@shlib_base_name@,libgcc_s,$(subst \
+ 		@shlib_slibdir_qual@,$(MULTIOSSUBDIR),$(SHLIB_INSTALL))))
+@@ -968,6 +965,10 @@
+ 	chmod 644 $(DESTDIR)$(inst_libdir)/libgcov.a
+ 	$(RANLIB) $(DESTDIR)$(inst_libdir)/libgcov.a
+ 
++	$(INSTALL_DATA) libgcc_eh.a $(DESTDIR)$(inst_libdir)/
++	chmod 644 $(DESTDIR)$(inst_libdir)/libgcc_eh.a
++	$(RANLIB) $(DESTDIR)$(inst_libdir)/libgcc_eh.a
++
+ 	parts="$(INSTALL_PARTS)";				\
+ 	for file in $$parts; do					\
+ 	  rm -f $(DESTDIR)$(inst_libdir)/$$file;		\

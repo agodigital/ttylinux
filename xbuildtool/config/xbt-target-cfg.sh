@@ -13,9 +13,9 @@
 #
 # In this file there are groups of settings for the same variable e.g.,
 #
-VARIABLE="value1"
-VARIABLE="value2"
-VARIABLE="value3"
+# VARIABLE="value1"
+# VARIABLE="value2"
+# VARIABLE="value3"
 #
 # Select the appropriate value by either
 #      a) comment all rows except the one you want, or
@@ -26,25 +26,22 @@ VARIABLE="value3"
 # Components
 # *****************************************************************************
 
-BINUTILS="binutils-2.19"
-BINUTILS="binutils-2.20"
-BINUTILS="binutils-2.21"
-BINUTILS="binutils-2.22"
+BINUTILS="binutils-2.19.1a"
+BINUTILS="binutils-2.20.1a"
+BINUTILS="binutils-2.23.2"
 
-GCC="gcc-4.2.4" # GMP=""          MPC=""        MPFR=""
-GCC="gcc-4.4.4" # GMP="gmp-4.3.2" MPC=""        MPFR="mpfr-2.4.2"
-GCC="gcc-4.6.2" # GMP="gmp-5.0.2" MPC="mpc-0.9" MPFR="mpfr-3.1.0""
+GCC="gcc-4.4.7"
+GCC="gcc-4.6.4"
 
 LIBC="uClibc-0.9.31" # LIBC_P=""
-LIBC="uClibc-0.9.32" # LIBC_P=""
-LIBC="glibc-2.9"     # LIBC_P="glibc-ports-2.9"
-LIBC="glibc-2.12.1"  # LIBC_P="glibc-ports-2.12.1"
-LIBC="glibc-2.14"    # LIBC_P="glibc-ports-2.14"
+LIBC="glibc-2.9"
+LIBC="glibc-2.16.0"
 
-LINUX="linux-2.6.34.6"
+LINUX="linux_bb-3.8.4"
+LINUX="linux-2.6.34.7"
 LINUX="linux-2.6.36.4"
 LINUX="linux-2.6.38.1"
-LINUX="linux-3.1"
+LINUX="linux-3.7.10"
 
 
 # *****************************************************************************
@@ -104,7 +101,7 @@ TARGET="x86_64-gnu"       ARCH="x86_64"  CFLAGS="-m64"
 # linux-2.6.20, then you can use something "../cross-tools-2.9-2.6.20" for the
 # CROSS_TOOL_DIR value here.
 #
-CROSS_TOOL_DIR="../cross-tools-2.14-3.1"
+CROSS_TOOL_DIR="../cross-tools-2.16.0-3.7.10"
 
 # Select whether the cross-tool chain includes C++; if you include C++ then you
 # probably need to use a thread model below.

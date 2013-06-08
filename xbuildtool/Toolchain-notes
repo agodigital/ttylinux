@@ -5,10 +5,10 @@ These are the cross-tool chains built by xbuildtool and used to cross-build ttyl
 Target Platform  Cross-tool Chain             Gcc    Binutils  Libc           Kernel Headers  Kernel Arch  Thread Model  Float  Languages    glibc/uClibc compile flags
 ---------------  ---------------------------  -----  --------  -------------  --------------  -----------  ------------  -----  -----------  ------------------------------------
 BeagleBone       armv7-generic-linux-gnueabi  4.6.4  2.23.2    glibc-2.16.0   linux-3.8.4     arm          nptl          soft   C, C99, C++  CFLAGS="-mcpu=cortex-a8 -O2"
-WRTU54G-TM       mipsel-generic-linux-uclibc  4.4.6  2.20      uClibc-0.9.32  linux-2.6.36.4  mips         none          soft?  C, C99       CFLAGS="-march=mips32 -mtune=mips32"
+WRTU54G-TM       mipsel-generic-linux-uclibc  4.4.7  2.20.1a   uClibc-0.9.32  linux-2.6.36.4  mips         none          soft?  C, C99       CFLAGS="-march=mips32 -mtune=mips32"
 Macintosh G4     powerpc-generic-linux-gnu    4.6.4  2.23.2    glibc-2.16.0   linux-2.6.38.1  powerpc      nptl          hard   C, C99, C++  CFLAGS="-mcpu=powerpc -mtune=powerpc -O2"
 PC Clone         i486-generic-linux-gnu       4.6.4  2.23.2    glibc-2.16.0   linux-3.7.10    i386         nptl          hard   C, C99, C++  CFLAGS="-march=i486 -mtune=i486 -O2"
-PC Clone         i486-generic-linux-gnu       4.4.6  2.19      glibc-2.9      linux-2.6.34.7  i386         nptl          hard   C, C99, C++  CFLAGS="-march=i486 -mtune=i486 -O2"
+PC Clone         i486-generic-linux-gnu       4.4.7  2.19.1a   glibc-2.9      linux-2.6.34.7  i386         nptl          hard   C, C99, C++  CFLAGS="-march=i486 -mtune=i486 -O2"
 PC Clone         i686-generic-linux-gnu       4.6.4  2.23.2    glibc-2.16.0   linux-3.7.10    i386         nptl          hard   C, C99, C++  CFLAGS="-march=i686 -mtune=generic -O2"
 PC Clone         x86_64-generic-linux-gnu     4.6.4  2.23.2    glibc-2.16.0   linux-3.7.10    x86_64       nptl          hard   C, C99, C++  CFLAGS="-m64 -O2"
 
