@@ -121,10 +121,7 @@ echo -n " "               >&${CONSOLE_FD}
 
 xbt_debug_break "" >&${CONSOLE_FD}
 
-# Find, uncompress and untar ${XBT_BINUTILS}.  The second argument is a
-# secondary location to copy the source code tarball; this is so that users of
-# the cross tool chain have access to the Linux source code as any users likely
-# will cross-build the Linux kernel.
+# Find, uncompress and untar ${XBT_BINUTILS}.
 #
 xbt_src_get ${XBT_BINUTILS}
 unset _name # from xbt_src_get()
@@ -214,7 +211,7 @@ xbt_files_find # Put the list of installed files in the log file.
 xbt_debug_break "installed ${XBT_BINUTILS}" >&${CONSOLE_FD}
 
 # Clean up.
-
+#
 cd ..
 rm -rf "build-binutils"
 rm -rf "${XBT_BINUTILS}"
