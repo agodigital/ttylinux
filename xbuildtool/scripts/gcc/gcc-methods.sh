@@ -89,7 +89,7 @@ CFLAGS="-I${XBT_XHOST_DIR}/usr/include -fexceptions" ./configure \
 	--build=${XBT_HOST} \
 	--host=${XBT_HOST} \
 	--prefix=${XBT_XHOST_DIR}/usr \
-	--with-gmp=${XBT_XHOST_DIR}/usr \
+        --with-gmp-prefix=${XBT_XHOST_DIR}/usr \
 	--enable-static \
 	--disable-shared || exit 1
 

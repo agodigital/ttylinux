@@ -15,8 +15,19 @@ Or Fedora:
    $ yum install gawk
    $ yum erase mawk
 
+---------------------------------
+1.2. xbuildtools bintuils problem
+---------------------------------
+-- I don't know for what versions of binutils and ArchLinux this happened;
+   maybe this issue is Overcome By Events. [drj]
+Weird problem when building under ArchLinux i686 host: "makeinfo" is missing;
+it appears to be looking for bfd/docs/*.texi files in the build directory, even
+though they are actually in the source directory.  Do this:
+   $ mkdir -p bfd/doc
+   $ cp -a ../${XBT_BINUTILS}/bfd/doc/* bfd/doc
+
 -----------------------
-1.2. lilo Build Problem
+1.3. lilo Build Problem
 -----------------------
 
 You need the dev86 package to build lilo.
