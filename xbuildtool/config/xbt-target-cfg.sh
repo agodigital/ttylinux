@@ -26,8 +26,8 @@
 # Components
 # *****************************************************************************
 
-BINUTILS="binutils-2.19.1a"
-BINUTILS="binutils-2.20.1a"
+BINUTILS="binutils-2.19.1"
+BINUTILS="binutils-2.20.1"
 BINUTILS="binutils-2.23.2"
 
 GCC="gcc-4.4.7"

@@ -59,11 +59,20 @@
 #     XBT_LIBC_EXT
 #     XBT_LIBC_MD5SUM
 #     XBT_LIBC_URL
+#     XBT_LIBC_P
+#     XBT_LIBC_P_EXT
+#     XBT_LIBC_P_MD5SUM
+#     XBT_LIBC_P_URL
 
 declare XBT_LIBC=""
 declare XBT_LIBC_EXT=""
 declare XBT_LIBC_MD5SUM=""
 declare XBT_LIBC_URL=""
+
+declare XBT_LIBC_P=""
+declare XBT_LIBC_P_EXT=""
+declare XBT_LIBC_P_MD5SUM=""
+declare XBT_LIBC_P_URL=""
 
 libc_resolve_name() {
 
@@ -79,6 +88,10 @@ for (( i=0 ; i<${#_UCLIBC[@]} ; i++ )); do
 		XBT_LIBC_EXT="${_UCLIBC_EXT[$i]}"
 		XBT_LIBC_MD5SUM="${_UCLIBC_MD5SUM[$i]}"
 		XBT_LIBC_URL="${_UCLIBC_URL[$i]}"
+		XBT_LIBC_P="${_UCLIBC_P[$i]}"
+		XBT_LIBC_P_EXT="${_UCLIBC_P_EXT[$i]}"
+		XBT_LIBC_P_MD5SUM="${_UCLIBC_P_MD5SUM[$i]}"
+		XBT_LIBC_P_URL="${_UCLIBC_P_URL[$i]}"
 		break # for loop
 	fi
 done
@@ -87,6 +100,11 @@ unset _UCLIBC
 unset _UCLIBC_EXT
 unset _UCLIBC_MD5SUM
 unset _UCLIBC_URL
+
+unset _UCLIBC_P
+unset _UCLIBC_P_EXT
+unset _UCLIBC_P_MD5SUM
+unset _UCLIBC_P_URL
 
 if [[ -z "${XBT_LIBC}" ]]; then
 	echo "E> Cannot resolve \"${uClibcNameVer}\""
