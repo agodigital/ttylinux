@@ -48,11 +48,11 @@ local patchFile=""
 
 PKG_STATUS="init error"
 
-#cd "${PKG_DIR}" # ppp patches are applied above the dir.
+cd "${PKG_DIR}" # ppp patches are applied above the dir.
 for patchFile in "${patchDir}"/*; do
-	[[ -r "${patchFile}" ]] && patch -p0 <"${patchFile}"
+	[[ -r "${patchFile}" ]] && patch -p1 <"${patchFile}"
 done
-#cd ..
+cd ..
 
 PKG_STATUS=""
 return 0
